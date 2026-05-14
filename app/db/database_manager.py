@@ -1,4 +1,4 @@
-from app.db.database_initialiser import initialise_database, DB_PATH
+from app.db.database_initialiser import initialise_database
 
 
 class DatabaseManager:

@@ -66,3 +66,7 @@ def initialise_database() -> sqlite3.Connection | None:
         return conn
     except sqlite3.Error as e:
         return
+    
+
+if __name__ == "__main__":
+    initialise_database()
