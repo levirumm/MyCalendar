@@ -1,0 +1,17 @@
+QWidget[role="header_bar"] {{
+    background-color: {2_blue};
+}}
+
+QWidget[role="left_column"] {{
+    background-color: {1_blue};
+}}
+
+QWidget[role="day_bar"] {{
+    background-color: {3_blue};
+}}
+
+CalendarCell {{
+    background-color: white;
+    border-right: 1px solid {2_blue};
+    border-bottom: 1px solid {2_blue};
+}}

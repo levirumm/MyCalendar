@@ -62,11 +62,6 @@ def initialise_database() -> sqlite3.Connection | None:
         cur.execute(CREATE_EXAM_TABLE)
 
         conn.commit()
-
         return conn
-    except sqlite3.Error as e:
+    except sqlite3.Error:
         return
-    
-
-if __name__ == "__main__":
-    initialise_database()

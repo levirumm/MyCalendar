@@ -13,5 +13,4 @@ class DatabaseManager:
             print("Failed to access / initialise database")
             return
         
-        # Open new connection to database
         self._cur = self._conn.cursor()
