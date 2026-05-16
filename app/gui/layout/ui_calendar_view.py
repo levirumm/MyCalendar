@@ -18,6 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QPushButton, QSizePolicy, QSpacerItem,
     QVBoxLayout, QWidget)
+from resources import resources_rc
 
 class Ui_MyCalendar(object):
     def setupUi(self, MyCalendar):
@@ -61,10 +62,13 @@ class Ui_MyCalendar(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.refresh_button.sizePolicy().hasHeightForWidth())
         self.refresh_button.setSizePolicy(sizePolicy2)
+        icon = QIcon()
+        icon.addFile(u":/refresh.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.refresh_button.setIcon(icon)
 
         self.horizontalLayout_5.addWidget(self.refresh_button)
 
-        self.horizontalSpacer = QSpacerItem(53, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer = QSpacerItem(56, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer)
 
@@ -139,6 +143,9 @@ class Ui_MyCalendar(object):
         self.today_button.setObjectName(u"today_button")
         sizePolicy2.setHeightForWidth(self.today_button.sizePolicy().hasHeightForWidth())
         self.today_button.setSizePolicy(sizePolicy2)
+        icon1 = QIcon()
+        icon1.addFile(u":/calendar.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.today_button.setIcon(icon1)
 
         self.horizontalLayout_4.addWidget(self.today_button)
 

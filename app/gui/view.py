@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QWidget, QGridLayout, QHBoxLayout, QLabel, QFrame,
     QPushButton
 )
-from PySide6.QtCore import Qt, QObject, Signal
+from PySide6.QtCore import Qt, QObject, Signal, QSize
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, UNICODE
 )
@@ -132,7 +132,10 @@ class HeaderBar(QObject):
         self._make_header_icon(ui.today_button, size)
         ui.previous_month_button.setText(UNICODE["left_arrow"])
         ui.next_month_button.setText(UNICODE["right_arrow"])
-        ui.refresh_button.setText(UNICODE["refresh"])
+
+        size = Typography.HEADING.pixelSize()
+        ui.refresh_button.setIconSize(QSize(size, size))
+        ui.today_button.setIconSize(QSize(size, size))
 
         # Connect slots to header buttons
         ui.previous_month_button.clicked.connect(
