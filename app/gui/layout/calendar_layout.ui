@@ -67,6 +67,9 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string/>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -78,7 +81,7 @@
           <number>0</number>
          </property>
          <property name="leftMargin">
-          <number>0</number>
+          <number>10</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -97,6 +100,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Refresh</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -113,7 +119,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>56</width>
+             <width>46</width>
              <height>20</height>
             </size>
            </property>
@@ -160,6 +166,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Previous month</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -172,6 +181,9 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Next month</string>
            </property>
            <property name="text">
             <string/>
@@ -210,7 +222,7 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <property name="spacing">
-          <number>0</number>
+          <number>15</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -219,7 +231,7 @@
           <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>0</number>
+          <number>20</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>
@@ -258,6 +270,9 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Current month</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -275,8 +290,15 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Add event</string>
+           </property>
            <property name="text">
             <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../resources/resources.qrc">
+             <normaloff>:/plus_white.svg</normaloff>:/plus_white.svg</iconset>
            </property>
           </widget>
          </item>
@@ -430,7 +452,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>28</width>
+                   <width>0</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -446,6 +468,10 @@
                  </property>
                  <property name="text">
                   <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="../../../resources/resources.qrc">
+                   <normaloff>:/plus.svg</normaloff>:/plus.svg</iconset>
                  </property>
                 </widget>
                </item>

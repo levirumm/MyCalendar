@@ -54,7 +54,7 @@ class Ui_MyCalendar(object):
         self.horizontalLayout_5 = QHBoxLayout(self.frame_4)
         self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5.setContentsMargins(10, 0, 0, 0)
         self.refresh_button = QPushButton(self.frame_4)
         self.refresh_button.setObjectName(u"refresh_button")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -68,7 +68,7 @@ class Ui_MyCalendar(object):
 
         self.horizontalLayout_5.addWidget(self.refresh_button)
 
-        self.horizontalSpacer = QSpacerItem(56, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer = QSpacerItem(46, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer)
 
@@ -122,9 +122,9 @@ class Ui_MyCalendar(object):
         self.frame_5.setFrameShape(QFrame.NoFrame)
         self.frame_5.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_4 = QHBoxLayout(self.frame_5)
-        self.horizontalLayout_4.setSpacing(0)
+        self.horizontalLayout_4.setSpacing(15)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
-        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_4.setContentsMargins(0, 0, 20, 0)
         self.month_year_label = QLabel(self.frame_5)
         self.month_year_label.setObjectName(u"month_year_label")
         sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -153,6 +153,9 @@ class Ui_MyCalendar(object):
         self.add_event_button.setObjectName(u"add_event_button")
         sizePolicy2.setHeightForWidth(self.add_event_button.sizePolicy().hasHeightForWidth())
         self.add_event_button.setSizePolicy(sizePolicy2)
+        icon2 = QIcon()
+        icon2.addFile(u":/plus_white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.add_event_button.setIcon(icon2)
 
         self.horizontalLayout_4.addWidget(self.add_event_button)
 
@@ -223,7 +226,7 @@ class Ui_MyCalendar(object):
 
         self.horizontalLayout_7.addWidget(self.class_list_label)
 
-        self.horizontalSpacer_4 = QSpacerItem(28, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_4 = QSpacerItem(0, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_7.addItem(self.horizontalSpacer_4)
 
@@ -234,6 +237,9 @@ class Ui_MyCalendar(object):
         sizePolicy10.setVerticalStretch(0)
         sizePolicy10.setHeightForWidth(self.add_class_button.sizePolicy().hasHeightForWidth())
         self.add_class_button.setSizePolicy(sizePolicy10)
+        icon3 = QIcon()
+        icon3.addFile(u":/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.add_class_button.setIcon(icon3)
 
         self.horizontalLayout_7.addWidget(self.add_class_button)
 
@@ -334,11 +340,29 @@ class Ui_MyCalendar(object):
 
     def retranslateUi(self, MyCalendar):
         MyCalendar.setWindowTitle(QCoreApplication.translate("MyCalendar", u"Form", None))
+#if QT_CONFIG(tooltip)
+        self.frame_4.setToolTip("")
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.refresh_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Refresh", None))
+#endif // QT_CONFIG(tooltip)
         self.refresh_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.previous_month_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Previous month", None))
+#endif // QT_CONFIG(tooltip)
         self.previous_month_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.next_month_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Next month", None))
+#endif // QT_CONFIG(tooltip)
         self.next_month_button.setText("")
         self.month_year_label.setText(QCoreApplication.translate("MyCalendar", u"TextLabel", None))
+#if QT_CONFIG(tooltip)
+        self.today_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Current month", None))
+#endif // QT_CONFIG(tooltip)
         self.today_button.setText("")
+#if QT_CONFIG(tooltip)
+        self.add_event_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Add event", None))
+#endif // QT_CONFIG(tooltip)
         self.add_event_button.setText("")
         self.class_list_label.setText(QCoreApplication.translate("MyCalendar", u"TextLabel", None))
         self.add_class_button.setText("")

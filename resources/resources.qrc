@@ -1,5 +1,7 @@
 <RCC>
   <qresource>
+    <file>plus_white.svg</file>
+    <file>plus.svg</file>
     <file>calendar.svg</file>
     <file>refresh.svg</file>
   </qresource>

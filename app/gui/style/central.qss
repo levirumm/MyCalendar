@@ -19,7 +19,7 @@ CalendarCell {{
 }}
 
 
-/* Text */
+/* Labels */
 
 QLabel {{
     color: {text[base]};
@@ -34,16 +34,44 @@ QLabel[variant="highlight"] {{
     background-color: {5_blue};
 }}
 
-/* Header Bar */
-QPushButton[role="header_icon"] {{
+
+/* Buttons */
+
+QPushButton[variant="1_blue"] {{
+    background-color: {1_blue};
+    color: {text[base]};
+}}
+
+QPushButton[variant="1_blue"]:hover {{
+    background-color: {2_blue};
+}}
+
+QPushButton[variant="1_blue"]:pressed {{
+    background-color: {3_blue};
+}}
+
+QPushButton[variant="2_blue"] {{
     background-color: {2_blue};
     color: {text[base]};
 }}
 
-QPushButton[role="header_icon"]:hover {{
+QPushButton[variant="2_blue"]:hover {{
     background-color: {3_blue};
 }}
 
-QPushButton[role="header_icon"]:pressed {{
+QPushButton[variant="2_blue"]:pressed {{
     background-color: {4_blue};
+}}
+
+QPushButton[variant="5_blue"] {{
+    background-color: {5_blue};
+    color: {text[base]};
+}}
+
+QPushButton[variant="5_blue"]:hover {{
+    background-color: {6_blue};
+}}
+
+QPushButton[variant="5_blue"]:pressed {{
+    background-color: {7_blue};
 }}

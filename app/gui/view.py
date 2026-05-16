@@ -19,6 +19,7 @@ def make_circle(widget: QWidget, diameter: int) -> None:
     Sets the border radius of the widget in style sheet 
     to be the radius of the widget.
     """
+    widget.setFixedSize(diameter, diameter)
     widget.setStyleSheet(
     widget.styleSheet() +
         f"border-radius: {diameter // 2}px;"
@@ -45,14 +46,13 @@ class CalendarView(QWidget, Ui_MyCalendar):
         # Header bar
         self._header_bar = HeaderBar(today, ui)
 
+        # Left column
+        self._left_column = LeftColumn(ui)
+
         # Calendar grid
         self._grid = CalendarGrid(
             today, date_of_first, ui.calendar_grid_layout
         )
-
-        ui.left_column_container.setProperty("role", "left_column")
-        ui.class_list_label.setText("Classes")
-        ui.class_list_label.setFont(Typography.BASE)
 
         self.show()
     
@@ -125,17 +125,24 @@ class HeaderBar(QObject):
     
     def _render_buttons(self, ui: Ui_MyCalendar) -> None:
         """Renders the buttons in the header bar."""
-        size = Metrics.HEADER_BUTTON
-        self._make_header_icon(ui.previous_month_button, size)
-        self._make_header_icon(ui.next_month_button, size)
-        self._make_header_icon(ui.refresh_button, size)
-        self._make_header_icon(ui.today_button, size)
+        btn_size = Metrics.HEADER_BUTTON
+        self._make_header_icon(ui.previous_month_button, btn_size)
+        self._make_header_icon(ui.next_month_button, btn_size)
+        self._make_header_icon(ui.refresh_button, btn_size)
+        self._make_header_icon(ui.today_button, btn_size)
+        self._make_header_icon(
+            ui.add_event_button, btn_size, dark=True
+        )
+
+        # Set text for text icon buttons
         ui.previous_month_button.setText(UNICODE["left_arrow"])
         ui.next_month_button.setText(UNICODE["right_arrow"])
 
-        size = Typography.HEADING.pixelSize()
-        ui.refresh_button.setIconSize(QSize(size, size))
-        ui.today_button.setIconSize(QSize(size, size))
+        # Set size of icons for image icon buttons
+        icn_size = Typography.HEADING.pixelSize()
+        ui.refresh_button.setIconSize(QSize(icn_size, icn_size))
+        ui.today_button.setIconSize(QSize(icn_size, icn_size))
+        ui.add_event_button.setIconSize(QSize(icn_size, icn_size))
 
         # Connect slots to header buttons
         ui.previous_month_button.clicked.connect(
@@ -151,12 +158,33 @@ class HeaderBar(QObject):
             lambda: self.today.emit()
         )
     
-    def _make_header_icon(self, button: QPushButton, size: int) -> None:
+    def _make_header_icon(
+            self, button: QPushButton, size: int, 
+            dark: bool = False
+        ) -> None:
         """Applies header icon styling to button widget."""
-        button.setFixedSize(size, size)
         button.setFont(Typography.HEADING)
-        button.setProperty("role", "header_icon")
         make_circle(button, size)
+        button.setProperty(
+            "variant", "5_blue" if dark else "2_blue"
+        )
+
+
+class LeftColumn:
+    """
+    Manages the left-side column of the calendar, including 
+    the list of enrolled classes and the to-do list.
+    """
+    def __init__(self, ui: Ui_MyCalendar) -> None:
+        ui.left_column_container.setProperty("role", "left_column")
+        ui.class_list_label.setText("Classes")
+        ui.class_list_label.setFont(Typography.SUB_HEADING)
+        
+        btn_size = Metrics.SMALL_BUTTON
+        icn_size = Metrics.DATE_LABEL_HIGHLIGHT
+        ui.add_class_button.setProperty("variant", "1_blue")
+        ui.add_class_button.setIconSize(QSize(icn_size, icn_size))
+        make_circle(ui.add_class_button, btn_size)
     
 
 class CalendarGrid:

@@ -5,11 +5,13 @@ from PySide6.QtGui import QFont, QFontMetrics
 FONT_SCALE_FACTORS = {
     "BASE": 1.0,
     "HEADING": 1.8,
+    "SUB_HEADING": 1.15,
     "SMALL": 0.8,
 }
 
 ELEMENT_SCALE_FACTORS = {
     "HEADER_BUTTON": 2.8,
+    "SMALL_BUTTON": 1.4,
     "DATE_LABEL_HIGHLIGHT": 1.3
 }
 
@@ -29,6 +31,7 @@ class Typography:
     # Default to application font for all
     BASE = QApplication.font()
     HEADING = BASE
+    SUB_HEADING = BASE
     SMALL = BASE
 
     @staticmethod
@@ -44,8 +47,9 @@ class Typography:
         }
 
         Typography.BASE = fonts["BASE"]
-        Typography.SMALL = fonts["SMALL"]
         Typography.HEADING = fonts["HEADING"]
+        Typography.SUB_HEADING = fonts["SUB_HEADING"]
+        Typography.SMALL = fonts["SMALL"]
 
 
 class Metrics:
@@ -54,6 +58,7 @@ class Metrics:
     are derived from base font size.
     """
     HEADER_BUTTON = 0
+    SMALL_BUTTON = 0
     DATE_LABEL_HIGHLIGHT = 0
 
     @staticmethod
@@ -67,4 +72,5 @@ class Metrics:
         }
 
         Metrics.HEADER_BUTTON = sizes["HEADER_BUTTON"]
+        Metrics.SMALL_BUTTON = sizes["SMALL_BUTTON"]
         Metrics.DATE_LABEL_HIGHLIGHT = sizes["DATE_LABEL_HIGHLIGHT"]
