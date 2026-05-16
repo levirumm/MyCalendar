@@ -1,3 +1,5 @@
+/* Background Widgets */
+
 QWidget[role="header_bar"] {{
     background-color: {2_blue};
 }}
@@ -14,4 +16,34 @@ CalendarCell {{
     background-color: white;
     border-right: 1px solid {2_blue};
     border-bottom: 1px solid {2_blue};
+}}
+
+
+/* Text */
+
+QLabel {{
+    color: {text[base]};
+}}
+
+QLabel[variant="white"] {{
+    color: white;
+}}
+
+QLabel[variant="highlight"] {{
+    color: white;
+    background-color: {5_blue};
+}}
+
+/* Header Bar */
+QPushButton[role="header_icon"] {{
+    background-color: {2_blue};
+    color: {text[base]};
+}}
+
+QPushButton[role="header_icon"]:hover {{
+    background-color: {3_blue};
+}}
+
+QPushButton[role="header_icon"]:pressed {{
+    background-color: {4_blue};
 }}

@@ -2,10 +2,16 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QFont, QFontMetrics
 
 
-SCALE_FACTORS = {
+FONT_SCALE_FACTORS = {
     "BASE": 1.0,
     "HEADING": 1.8,
     "SMALL": 0.8,
+}
+
+
+ELEMENT_SCALE_FACTORS = {
+    "HEADER_BUTTON": 2.8,
+    "DATE_LABEL_HIGHLIGHT": 1.3
 }
 
 
@@ -35,9 +41,31 @@ class Typography:
         # Generate map of font name to font object
         fonts: dict[str, QFont] = {
             name: make_font(app_font, base_size * scale)
-            for name, scale in SCALE_FACTORS.items()
+            for name, scale in FONT_SCALE_FACTORS.items()
         }
 
         Typography.BASE = fonts["BASE"]
         Typography.SMALL = fonts["SMALL"]
         Typography.HEADING = fonts["HEADING"]
+
+
+class Metrics:
+    """
+    Central ui element size registry for the app. Sizes 
+    are derived from base font size.
+    """
+    HEADER_BUTTON = 0
+    DATE_LABEL_HIGHLIGHT = 0
+
+    @staticmethod
+    def init():
+        base_size = Typography.BASE.pixelSize()
+
+        # Generate map of element names to sizes
+        sizes: dict[str, int] = {
+            name: int(base_size * scale)
+            for name, scale in ELEMENT_SCALE_FACTORS.items()
+        }
+
+        Metrics.HEADER_BUTTON = sizes["HEADER_BUTTON"]
+        Metrics.DATE_LABEL_HIGHLIGHT = sizes["DATE_LABEL_HIGHLIGHT"]

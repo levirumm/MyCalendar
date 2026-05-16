@@ -124,6 +124,6 @@ class Ui_CalendarCell(object):
     def retranslateUi(self, CalendarCell):
         CalendarCell.setWindowTitle(QCoreApplication.translate("CalendarCell", u"Form", None))
         self.date_label.setText(QCoreApplication.translate("CalendarCell", u"TextLabel", None))
-        self.see_more_events_button.setText(QCoreApplication.translate("CalendarCell", u"+", None))
+        self.see_more_events_button.setText("")
     # retranslateUi
 

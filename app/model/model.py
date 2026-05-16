@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from app.db.database_manager import DatabaseManager
+from app.model.db.database_manager import DatabaseManager
 
 
 class CalendarModel:
@@ -25,3 +25,25 @@ class CalendarModel:
         idx_first = first.weekday() # Index of weekday of first
         offset = (idx_first + 1) % 7 # Offset from sunday
         return first - timedelta(offset)
+
+    def previous_month(self, current_date: date) -> date:
+        """Returns first of previous month."""
+        month = current_date.month
+        year = current_date.year
+        month -= 1
+        if month == 0: 
+            # Go to December of last year
+            month = 12
+            year -= 1
+        return date(year, month, 1)
+
+    def next_month(self, current_date: date) -> date:
+        """Returns first of next month."""
+        month = current_date.month
+        year = current_date.year
+        month += 1
+        if month == 13: 
+            # Go to January next year
+            month = 1
+            year += 1
+        return date(year, month, 1)

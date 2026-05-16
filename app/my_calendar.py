@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Qt
 from app.model.model import CalendarModel
-from app.gui.typography import Typography
+from app.gui.metrics import Typography, Metrics
 from app.gui.view import CalendarView
+from app.controller.controller import CalendarController
 
 
 class MyCalendar(QApplication):
@@ -18,8 +19,9 @@ class MyCalendar(QApplication):
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
         )
 
-        # Determine font sizes (dpi aware)
+        # Determine app metrics (dpi aware)
         Typography.init()
+        Metrics.init()
 
         # Initialise calendar model
         self._model = CalendarModel()
@@ -28,5 +30,8 @@ class MyCalendar(QApplication):
         today = self._model.today
         first = self._model.date_of_first_cell(today)
         self._view = CalendarView(today, first)
+
+        # Initialise calendar controller
+        self._controller = CalendarController(self._model, self._view)
         
         self.exec()
