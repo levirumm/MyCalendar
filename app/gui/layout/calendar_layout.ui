@@ -92,13 +92,13 @@
          <item>
           <widget class="QPushButton" name="refresh_button">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PushButton</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -109,7 +109,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>78</width>
+             <width>53</width>
              <height>20</height>
             </size>
            </property>
@@ -247,28 +247,28 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_5">
+          <widget class="QPushButton" name="today_button">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PushButton</string>
+            <string/>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_4">
+          <widget class="QPushButton" name="add_event_button">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="text">
-            <string>PushButton</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -422,7 +422,7 @@
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>3</width>
+                   <width>28</width>
                    <height>20</height>
                   </size>
                  </property>
@@ -437,7 +437,7 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>PushButton</string>
+                  <string/>
                  </property>
                 </widget>
                </item>

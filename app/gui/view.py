@@ -43,11 +43,7 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self.setStyleSheet(self._load_qss()) 
 
         # Header bar
-        self._header_bar = HeaderBar(
-            today, ui.header_bar_container, ui.day_heading_container, 
-            ui.day_heading_layout, ui.month_year_label, 
-            ui.previous_month_button,  ui.next_month_button
-        )
+        self._header_bar = HeaderBar(today, ui)
 
         # Calendar grid
         self._grid = CalendarGrid(
@@ -69,8 +65,11 @@ class CalendarView(QWidget, Ui_MyCalendar):
     
     def connect_to_controller(self, controller):
         """Connects view slots to the controller."""
+        # Header bar signals
         self._header_bar.previousMonth.connect(controller.on_previous_month)
         self._header_bar.nextMonth.connect(controller.on_next_month)
+        self._header_bar.refresh.connect(controller.on_refresh)
+        self._header_bar.today.connect(controller.on_today)
         
     def _load_qss(self) -> str:
         """
@@ -90,36 +89,25 @@ class HeaderBar(QObject):
     """
     previousMonth = Signal()
     nextMonth = Signal()
+    refresh = Signal()
+    today = Signal()
 
     def __init__(
-            self, display_date: date, header_bar: QFrame, day_bar: QFrame, 
-            day_heading_layout: QHBoxLayout, month_year_label: QLabel,
-            previous_month_button: QPushButton, next_month_button: QPushButton
+            self, display_date: date, ui: Ui_MyCalendar
         ) -> None:
         super().__init__()
-        self._month_year_label = month_year_label
+        # Reference to label as it is updated
+        self._month_year_label: QLabel = ui.month_year_label
 
-        header_bar.setProperty("role", "header_bar")
-        day_bar.setProperty("role", "day_bar")
+        # Set background styling and title font
+        ui.header_bar_container.setProperty("role", "header_bar")
+        ui.day_heading_container.setProperty("role", "day_bar")
         self._month_year_label.setFont(Typography.HEADING)
 
+        # Render header bar elements
         self.set_month_year_label(display_date)
-        self._render_day_headings(day_heading_layout)
-
-        # Render buttons
-        button_size = Metrics.HEADER_BUTTON
-        self._make_header_icon(previous_month_button, button_size)
-        self._make_header_icon(next_month_button, button_size)
-        previous_month_button.setText(UNICODE["left_arrow"])
-        next_month_button.setText(UNICODE["right_arrow"])
-
-        # Connect slots to header buttons
-        previous_month_button.clicked.connect(
-            lambda: self.previousMonth.emit()
-        )
-        next_month_button.clicked.connect(
-            lambda: self.nextMonth.emit()
-        )
+        self._render_day_headings(ui.day_heading_layout)
+        self._render_buttons(ui)
     
     def set_month_year_label(self, display_date: date) -> None:
         """Updates the month-year label (e.g. May 2026)."""
@@ -134,6 +122,31 @@ class HeaderBar(QObject):
             layout.addWidget(label)
             label.setFont(Typography.BASE) 
             label.setProperty("variant", "white")
+    
+    def _render_buttons(self, ui: Ui_MyCalendar) -> None:
+        """Renders the buttons in the header bar."""
+        size = Metrics.HEADER_BUTTON
+        self._make_header_icon(ui.previous_month_button, size)
+        self._make_header_icon(ui.next_month_button, size)
+        self._make_header_icon(ui.refresh_button, size)
+        self._make_header_icon(ui.today_button, size)
+        ui.previous_month_button.setText(UNICODE["left_arrow"])
+        ui.next_month_button.setText(UNICODE["right_arrow"])
+        ui.refresh_button.setText(UNICODE["refresh"])
+
+        # Connect slots to header buttons
+        ui.previous_month_button.clicked.connect(
+            lambda: self.previousMonth.emit()
+        )
+        ui.next_month_button.clicked.connect(
+            lambda: self.nextMonth.emit()
+        )
+        ui.refresh_button.clicked.connect(
+            lambda: self.refresh.emit()
+        )
+        ui.today_button.clicked.connect(
+            lambda: self.today.emit()
+        )
     
     def _make_header_icon(self, button: QPushButton, size: int) -> None:
         """Applies header icon styling to button widget."""
@@ -164,13 +177,13 @@ class CalendarGrid:
             cell.update_date(cell_date)
             new_cells[cell_date] = cell
 
-            # Highlight day label of current day
-            if cell_date == today:
-                cell.set_highlight(True)
-            
             # Clear highlight of previously highlighted day
             if prev_date == today:
                 cell.set_highlight(False)
+
+            # Highlight day label of current day
+            if cell_date == today:
+                cell.set_highlight(True)
 
             cell_date += timedelta(1)
 

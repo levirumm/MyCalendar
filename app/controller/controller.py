@@ -20,22 +20,27 @@ class CalendarController:
     
     def on_previous_month(self) -> None:
         """Update calendar view to display previous month."""
-        previous_month = self._model.previous_month(self._display_date)
-        first_cell = self._model.date_of_first_cell(previous_month)
-
-        self._view.update_display_month(
-            self._model.today, previous_month, first_cell
-        )
-
-        self._display_date = previous_month
+        self._display_date = self._model.previous_month(self._display_date)
+        self._show_display_month()
     
     def on_next_month(self) -> None:
         """Update calendar view to display next month."""
-        next_month = self._model.next_month(self._display_date)
-        first_cell = self._model.date_of_first_cell(next_month)
-        
-        self._view.update_display_month(
-            self._model.today, next_month, first_cell
-        )
+        self._display_date = self._model.next_month(self._display_date)
+        self._show_display_month()
+    
+    def on_refresh(self) -> None:
+        """Prompts model to update todays date and updates view."""
+        self._model.refresh()
+        self._show_display_month()
 
-        self._display_date = next_month
+    def on_today(self) -> None:
+        """Updates calendar to display current month."""
+        self._display_date = self._model.today
+        self._show_display_month()
+    
+    def _show_display_month(self) -> None:
+        """Updates view to show display month"""
+        first_cell = self._model.date_of_first_cell(self._display_date)
+        self._view.update_display_month(
+            self._model.today, self._display_date, first_cell
+        )

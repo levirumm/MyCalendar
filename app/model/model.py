@@ -9,12 +9,15 @@ class CalendarModel:
     """
     def __init__(self) -> None:
         self._db_manager = DatabaseManager()
-
         self._today = datetime.today().date()
     
     @property
     def today(self) -> date:
         return self._today
+
+    def refresh(self) -> None:
+        """Updates current date."""
+        self._today = datetime.today().date()
     
     def date_of_first_cell(self, month_date: date) -> date:
         """

@@ -15,5 +15,6 @@ CALENDAR_COLS = 7
 
 UNICODE: dict[str, str] = {
     "left_arrow" : "\U0001F804",
-    "right_arrow": "\U0001F806"
+    "right_arrow": "\U0001F806",
+    "refresh": "\u21BB"
 }
