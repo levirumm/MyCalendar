@@ -37,6 +37,19 @@ QLabel[variant="highlight"] {{
 
 /* Buttons */
 
+QPushButton[variant="0_blue"] {{
+    background-color: {0_blue};
+    color: {text[base]};
+}}
+
+QPushButton[variant="0_blue"]:hover {{
+    background-color: {1_blue};
+}}
+
+QPushButton[variant="0_blue"]:pressed {{
+    background-color: {2_blue};
+}}
+
 QPushButton[variant="1_blue"] {{
     background-color: {1_blue};
     color: {text[base]};
@@ -82,4 +95,12 @@ QPushButton[variant="5_blue"]:pressed {{
 QFrame[role="form"] {{
     background-color: {0_blue};
     border-radius: 15px;
+}}
+
+QLineEdit {{
+    background-color: {0_blue};
+    color: {text[base]};
+    placeholder-text-color: {text[muted]};
+    border: none;
+    border-bottom: 1px solid {2_blue};
 }}

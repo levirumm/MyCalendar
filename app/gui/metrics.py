@@ -12,7 +12,8 @@ FONT_SCALE_FACTORS = {
 ELEMENT_SCALE_FACTORS = {
     "HEADER_BUTTON": 2.8,
     "SMALL_BUTTON": 1.4,
-    "DATE_LABEL_HIGHLIGHT": 1.3
+    "DATE_LABEL_HIGHLIGHT": 1.3,
+    "COLOR_IDENTIFIER": 1.55
 }
 
 
@@ -60,6 +61,7 @@ class Metrics:
     HEADER_BUTTON = 0
     SMALL_BUTTON = 0
     DATE_LABEL_HIGHLIGHT = 0
+    COLOR_IDENTIFIER = 0
 
     @staticmethod
     def init():
@@ -74,3 +76,4 @@ class Metrics:
         Metrics.HEADER_BUTTON = sizes["HEADER_BUTTON"]
         Metrics.SMALL_BUTTON = sizes["SMALL_BUTTON"]
         Metrics.DATE_LABEL_HIGHLIGHT = sizes["DATE_LABEL_HIGHLIGHT"]
+        Metrics.COLOR_IDENTIFIER = sizes["COLOR_IDENTIFIER"]

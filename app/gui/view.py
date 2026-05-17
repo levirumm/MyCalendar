@@ -12,18 +12,7 @@ from app.gui.metrics import Typography, Metrics
 from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
-
-
-def make_circle(widget: QWidget, diameter: int) -> None:
-    """
-    Sets the border radius of the widget in style sheet 
-    to be the radius of the widget.
-    """
-    widget.setFixedSize(diameter, diameter)
-    widget.setStyleSheet(
-    widget.styleSheet() +
-        f"border-radius: {diameter // 2}px;"
-    )
+from app.gui.utils import make_circle
     
 
 class CalendarView(QWidget, Ui_MyCalendar):

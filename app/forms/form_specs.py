@@ -23,7 +23,7 @@ class FormRow:
 
 
 CLASS_FORM: dict[str, FormRow] = {
-    "name": FormRow(
+    "title": FormRow(
         type=EntryType.TEXT, placeholder="Add Class", 
         not_none=True
     ),

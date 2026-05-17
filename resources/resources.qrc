@@ -1,5 +1,10 @@
 <RCC>
   <qresource>
+    <file>box_checked.svg</file>
+    <file>box_unchecked.svg</file>
+    <file>bin.svg</file>
+    <file>pen.svg</file>
+    <file>cross.svg</file>
     <file>plus_white.svg</file>
     <file>plus.svg</file>
     <file>calendar.svg</file>

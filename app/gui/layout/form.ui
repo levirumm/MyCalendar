@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>129</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,9 +41,9 @@
       <item>
        <widget class="QFrame" name="frame_2">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
           <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="frameShape">
@@ -60,7 +60,7 @@
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>237</width>
+             <width>246</width>
              <height>20</height>
             </size>
            </property>
@@ -71,12 +71,19 @@
            <property name="text">
             <string/>
            </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="delete_button">
            <property name="text">
             <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../resources/resources.qrc">
+             <normaloff>:/bin.svg</normaloff>:/bin.svg</iconset>
            </property>
           </widget>
          </item>
@@ -85,12 +92,20 @@
            <property name="text">
             <string/>
            </property>
+           <property name="icon">
+            <iconset resource="../../../resources/resources.qrc">
+             <normaloff>:/pen.svg</normaloff>:/pen.svg</iconset>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="close_button">
            <property name="text">
             <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../resources/resources.qrc">
+             <normaloff>:/cross.svg</normaloff>:/cross.svg</iconset>
            </property>
           </widget>
          </item>
@@ -102,7 +117,7 @@
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
-          <verstretch>1</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="frameShape">
@@ -120,7 +135,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QTextEdit" name="name_entry"/>
+          <widget class="QLineEdit" name="name_entry">
+           <property name="clearButtonEnabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -130,7 +149,7 @@
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
-          <verstretch>6</verstretch>
+          <verstretch>0</verstretch>
          </sizepolicy>
         </property>
         <property name="frameShape">
@@ -151,6 +170,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
