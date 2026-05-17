@@ -1,3 +1,6 @@
+from enum import Enum, auto
+
+
 DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 MONTHS: dict[int, str] = {
@@ -18,3 +21,9 @@ UNICODE: dict[str, str] = {
     "right_arrow": "\U0001F806",
     "refresh": "\u21BB"
 }
+
+
+class FormType(Enum):
+    unit = auto()
+    assignment = auto()
+    exam = auto()

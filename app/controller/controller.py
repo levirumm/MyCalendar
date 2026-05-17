@@ -1,5 +1,6 @@
 from app.gui.view import CalendarView
 from app.model.model import CalendarModel
+from app.forms.form import Form
 
 
 class CalendarController:
@@ -37,6 +38,10 @@ class CalendarController:
         """Updates calendar to display current month."""
         self._display_date = self._model.today
         self._show_display_date()
+    
+    def on_add_class(self) -> None:
+        """Opens the form allowing user to add class."""
+        class_form = Form(parent=self._view)
     
     def _show_display_date(self) -> None:
         """Updates view to show display date."""

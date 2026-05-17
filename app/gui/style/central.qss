@@ -75,3 +75,11 @@ QPushButton[variant="5_blue"]:hover {{
 QPushButton[variant="5_blue"]:pressed {{
     background-color: {7_blue};
 }}
+
+
+/* Form */
+
+QFrame[role="form"] {{
+    background-color: {0_blue};
+    border-radius: 15px;
+}}

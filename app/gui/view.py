@@ -70,6 +70,9 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.nextMonth.connect(controller.on_next_month)
         self._header_bar.refresh.connect(controller.on_refresh)
         self._header_bar.today.connect(controller.on_today)
+
+        # Left column signals
+        self._left_column.addClass.connect(controller.on_add_class)
         
     def _load_qss(self) -> str:
         """
@@ -170,12 +173,15 @@ class HeaderBar(QObject):
         )
 
 
-class LeftColumn:
+class LeftColumn(QObject):
     """
     Manages the left-side column of the calendar, including 
     the list of enrolled classes and the to-do list.
     """
+    addClass = Signal()
+
     def __init__(self, ui: Ui_MyCalendar) -> None:
+        super().__init__()
         ui.left_column_container.setProperty("role", "left_column")
         ui.class_list_label.setText("Classes")
         ui.class_list_label.setFont(Typography.SUB_HEADING)
@@ -185,7 +191,9 @@ class LeftColumn:
         ui.add_class_button.setProperty("variant", "1_blue")
         ui.add_class_button.setIconSize(QSize(icn_size, icn_size))
         make_circle(ui.add_class_button, btn_size)
-    
+
+        ui.add_class_button.clicked.connect(lambda: self.addClass.emit())
+        
 
 class CalendarGrid:
     """
