@@ -22,7 +22,8 @@ class EventSelect(QDialog, Ui_EventChoice):
 
         for button in [ui.assignment_button, ui.exam_button]:
             button.setFont(Typography.BASE)
-            button.setProperty("variant", "white")
+            button.setProperty("color", "white")
+            button.setProperty("role", "drop_down")
         
         ui.assignment_button.clicked.connect(
             self._on_assignment_clicked

@@ -10,11 +10,13 @@ from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, UNICODE
 )
 from app.gui.metrics import Typography, Metrics
-from app.gui.palette import PALETTE
+from app.gui.palette import PALETTE, BUTTON_COLORS
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
 from app.gui.pop_ups import EventSelect
-from app.gui.utils import make_circle, anchor_window
+from app.gui.utils import (
+    make_circle, anchor_window, generate_button_colors
+)
     
 
 class CalendarView(QWidget, Ui_MyCalendar):
@@ -23,6 +25,7 @@ class CalendarView(QWidget, Ui_MyCalendar):
     """
     STYLE_PATHS: list[Path] = [
         Path(__file__).parent / "style" / "central.qss",
+        Path(__file__).parent / "style" / "forms.qss"
     ]
 
     def __init__(self, today: date, date_of_first: date) -> None:
@@ -70,13 +73,13 @@ class CalendarView(QWidget, Ui_MyCalendar):
     def _load_qss(self) -> str:
         """
         Returns string joining QSS from all QSS files, inserting 
-        palette values.
+        palette values and derived button colors.
         """
         return "\n".join(
             Path(path).read_text(encoding="utf-8").format(**PALETTE)
             for path in self.STYLE_PATHS
-        )
-    
+        ) + generate_button_colors(BUTTON_COLORS)
+
 
 class HeaderBar(QObject):
     """
@@ -165,7 +168,7 @@ class HeaderBar(QObject):
         """Applies header icon styling to button widget."""
         button.setFont(Typography.HEADING)
         button.setProperty(
-            "variant", "5_blue" if dark else "2_blue"
+            "color", "darkest_blue" if dark else "base_blue"
         )
         make_circle(button, size)
     
@@ -200,7 +203,7 @@ class LeftColumn(QObject):
         
         btn_size = Metrics.SMALL_BUTTON
         icn_size = Metrics.DATE_LABEL_HIGHLIGHT
-        ui.add_class_button.setProperty("variant", "1_blue")
+        ui.add_class_button.setProperty("color", "light_blue")
         ui.add_class_button.setIconSize(QSize(icn_size, icn_size))
         make_circle(ui.add_class_button, btn_size)
 

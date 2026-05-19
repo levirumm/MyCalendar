@@ -2,6 +2,50 @@ from PySide6.QtWidgets import (
     QWidget, QFrame, QDialog, QGraphicsDropShadowEffect
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
+
+
+def hover_color(color: QColor) -> str:
+    """Returns slightly darker color preserving hue."""
+    h, s, v, a = color.getHsv() # type:ignore
+    # Boost saturation to prevent graying
+    new_s = min(255, int(s * 1.1))
+    # Reduce brightness
+    new_v = max(0, int(v * 0.95))
+
+    return QColor.fromHsv(h, new_s, new_v, a).name()
+
+
+def pressed_color(color: QColor) -> str:
+    """Returns darker color preserving hue."""
+    h, s, v, a = color.getHsv() # type:ignore
+    # Boost saturation to prevent graying
+    new_s = min(255, int(s * 1.2))
+    # Reduce brightness
+    new_v = max(0, int(v * 0.9))
+
+    return QColor.fromHsv(h, new_s, new_v, a).name()
+
+
+def generate_button_colors(colors: dict[str, str]) -> str:
+    """
+    Derives hover and pressed button colors given base color.
+    """
+    qss = ""
+
+    for name, color in colors.items():
+        qcolor = QColor(color)
+        qss += (
+            f"QPushButton[color='{name}']"  + "{\n"
+            f"background-color: {color}; " + "}\n"
+
+            f"QPushButton[color='{name}']:hover"  + "{\n" 
+            f"background-color: {hover_color(qcolor)}; " + "}\n"
+
+            f"QPushButton[color='{name}']:pressed"  + "{\n"
+            f"background-color: {pressed_color(qcolor)}; " + "}\n"
+        )
+    return qss
 
 
 def make_circle(widget: QWidget, diameter: int) -> None:

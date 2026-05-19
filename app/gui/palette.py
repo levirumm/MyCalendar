@@ -1,19 +1,33 @@
 PALETTE = {
-    # Blue shades
-    "0_blue": "#ebf8fc",
-    "1_blue": "#CFECF7",
-    "2_blue": "#aaddf0",
-    "3_blue": "#81c3db",
-    "4_blue": "#6bb0c9",
-    "5_blue": "#438da8",
-    "6_blue": "#317994",
-    "7_blue": "#276982",
+    "blue": {
+        "lightest": "#ebf8fc",
+        "light": "#CFECF7",
+        "base": "#aaddf0",
+        "dark": "#81c3db",
+        "darkest": "#438da8"
+    },
 
-    # Gray shades
-    "1_gray": "#f0f0f0",
-    "2_gray": "#dbdbdb",
+    "gray": {"base": "#434343"}, 
 
-    "text": {
-        "base": "#434343",
-    }
+    "red": "#e9c1c1",
+
+    "orange": "#edb253",
+
+    "yellow": "#d5b747",
+   
+    "green": "#69d459",
+   
+    "purple": "#a975c7",
+
+    "pink": "#c775b0",
+}
+
+
+BUTTON_COLORS = {
+    "light_blue": PALETTE["blue"]["light"],
+    "base_blue": PALETTE["blue"]["base"],
+    "dark_blue": PALETTE["blue"]["dark"],
+    "darkest_blue": PALETTE["blue"]["darkest"],
+
+    "white": "#FFFFFF"
 }

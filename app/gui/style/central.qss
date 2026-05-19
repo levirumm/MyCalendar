@@ -1,28 +1,28 @@
 /* Background Widgets */
 
 QWidget[role="header_bar"] {{
-    background-color: {2_blue};
+    background-color: {blue[base]};
 }}
 
 QWidget[role="left_column"] {{
-    background-color: {1_blue};
+    background-color: {blue[light]};
 }}
 
 QWidget[role="day_bar"] {{
-    background-color: {3_blue};
+    background-color: {blue[dark]};
 }}
 
 CalendarCell {{
     background-color: white;
-    border-right: 1px solid {2_blue};
-    border-bottom: 1px solid {2_blue};
+    border-right: 1px solid {blue[base]};
+    border-bottom: 1px solid {blue[base]};
 }}
 
 
 /* Labels */
 
 QLabel {{
-    color: {text[base]};
+    color: {gray[base]};
 }}
 
 QLabel[variant="white"] {{
@@ -31,143 +31,42 @@ QLabel[variant="white"] {{
 
 QLabel[variant="highlight"] {{
     color: white;
-    background-color: {5_blue};
+    background-color: {blue[darkest]};
     padding-bottom: 1px;
     padding-right: 1px;
 }}
 
 
-/* Buttons */
+/* Button */
 
-QPushButton[variant="0_blue"] {{
-    background-color: {0_blue};
-    color: {text[base]};
+QPushButton {{
+    color: {gray[base]};
 }}
 
-QPushButton[variant="0_blue"]:hover {{
-    background-color: {1_blue};
+QPushButton[text_color="white"] {{
+    color: white;
 }}
 
-QPushButton[variant="0_blue"]:pressed {{
-    background-color: {2_blue};
-}}
-
-QPushButton[variant="1_blue"] {{
-    background-color: {1_blue};
-    color: {text[base]};
-}}
-
-QPushButton[variant="1_blue"]:hover {{
-    background-color: {2_blue};
-}}
-
-QPushButton[variant="1_blue"]:pressed {{
-    background-color: {3_blue};
-}}
-
-QPushButton[variant="2_blue"] {{
-    background-color: {2_blue};
-    color: {text[base]};
-}}
-
-QPushButton[variant="2_blue"]:hover {{
-    background-color: {3_blue};
-}}
-
-QPushButton[variant="2_blue"]:pressed {{
-    background-color: {4_blue};
-}}
-
-QPushButton[variant="5_blue"] {{
-    background-color: {5_blue};
-    color: {text[base]};
-}}
-
-QPushButton[variant="5_blue"]:hover {{
-    background-color: {6_blue};
-}}
-
-QPushButton[variant="5_blue"]:pressed {{
-    background-color: {7_blue};
-}}
-
-QPushButton[variant="white"] {{
-    background-color: white;
+QPushButton[role="drop_down"] {{
     text-align: left;
-    color: {text[base]};
     border: none;
     border-radius: 6px;
     padding-left: 17px;
 }}
 
-QPushButton[variant="white"]:hover {{
-    background-color: {1_gray};
+/* Custom styling for form button */
+QPushButton[color="lightest_blue"] {{
+    background-color: {blue[lightest]};
 }}
 
-QPushButton[variant="white"]:pressed {{
-    background-color: {2_gray};
+QPushButton[color="lightest_blue"]:hover {{
+    background-color: {blue[light]};
 }}
 
-QPushButton[style="white"] {{
-    color: white;
+QPushButton[color="lightest_blue"]:pressed {{
+    background-color: {blue[base]};
 }}
 
-/* Form */
-
-QFrame[role="form"] {{
-    background-color: {0_blue};
-    border-radius: 15px;
-}}
-
-
-QLineEdit {{
-    background-color: {0_blue};
-    color: {text[base]};
-    placeholder-text-color: {text[base]};
-    border: none;
-}}
-
-QLineEdit[role="name_entry"] {{
-    border-bottom: 1px solid {2_blue};
-}}
-
-QPushButton[role="checked"] {{
-    qproperty-icon: url(:/box_checked.svg);
-}}
-
-QPushButton[role="unchecked"] {{
-    qproperty-icon: url(:/box_unchecked.svg);
-}}
-
-QDateEdit {{
-    background-color: {0_blue};
-    color: {text[base]};
-}}
-
-QDateEdit:hover {{
-    background-color: {1_blue};
-}}
-
-QDateEdit:focus {{
-    background-color: {1_blue};
-    border: 0px;
-    border-radius: 5px;
-}}
-
-QTimeEdit {{
-    background-color: {0_blue};
-    color: {text[base]};
-}}
-
-QTimeEdit:hover {{
-    background-color: {1_blue};
-}}
-
-QTimeEdit:focus {{
-    background-color: {1_blue};
-    border: 0px;
-    border-radius: 5px;
-}}
 
 /* Pop ups */
 

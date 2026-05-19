@@ -1,0 +1,53 @@
+QFrame[role="form"] {{
+    background-color: {blue[lightest]};
+    border-radius: 15px;
+}}
+
+QLineEdit {{
+    background-color: {blue[lightest]};
+    color: {gray[base]};
+    placeholder-text-color: {gray[base]};
+    border: none;
+}}
+
+QLineEdit[role="name_entry"] {{
+    border-bottom: 1px solid {blue[base]};
+}}
+
+QPushButton[role="checked"] {{
+    qproperty-icon: url(:/box_checked.svg);
+}}
+
+QPushButton[role="unchecked"] {{
+    qproperty-icon: url(:/box_unchecked.svg);
+}}
+
+QDateEdit {{
+    background-color: {blue[lightest]};
+    color: {gray[base]};
+}}
+
+QDateEdit:hover {{
+    background-color: {blue[light]};
+}}
+
+QDateEdit:focus {{
+    background-color: {blue[light]};
+    border: 0px;
+    border-radius: 5px;
+}}
+
+QTimeEdit {{
+    background-color: {blue[lightest]};
+    color: {gray[base]};
+}}
+
+QTimeEdit:hover {{
+    background-color: {blue[light]};
+}}
+
+QTimeEdit:focus {{
+    background-color: {blue[light]};
+    border: 0px;
+    border-radius: 5px;
+}}

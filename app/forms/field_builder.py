@@ -130,7 +130,7 @@ class FieldBuilder:
 
         # Render button
         button = QPushButton(field.label)
-        button.setProperty("variant", "0_blue")
+        button.setProperty("color", "lightest_blue")
         button.setStyleSheet(
             "text-align: left;"
             f"padding-left: {offset}px;"

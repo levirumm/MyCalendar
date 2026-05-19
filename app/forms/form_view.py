@@ -59,7 +59,7 @@ class FormView(QDialog, Ui_Form):
             ui.close_button, ui.edit_button, 
             ui.delete_button, ui.complete_button
         ]:
-            button.setProperty("variant", "0_blue")
+            button.setProperty("color", "lightest_blue")
             button.setIconSize(QSize(btn_size, btn_size))
             make_circle(button, btn_size)
 
@@ -70,8 +70,8 @@ class FormView(QDialog, Ui_Form):
         )
 
         # Save button
-        ui.save_button.setProperty("variant", "5_blue")
-        ui.save_button.setProperty("style", "white")
+        ui.save_button.setProperty("color", "darkest_blue")
+        ui.save_button.setProperty("text_color", "white")
         ui.save_button.setFont(Typography.BASE)
         make_bean(ui.save_button, btn_size)
         
@@ -90,7 +90,7 @@ class FormView(QDialog, Ui_Form):
 
         # Color identifier
         ui.color_indicator.setStyleSheet(
-            f"background-color: {PALETTE["2_blue"]};"
+            f"background-color: {PALETTE["blue"]["base"]};"
         )
         make_circle(ui.color_indicator, Metrics.COLOR_IDENTIFIER)
     
