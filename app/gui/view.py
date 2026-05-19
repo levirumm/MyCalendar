@@ -13,6 +13,7 @@ from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
 from app.gui.utils import make_circle
+from resources import resources_rc
     
 
 class CalendarView(QWidget, Ui_MyCalendar):

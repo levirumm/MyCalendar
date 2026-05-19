@@ -27,7 +27,7 @@ class Ui_CalendarCell(object):
         self.verticalLayout = QVBoxLayout(CalendarCell)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setContentsMargins(0, 2, 0, 0)
         self.frame = QFrame(CalendarCell)
         self.frame.setObjectName(u"frame")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
@@ -109,6 +109,7 @@ class Ui_CalendarCell(object):
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.event_layout = QVBoxLayout()
         self.event_layout.setObjectName(u"event_layout")
+        self.event_layout.setContentsMargins(-1, 0, -1, -1)
 
         self.horizontalLayout.addLayout(self.event_layout)
 

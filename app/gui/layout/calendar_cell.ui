@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>2</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -184,7 +184,11 @@
        <number>0</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="event_layout"/>
+       <layout class="QVBoxLayout" name="event_layout">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+       </layout>
       </item>
      </layout>
     </widget>

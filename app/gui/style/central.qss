@@ -32,6 +32,8 @@ QLabel[variant="white"] {{
 QLabel[variant="highlight"] {{
     color: white;
     background-color: {5_blue};
+    padding-bottom: 1px;
+    padding-right: 1px;
 }}
 
 
@@ -89,6 +91,10 @@ QPushButton[variant="5_blue"]:pressed {{
     background-color: {7_blue};
 }}
 
+QPushButton[style="white"] {{
+    color: white;
+}}
+
 
 /* Form */
 
@@ -97,10 +103,52 @@ QFrame[role="form"] {{
     border-radius: 15px;
 }}
 
+
 QLineEdit {{
     background-color: {0_blue};
     color: {text[base]};
-    placeholder-text-color: {text[muted]};
+    placeholder-text-color: {text[base]};
     border: none;
+}}
+
+QLineEdit[role="name_entry"] {{
     border-bottom: 1px solid {2_blue};
+}}
+
+QPushButton[role="checked"] {{
+    qproperty-icon: url(:/box_checked.svg);
+}}
+
+QPushButton[role="unchecked"] {{
+    qproperty-icon: url(:/box_unchecked.svg);
+}}
+
+QDateEdit {{
+    background-color: {0_blue};
+    color: {text[base]};
+}}
+
+QDateEdit:hover {{
+    background-color: {1_blue};
+}}
+
+QDateEdit:focus {{
+    background-color: {1_blue};
+    border: 0px;
+    border-radius: 5px;
+}}
+
+QTimeEdit {{
+    background-color: {0_blue};
+    color: {text[base]};
+}}
+
+QTimeEdit:hover {{
+    background-color: {1_blue};
+}}
+
+QTimeEdit:focus {{
+    background-color: {1_blue};
+    border: 0px;
+    border-radius: 5px;
 }}

@@ -1,5 +1,13 @@
 <RCC>
   <qresource>
+    <file>location_pin.svg</file>
+    <file>link.svg</file>
+    <file>clock.svg</file>
+    <file>percentage.svg</file>
+    <file>alert_calendar.svg</file>
+    <file>at.svg</file>
+    <file>home.svg</file>
+    <file>person.svg</file>
     <file>box_checked.svg</file>
     <file>box_unchecked.svg</file>
     <file>bin.svg</file>

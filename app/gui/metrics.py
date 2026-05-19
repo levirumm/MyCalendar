@@ -46,11 +46,15 @@ class Typography:
             name: make_font(app_font, base_size * scale)
             for name, scale in FONT_SCALE_FACTORS.items()
         }
-
+        # Set font sizes
         Typography.BASE = fonts["BASE"]
         Typography.HEADING = fonts["HEADING"]
         Typography.SUB_HEADING = fonts["SUB_HEADING"]
         Typography.SMALL = fonts["SMALL"]
+
+        # Set font weights
+        Typography.HEADING.setWeight(QFont.Weight.DemiBold)
+        Typography.SUB_HEADING.setWeight(QFont.Weight.DemiBold)
 
 
 class Metrics:

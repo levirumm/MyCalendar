@@ -1,5 +1,7 @@
 from app.forms.form_view import FormView
-from app.forms.form_specs import CLASS_FORM
+from app.forms.form_specs import (
+    CLASS_FORM, ASSIGNMENT_FORM, EXAM_FORM
+)
 
 
 class Form:
@@ -8,6 +10,6 @@ class Form:
     class, assignment, and exam information.
     """
     def __init__(self, parent) -> None:
-        self._view = FormView(parent, CLASS_FORM)
+        self._view = FormView(parent, EXAM_FORM)
 
         self._view.exec()

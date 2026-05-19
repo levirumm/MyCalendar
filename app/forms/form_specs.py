@@ -12,28 +12,86 @@ class EntryType(Enum):
 
 
 @dataclass(frozen=True)
-class FormRow:
+class FormField:
     """
-    Specifications for form row, including icon and 
-    entry specs.
+    Specifications for form field of form, including 
+    icon and entry specs.
     """
+    key: str
     type: EntryType
     placeholder: str = ""
-    not_none: bool = False
+    label: str = ""
+    icon: str = ""
+    required: bool = False
 
 
-CLASS_FORM: dict[str, FormRow] = {
-    "title": FormRow(
-        type=EntryType.TEXT, placeholder="Add Class", 
-        not_none=True
+CLASS_FORM: list[FormField] = [
+    FormField(
+        key="title", type=EntryType.TEXT, placeholder="Add Class", 
+        required=True
     ),
-    "lecturer": FormRow(
-        type=EntryType.TEXT, placeholder="Add Lecturer"
+    FormField(
+        key="lecturer", type=EntryType.TEXT, 
+        placeholder="Add Lecturer", icon=":/person.svg"
     ),
-    "email": FormRow(
-        type=EntryType.URL, placeholder="Add Email"
+    FormField(
+        key="email", type=EntryType.URL, placeholder="Add Email",
+        icon=":/at.svg"
     ),
-    "homepage": FormRow(
-        type=EntryType.URL, placeholder="Add Homepage URL"
+    FormField(
+        key="homepage", type=EntryType.URL, 
+        placeholder="Add Homepage URL", icon=":/home.svg"
     )
-}
+]
+
+
+ASSIGNMENT_FORM: list[FormField] = [
+    FormField(
+        key="title", type=EntryType.TEXT, 
+        placeholder="Add Assignment", required=True
+    ),
+    FormField(
+        key="due_date", type=EntryType.DATE, label="Due", 
+        icon=":/alert_calendar.svg", required=True
+    ),
+    FormField(
+        key="weight", type=EntryType.PERCENTAGE,
+        placeholder="Add Weight", icon=":/percentage.svg"
+    ),
+    FormField(
+        key="open_date", type=EntryType.DATE,
+        label="Available", icon=":/clock.svg"
+    ),
+    FormField(
+        key="url", type=EntryType.URL, placeholder="Add URL",
+        icon=":/link.svg"
+    )   
+]
+
+
+EXAM_FORM: list[FormField] = [
+    FormField(
+        key="title", type=EntryType.TEXT, 
+        placeholder="Add Exam", required=True
+    ),
+    FormField(
+        key="due_date", type=EntryType.DATE, label="Due", 
+        icon=":/alert_calendar.svg", required=True
+    ),
+    FormField(
+        key="weight", type=EntryType.PERCENTAGE,
+        placeholder="Add Weight", icon=":/percentage.svg"
+    ),
+    FormField(
+        key="time", type=EntryType.TIME, icon=":/clock.svg", 
+        label="Starts"
+    ),
+    FormField(
+        key="location", type=EntryType.TEXT, 
+        placeholder="Add Location", icon=":/location_pin.svg"
+    ),
+    FormField(
+        key="url", type=EntryType.URL, placeholder="Add URL",
+        icon=":/link.svg"
+    )   
+]

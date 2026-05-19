@@ -62,6 +62,7 @@ class Ui_MyCalendar(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.refresh_button.sizePolicy().hasHeightForWidth())
         self.refresh_button.setSizePolicy(sizePolicy2)
+        self.refresh_button.setFocusPolicy(Qt.NoFocus)
         icon = QIcon()
         icon.addFile(u":/refresh.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.refresh_button.setIcon(icon)
@@ -92,6 +93,7 @@ class Ui_MyCalendar(object):
         self.previous_month_button.setObjectName(u"previous_month_button")
         sizePolicy2.setHeightForWidth(self.previous_month_button.sizePolicy().hasHeightForWidth())
         self.previous_month_button.setSizePolicy(sizePolicy2)
+        self.previous_month_button.setFocusPolicy(Qt.NoFocus)
 
         self.horizontalLayout_6.addWidget(self.previous_month_button)
 
@@ -102,6 +104,7 @@ class Ui_MyCalendar(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.next_month_button.sizePolicy().hasHeightForWidth())
         self.next_month_button.setSizePolicy(sizePolicy4)
+        self.next_month_button.setFocusPolicy(Qt.NoFocus)
 
         self.horizontalLayout_6.addWidget(self.next_month_button)
 
@@ -143,6 +146,7 @@ class Ui_MyCalendar(object):
         self.today_button.setObjectName(u"today_button")
         sizePolicy2.setHeightForWidth(self.today_button.sizePolicy().hasHeightForWidth())
         self.today_button.setSizePolicy(sizePolicy2)
+        self.today_button.setFocusPolicy(Qt.NoFocus)
         icon1 = QIcon()
         icon1.addFile(u":/calendar.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.today_button.setIcon(icon1)
@@ -153,6 +157,7 @@ class Ui_MyCalendar(object):
         self.add_event_button.setObjectName(u"add_event_button")
         sizePolicy2.setHeightForWidth(self.add_event_button.sizePolicy().hasHeightForWidth())
         self.add_event_button.setSizePolicy(sizePolicy2)
+        self.add_event_button.setFocusPolicy(Qt.NoFocus)
         icon2 = QIcon()
         icon2.addFile(u":/plus_white.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.add_event_button.setIcon(icon2)
@@ -237,6 +242,7 @@ class Ui_MyCalendar(object):
         sizePolicy10.setVerticalStretch(0)
         sizePolicy10.setHeightForWidth(self.add_class_button.sizePolicy().hasHeightForWidth())
         self.add_class_button.setSizePolicy(sizePolicy10)
+        self.add_class_button.setFocusPolicy(Qt.NoFocus)
         icon3 = QIcon()
         icon3.addFile(u":/plus.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.add_class_button.setIcon(icon3)
