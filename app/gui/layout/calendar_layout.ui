@@ -306,7 +306,7 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="toolTip">
-            <string>Add event</string>
+            <string>Add assessment</string>
            </property>
            <property name="text">
             <string/>

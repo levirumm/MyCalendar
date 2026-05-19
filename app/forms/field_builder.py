@@ -1,12 +1,14 @@
 from PySide6.QtWidgets import (
     QFrame, QTimeEdit, QLabel, QVBoxLayout, QHBoxLayout, 
-    QLineEdit, QWidget, QDateEdit, QAbstractSpinBox
+    QLineEdit, QWidget, QDateEdit, QAbstractSpinBox,
+    QPushButton
 )
-from PySide6.QtCore import QDate
+from PySide6.QtCore import Qt, QDate
 from PySide6.QtGui import QPixmap, QDoubleValidator
 from typing import Callable
 from app.gui.metrics import Metrics, Typography
 from app.forms.form_specs import FormField, EntryType
+from app.gui.utils import make_bean
 
 
 class FieldBuilder:
@@ -22,7 +24,8 @@ class FieldBuilder:
             EntryType.DATE: self._make_date_edit,
             EntryType.TIME: self._make_time_edit,
             EntryType.PERCENTAGE: self._make_percentage_edit,
-            EntryType.URL: self._make_URL_edit
+            EntryType.URL: self._make_URL_edit,
+            EntryType.SWATCH: self._make_swatch
         }
 
     def add(self, field: FormField) -> QWidget:
@@ -119,6 +122,28 @@ class FieldBuilder:
         self._configure_text_edit(edit, field, layout)
         return edit
     
+    def _make_swatch(
+            self, field: FormField, layout: QHBoxLayout
+        ) -> QPushButton:
+        """Makes a button for selecting class/class color."""
+        offset = Typography.BASE.pixelSize() // 2
+
+        # Render button
+        button = QPushButton(field.label)
+        button.setProperty("variant", "0_blue")
+        button.setStyleSheet(
+            "text-align: left;"
+            f"padding-left: {offset}px;"
+        )
+        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        make_bean(button, Metrics.COLOR_IDENTIFIER)
+
+        # Set spacing so button text lines up with other fields
+        layout.setSpacing(Metrics.COLOR_IDENTIFIER - offset)
+
+        layout.addWidget(button)
+        return button
+
     def _configure_text_edit(
             self, edit, field: FormField, layout: QHBoxLayout
         ) -> None:

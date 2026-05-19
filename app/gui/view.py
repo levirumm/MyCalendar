@@ -2,9 +2,10 @@ from datetime import date, timedelta
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QGridLayout, QHBoxLayout, QLabel, QFrame,
-    QPushButton
+    QPushButton, QDialog
 )
 from PySide6.QtCore import Qt, QObject, Signal, QSize
+from app.forms.form_specs import FormType
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, UNICODE
 )
@@ -12,8 +13,8 @@ from app.gui.metrics import Typography, Metrics
 from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
-from app.gui.utils import make_circle
-from resources import resources_rc
+from app.gui.pop_ups import EventSelect
+from app.gui.utils import make_circle, anchor_window
     
 
 class CalendarView(QWidget, Ui_MyCalendar):
@@ -26,24 +27,23 @@ class CalendarView(QWidget, Ui_MyCalendar):
 
     def __init__(self, today: date, date_of_first: date) -> None:
         super().__init__()
-        ui = Ui_MyCalendar()
-        ui.setupUi(self)
+        self._ui = Ui_MyCalendar()
+        self._ui.setupUi(self)
         self.setWindowTitle("My Calendar")
 
         # Initiate app wide styling
         self.setStyleSheet(self._load_qss()) 
 
         # Header bar
-        self._header_bar = HeaderBar(today, ui)
+        self._header_bar = HeaderBar(today, self._ui)
 
         # Left column
-        self._left_column = LeftColumn(ui)
+        self._left_column = LeftColumn(self._ui)
 
         # Calendar grid
         self._grid = CalendarGrid(
-            today, date_of_first, ui.calendar_grid_layout
+            today, date_of_first, self._ui.calendar_grid_layout
         )
-
         self.show()
     
     def update_display_month(
@@ -60,10 +60,13 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.nextMonth.connect(controller.on_next_month)
         self._header_bar.refresh.connect(controller.on_refresh)
         self._header_bar.today.connect(controller.on_today)
+        self._header_bar.addItem.connect(controller.on_add_item)
 
         # Left column signals
-        self._left_column.addClass.connect(controller.on_add_class)
-        
+        self._left_column.addClass.connect(
+            lambda: controller.on_add_item(FormType.CLASS)
+        )
+                        
     def _load_qss(self) -> str:
         """
         Returns string joining QSS from all QSS files, inserting 
@@ -84,6 +87,7 @@ class HeaderBar(QObject):
     nextMonth = Signal()
     refresh = Signal()
     today = Signal()
+    addItem = Signal(FormType)
 
     def __init__(
             self, display_date: date, ui: Ui_MyCalendar
@@ -150,6 +154,9 @@ class HeaderBar(QObject):
         ui.today_button.clicked.connect(
             lambda: self.today.emit()
         )
+        ui.add_event_button.clicked.connect(
+            lambda: self._open_add_event_menu(ui)
+        )
     
     def _make_header_icon(
             self, button: QPushButton, size: int, 
@@ -157,10 +164,25 @@ class HeaderBar(QObject):
         ) -> None:
         """Applies header icon styling to button widget."""
         button.setFont(Typography.HEADING)
-        make_circle(button, size)
         button.setProperty(
             "variant", "5_blue" if dark else "2_blue"
         )
+        make_circle(button, size)
+    
+    def _open_add_event_menu(self, ui: Ui_MyCalendar) -> None:
+        """
+        Opens menu allowing user to select to add an assignment 
+        or an exam.
+        """
+        menu = EventSelect(parent=ui.header_bar_container)
+        anchor_window( # Anchor top right to add event button
+            menu, anchor=ui.add_event_button, anchor_side="right"
+        )
+        result = menu.exec()
+
+        if result == QDialog.DialogCode.Accepted:
+            selection = menu.selection
+            self.addItem.emit(selection)
 
 
 class LeftColumn(QObject):

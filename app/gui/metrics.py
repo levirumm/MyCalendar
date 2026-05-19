@@ -34,7 +34,7 @@ class Typography:
     HEADING = BASE
     SUB_HEADING = BASE
     SMALL = BASE
-
+    
     @staticmethod
     def init():
         app_font = QApplication.font()
@@ -51,7 +51,7 @@ class Typography:
         Typography.HEADING = fonts["HEADING"]
         Typography.SUB_HEADING = fonts["SUB_HEADING"]
         Typography.SMALL = fonts["SMALL"]
-
+       
         # Set font weights
         Typography.HEADING.setWeight(QFont.Weight.DemiBold)
         Typography.SUB_HEADING.setWeight(QFont.Weight.DemiBold)

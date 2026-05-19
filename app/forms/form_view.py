@@ -4,7 +4,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QSize
 
-from app.gui.utils import make_circle, make_bean
+from app.gui.utils import (
+    make_circle, make_bean, style_window 
+)
 from app.gui.palette import PALETTE
 from app.gui.metrics import Metrics, Typography
 from app.gui.layout.ui_form import Ui_Form
@@ -23,8 +25,10 @@ class FormView(QDialog, Ui_Form):
         ui = Ui_Form()
         ui.setupUi(self)
 
-        self._style_window(ui.frame, ui.frame_layout)
+        # Configure styling of form
         self._render_buttons(ui)
+        self._configure_form(ui.frame, ui.frame_layout)
+        self._shadow = style_window(self, ui.frame)
 
         # Iteratively draw rows in form
         field_builder = FieldBuilder(ui.row_layout)
@@ -90,32 +94,15 @@ class FormView(QDialog, Ui_Form):
         )
         make_circle(ui.color_indicator, Metrics.COLOR_IDENTIFIER)
     
-    def _style_window(
+    def _configure_form(
             self, frame: QFrame, frame_layout: QVBoxLayout
         ) -> None:
         """
         Applies styling to window, including Qt window 
         attributes, qss properties, and drop shadow.
         """
-        # Apply window flags and attributes
-        self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.Popup | 
-            Qt.WindowType.NoDropShadowWindowHint
-        )
-        self.setAttribute(
-            Qt.WidgetAttribute.WA_TranslucentBackground
-        )
-
         # Apply styling to frame
         frame.setProperty("role", "form")
-
-        # Apply drop shadow
-        self._shadow = QGraphicsDropShadowEffect()
-        self._shadow.setBlurRadius(15)
-        self._shadow.setXOffset(0)
-        self._shadow.setYOffset(1)
-        frame.setGraphicsEffect(self._shadow)
 
         # Apply margins to form
         side_padding = Metrics.COLOR_IDENTIFIER

@@ -9,8 +9,11 @@ PALETTE = {
     "6_blue": "#317994",
     "7_blue": "#276982",
 
+    # Gray shades
+    "1_gray": "#f0f0f0",
+    "2_gray": "#dbdbdb",
+
     "text": {
         "base": "#434343",
-        "muted": "#676767"
     }
 }

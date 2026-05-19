@@ -367,7 +367,7 @@ class Ui_MyCalendar(object):
 #endif // QT_CONFIG(tooltip)
         self.today_button.setText("")
 #if QT_CONFIG(tooltip)
-        self.add_event_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Add event", None))
+        self.add_event_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Add assessment", None))
 #endif // QT_CONFIG(tooltip)
         self.add_event_button.setText("")
         self.class_list_label.setText(QCoreApplication.translate("MyCalendar", u"TextLabel", None))

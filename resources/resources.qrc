@@ -1,5 +1,7 @@
 <RCC>
   <qresource>
+    <file>graduation_cap.svg</file>
+    <file>paint_bucket.svg</file>
     <file>location_pin.svg</file>
     <file>link.svg</file>
     <file>clock.svg</file>

@@ -91,10 +91,26 @@ QPushButton[variant="5_blue"]:pressed {{
     background-color: {7_blue};
 }}
 
+QPushButton[variant="white"] {{
+    background-color: white;
+    text-align: left;
+    color: {text[base]};
+    border: none;
+    border-radius: 6px;
+    padding-left: 17px;
+}}
+
+QPushButton[variant="white"]:hover {{
+    background-color: {1_gray};
+}}
+
+QPushButton[variant="white"]:pressed {{
+    background-color: {2_gray};
+}}
+
 QPushButton[style="white"] {{
     color: white;
 }}
-
 
 /* Form */
 
@@ -150,5 +166,12 @@ QTimeEdit:hover {{
 QTimeEdit:focus {{
     background-color: {1_blue};
     border: 0px;
+    border-radius: 5px;
+}}
+
+/* Pop ups */
+
+QFrame[role="menu"] {{
+    background-color: white;
     border-radius: 5px;
 }}
