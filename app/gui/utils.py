@@ -32,7 +32,6 @@ def generate_button_colors(colors: dict[str, str]) -> str:
     Derives hover and pressed button colors given base color.
     """
     qss = ""
-
     for name, color in colors.items():
         qcolor = QColor(color)
         qss += (
@@ -101,7 +100,7 @@ def style_window(
 
 
 def anchor_window(
-        dialog: QDialog, anchor: QWidget, anchor_side: str
+        dialog: QDialog, anchor: QWidget, anchor_side: str = "left"
     ) -> None:
     """
     Positions the dialog such that it right/left corner is 

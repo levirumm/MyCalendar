@@ -1,7 +1,7 @@
 from app.gui.view import CalendarView
 from app.model.model import CalendarModel
 from app.forms.form import Form
-from app.forms.form_specs import FormType
+from app.forms.form_specs import FormType, FormState
 
 
 class CalendarController:
@@ -42,7 +42,11 @@ class CalendarController:
     
     def on_add_item(self, form_type: FormType) -> None:
         """Opens the form allowing used to add corresponding item."""
-        form = Form(parent=self._view, form_type=form_type)
+        form = Form(
+            parent=self._view, form_type=form_type, 
+            state=FormState.ADD
+        )
+        # form.connect_to_form(self)
     
     def _show_display_date(self) -> None:
         """Updates view to show display date."""
@@ -50,3 +54,6 @@ class CalendarController:
         self._view.update_display_month(
             self._model.today, self._display_date, first_cell
         )
+
+    def _add_item(self, item_specs) -> None:
+        pass

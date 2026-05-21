@@ -1,14 +1,21 @@
 from PySide6.QtWidgets import (
     QFrame, QTimeEdit, QLabel, QVBoxLayout, QHBoxLayout, 
     QLineEdit, QWidget, QDateEdit, QAbstractSpinBox,
-    QPushButton
+    QPushButton, QDialog
 )
-from PySide6.QtCore import Qt, QDate
+from PySide6.QtCore import Qt, QDate, Signal, QObject
 from PySide6.QtGui import QPixmap, QDoubleValidator
 from typing import Callable
 from app.gui.metrics import Metrics, Typography
 from app.forms.form_specs import FormField, EntryType
-from app.gui.utils import make_bean
+from app.gui.pop_ups import ColorSwatch
+from app.gui.utils import make_bean, anchor_window
+from typing import Protocol
+
+
+class FormEntry(Protocol):
+    def get(self) -> str:
+        ...
 
 
 class FieldBuilder:
@@ -28,7 +35,7 @@ class FieldBuilder:
             EntryType.SWATCH: self._make_swatch
         }
 
-    def add(self, field: FormField) -> QWidget:
+    def add(self, field: FormField) -> FormEntry:
         """Renders a row in a form given specifications."""
         # Container for row
         row_container = QFrame()
@@ -47,7 +54,18 @@ class FieldBuilder:
         self._form_layout.addWidget(row_container)
 
         return edit
-    
+
+    def add_title(
+            self, field: FormField, title_layout: QHBoxLayout
+        ) -> "TextEntry":
+        """Renders title entry and adds to existing title layout."""
+        title_entry = TextEntry()
+        title_entry.setFont(Typography.SUB_HEADING)
+        title_entry.setPlaceholderText(field.placeholder)
+        title_entry.setProperty("role", "title_entry")
+        title_layout.addWidget(title_entry)
+        return title_entry
+
     def _render_icon(
             self, icon_path: str, layout: QHBoxLayout
         ) -> None:
@@ -61,20 +79,20 @@ class FieldBuilder:
 
     def _make_text_edit(
             self, field: FormField, layout: QHBoxLayout
-        ) -> QLineEdit:
-        """Renders a QLineEdit."""
-        edit = QLineEdit()
+        ) -> "TextEntry":
+        """Renders a TextEntry."""
+        edit = TextEntry()
         self._configure_text_edit(edit, field, layout)
         return edit
 
     def _make_date_edit(
             self, field: FormField, layout: QHBoxLayout
-        ) -> QDateEdit:
-        """Renders a QDateEdit."""
+        ) -> "DateEntry":
+        """Renders a DateEntry."""
         container, edit_layout = self._configure_labeled_edit_container()
     
         # Label and date edit (default to today)
-        edit = QDateEdit()
+        edit = DateEntry()
         edit.setDate(QDate.currentDate())
         label = self._configure_labeled_spin_box(field, edit)
         
@@ -85,12 +103,12 @@ class FieldBuilder:
 
     def _make_time_edit(
             self, field: FormField, layout: QHBoxLayout
-        ) -> QTimeEdit:
+        ) -> "TimeEntry":
         """Renders a QTimeEdit."""
         container, edit_layout = self._configure_labeled_edit_container()
 
         # Label and time edit (default to 12:00 AM)
-        edit = QTimeEdit()
+        edit = TimeEntry()
         label = self._configure_labeled_spin_box(field, edit)
 
         self._configure_labeled_edit(
@@ -100,12 +118,12 @@ class FieldBuilder:
     
     def _make_percentage_edit(
             self, field: FormField, layout: QHBoxLayout
-        ) -> QLineEdit:
+        ) -> "TextEntry":
         """
         Renders a QLineEdit with a QDoubleValidator restricting 
         the input to 0-100 and with 2dp of precision.
         """
-        edit = QLineEdit()
+        edit = TextEntry()
         validator = QDoubleValidator(bottom=0, top=100, decimals=2)
         validator.setNotation( # Disallow scientific notation
             QDoubleValidator.Notation.StandardNotation
@@ -124,25 +142,15 @@ class FieldBuilder:
     
     def _make_swatch(
             self, field: FormField, layout: QHBoxLayout
-        ) -> QPushButton:
+        ) -> "SwatchButton":
         """Makes a button for selecting class/class color."""
-        offset = Typography.BASE.pixelSize() // 2
-
-        # Render button
-        button = QPushButton(field.label)
-        button.setProperty("color", "lightest_blue")
-        button.setStyleSheet(
-            "text-align: left;"
-            f"padding-left: {offset}px;"
-        )
-        button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        make_bean(button, Metrics.COLOR_IDENTIFIER)
+        font_size = Typography.BASE.pixelSize()
+        swatch_button = SwatchButton(field.label, layout, font_size)
 
         # Set spacing so button text lines up with other fields
-        layout.setSpacing(Metrics.COLOR_IDENTIFIER - offset)
+        layout.setSpacing(Metrics.COLOR_IDENTIFIER - (font_size // 2))
 
-        layout.addWidget(button)
-        return button
+        return swatch_button
 
     def _configure_text_edit(
             self, edit, field: FormField, layout: QHBoxLayout
@@ -185,8 +193,23 @@ class FieldBuilder:
         container.setLayout(edit_layout)
         layout.addWidget(container)
 
+
+class TextEntry(QLineEdit):
+    def get(self) -> str:
+        return self.text()
+
+
+class DateEntry(QDateEdit):
+    def get(self) -> str:
+        return self.date().toString()
     
-class URLEdit(QLineEdit):
+
+class TimeEntry(QTimeEdit):
+    def get(self) -> str:
+        return self.time().toString()
+
+
+class URLEdit(TextEntry):
     """
     QLineEdt which, when disabled, is a clickable link.
     """
@@ -198,3 +221,60 @@ class URLEdit(QLineEdit):
 
         if disabled:
             self.setProperty("variant", "URL")
+
+
+class SwatchButton(QObject):
+    """
+    Button which opens opens color swatch when pressed. 
+    Sends colorPicked signal on selection.
+    """
+    colorPicked = Signal(str)
+
+    def __init__(
+            self, label: str, layout: QHBoxLayout, 
+            font_size: int
+        ) -> None:
+        super().__init__()
+        self._color = ""
+
+        # Offset by half text height
+        offset = font_size // 2
+
+        # Render button and add to layout
+        self._button = QPushButton(label)
+        self._button.setProperty("color", "lightest_blue")
+        self._button.setStyleSheet(
+            "text-align: left;"
+            f"padding-left: {offset}px;"
+        )
+        self._button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        make_bean(self._button, Metrics.COLOR_IDENTIFIER)
+        layout.addWidget(self._button)
+
+    @property
+    def button(self) -> QPushButton:
+        return self._button
+    
+    def get(self) -> str:
+        return self._color
+    
+    def setFont(self, font) -> None:
+        """Sets font of button."""
+        self._button.setFont(font)
+    
+    def open_swatch(self, parent, anchor: QWidget, colors: list[str]) -> None:
+        """
+        Opens color swatch anchor to anchor point and emits signal 
+        if color selected.
+        """
+        swatch = ColorSwatch(parent, colors)
+        anchor_window(swatch, anchor)
+        result = swatch.exec()
+
+        # Re-evaluate hover status
+        self._button.style().polish(self._button)
+
+        if result == QDialog.DialogCode.Accepted and swatch.selection:
+            # Set selection and emit signal
+            self._color = swatch.selection
+            self.colorPicked.emit(self._color) 

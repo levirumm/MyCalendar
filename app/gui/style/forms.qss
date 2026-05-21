@@ -10,7 +10,7 @@ QLineEdit {{
     border: none;
 }}
 
-QLineEdit[role="name_entry"] {{
+QLineEdit[role="title_entry"] {{
     border-bottom: 1px solid {blue[base]};
 }}
 

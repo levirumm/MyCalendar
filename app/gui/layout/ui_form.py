@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QHBoxLayout,
-    QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QLabel, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 from resources import resources_rc
 
 class Ui_Form(object):
@@ -92,33 +92,27 @@ class Ui_Form(object):
 
         self.frame_layout.addWidget(self.frame_2)
 
-        self.frame_3 = QFrame(self.frame)
-        self.frame_3.setObjectName(u"frame_3")
+        self.title_container = QFrame(self.frame)
+        self.title_container.setObjectName(u"title_container")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
-        self.frame_3.setSizePolicy(sizePolicy1)
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
-        self.title_layout = QHBoxLayout(self.frame_3)
+        sizePolicy1.setHeightForWidth(self.title_container.sizePolicy().hasHeightForWidth())
+        self.title_container.setSizePolicy(sizePolicy1)
+        self.title_container.setFrameShape(QFrame.NoFrame)
+        self.title_container.setFrameShadow(QFrame.Raised)
+        self.title_layout = QHBoxLayout(self.title_container)
         self.title_layout.setSpacing(0)
         self.title_layout.setObjectName(u"title_layout")
         self.title_layout.setContentsMargins(0, 0, 0, 0)
-        self.color_indicator = QLabel(self.frame_3)
+        self.color_indicator = QLabel(self.title_container)
         self.color_indicator.setObjectName(u"color_indicator")
         self.color_indicator.setAlignment(Qt.AlignCenter)
 
         self.title_layout.addWidget(self.color_indicator)
 
-        self.name_entry = QLineEdit(self.frame_3)
-        self.name_entry.setObjectName(u"name_entry")
-        self.name_entry.setClearButtonEnabled(False)
 
-        self.title_layout.addWidget(self.name_entry)
-
-
-        self.frame_layout.addWidget(self.frame_3)
+        self.frame_layout.addWidget(self.title_container)
 
         self.frame_4 = QFrame(self.frame)
         self.frame_4.setObjectName(u"frame_4")

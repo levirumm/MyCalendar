@@ -9,25 +9,35 @@ PALETTE = {
 
     "gray": {"base": "#434343"}, 
 
-    "red": "#e9c1c1",
-
+    # Button colors
+    "red": "#cf4c4c",
     "orange": "#edb253",
-
-    "yellow": "#d5b747",
-   
-    "green": "#69d459",
-   
+    "yellow": "#ece24e",
+    "green": "#6fd35f",
     "purple": "#a975c7",
-
-    "pink": "#c775b0",
+    "pink": "#c75598",
 }
 
 
-BUTTON_COLORS = {
+BUTTON_COLORS: dict[str, str] = {
     "light_blue": PALETTE["blue"]["light"],
     "base_blue": PALETTE["blue"]["base"],
     "dark_blue": PALETTE["blue"]["dark"],
     "darkest_blue": PALETTE["blue"]["darkest"],
+    
+    "white": "#FFFFFF",
 
-    "white": "#FFFFFF"
+    "red": PALETTE["red"],
+    "orange": PALETTE["orange"],
+    "yellow": PALETTE["yellow"],
+    "green": PALETTE["green"],
+    "purple": PALETTE["purple"],
+    "pink": PALETTE["pink"]
 }
+
+
+CLASS_COLORS: list[str] = [
+    "red", "orange", "yellow", 
+    "green", "dark_blue", "darkest_blue", 
+    "purple", "pink"
+]

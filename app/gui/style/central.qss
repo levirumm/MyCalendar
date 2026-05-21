@@ -72,5 +72,5 @@ QPushButton[color="lightest_blue"]:pressed {{
 
 QFrame[role="menu"] {{
     background-color: white;
-    border-radius: 5px;
+    border-radius: 10px;
 }}

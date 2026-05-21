@@ -1,54 +1,64 @@
-from PySide6.QtWidgets import (
-    QDialog, QGraphicsDropShadowEffect, QFrame, 
-    QPushButton, QVBoxLayout
-)
-from PySide6.QtCore import Qt, QSize
-
-from app.gui.utils import (
-    make_circle, make_bean, style_window 
-)
-from app.gui.palette import PALETTE
+from PySide6.QtWidgets import QDialog, QPushButton, QWidget
+from PySide6.QtCore import QSize, Signal
+from app.gui.utils import make_circle, make_bean, style_window
+from app.gui.palette import PALETTE, CLASS_COLORS, BUTTON_COLORS
 from app.gui.metrics import Metrics, Typography
 from app.gui.layout.ui_form import Ui_Form
-from app.forms.form_specs import FormField
-from app.forms.field_builder import FieldBuilder
+from app.forms.form_specs import FormField, FormState, FormType
+from app.forms.field_builder import FieldBuilder, SwatchButton, FormEntry
 
 
 class FormView(QDialog, Ui_Form):
     """
     View class of form which controls UI elements.
     """
+    colorPicked = Signal(str)
+    save = Signal()
+
     def __init__(
-            self, parent, form_specs: list[FormField]
+            self, parent, fields: dict[str, FormField], 
+            form_type: FormType, state: FormState
         ) -> None:
         super().__init__(parent)
-        ui = Ui_Form()
-        ui.setupUi(self)
+        self._ui = Ui_Form()
+        self._ui.setupUi(self)
 
-        # Configure styling of form
-        self._render_buttons(ui)
-        self._configure_form(ui.frame, ui.frame_layout)
-        self._shadow = style_window(self, ui.frame)
+        # Configure form
+        self._render_buttons()
+        self._configure_form()
+        self._toggle_state(state)
+        self._shadow = style_window(self, self._ui.frame)
 
-        # Iteratively draw rows in form
-        field_builder = FieldBuilder(ui.row_layout)
-        for field in form_specs:
-            if field.key == "title":
-                self._render_title_row(ui, field)
-            else:
-                field_builder.add(field)
+        # Dict mapping field keys to their entries
+        self._field_entries: dict[str, FormEntry] = {}
+
+        # Build fields and add to map
+        field_builder = FieldBuilder(self._ui.row_layout)
+        for key, field in fields.items():
+            entry = self._draw_form_field(key, field, field_builder)
+            self._field_entries[key] = entry
+    
+    def read_entries(self) -> dict:
+        """Returns dict mapping entry key to its datum."""
+        return {
+            key: entry.get()
+            for key, entry in self._field_entries.items()
+        }
+
+    def connect_to_form(self, form) -> None:
+        """Connects form view signals to form slots."""
+        self.colorPicked.connect(form.on_color_picked)
+        self.save.connect(form.on_save)
 
     def _toggle_check_box(self, check_box: QPushButton) -> None:
-        """
-        Updates the styling of the button based on status.
-        """
+        """Updates the styling of the button based on status."""
         check_box.setProperty(
             "role", "checked" if check_box.isChecked() 
             else "unchecked"
         )
         check_box.style().polish(check_box)
 
-    def _render_buttons(self, ui: Ui_Form) -> None:
+    def _render_buttons(self) -> None:
         """
         Renders the close, save, edit, and mark complete 
         buttons at the top of the form.
@@ -56,57 +66,91 @@ class FormView(QDialog, Ui_Form):
         # Close, edit, delete, and complete buttons
         btn_size = Metrics.COLOR_IDENTIFIER
         for button in [
-            ui.close_button, ui.edit_button, 
-            ui.delete_button, ui.complete_button
+            self._ui.close_button, self._ui.edit_button, 
+            self._ui.delete_button, self._ui.complete_button
         ]:
             button.setProperty("color", "lightest_blue")
             button.setIconSize(QSize(btn_size, btn_size))
             make_circle(button, btn_size)
 
-        self._toggle_check_box(ui.complete_button)
-        ui.close_button.clicked.connect(lambda: self.accept())
-        ui.complete_button.toggled.connect(
-            lambda: self._toggle_check_box(ui.complete_button)
+        self._toggle_check_box(self._ui.complete_button)
+
+        # Render save button
+        self._ui.save_button.setProperty("color", "darkest_blue")
+        self._ui.save_button.setProperty("text_color", "white")
+        self._ui.save_button.setFont(Typography.BASE)
+        make_bean(self._ui.save_button, btn_size)
+
+        # Connect to buttons
+        self._ui.close_button.clicked.connect(lambda: self.accept())
+        self._ui.complete_button.toggled.connect(
+            lambda: self._toggle_check_box(self._ui.complete_button)
         )
-
-        # Save button
-        ui.save_button.setProperty("color", "darkest_blue")
-        ui.save_button.setProperty("text_color", "white")
-        ui.save_button.setFont(Typography.BASE)
-        make_bean(ui.save_button, btn_size)
-        
-    def _render_title_row(
-            self, ui: Ui_Form, field: FormField
-        ) -> None:
-        """
-        Renders the title entry row, including color indicator.
-        """
-        ui.title_layout.setSpacing(Metrics.COLOR_IDENTIFIER)
-
-        # Title entry
-        ui.name_entry.setFont(Typography.SUB_HEADING)
-        ui.name_entry.setPlaceholderText(field.placeholder)
-        ui.name_entry.setProperty("role", "name_entry")
-
-        # Color identifier
-        ui.color_indicator.setStyleSheet(
-            f"background-color: {PALETTE["blue"]["base"]};"
-        )
-        make_circle(ui.color_indicator, Metrics.COLOR_IDENTIFIER)
+        self._ui.save_button.clicked.connect(lambda: self.save.emit())
     
-    def _configure_form(
-            self, frame: QFrame, frame_layout: QVBoxLayout
-        ) -> None:
+    def _configure_form(self) -> None:
         """
-        Applies styling to window, including Qt window 
-        attributes, qss properties, and drop shadow.
+        Applies styling to form elements, including window attributes, 
+        qss properties, margins + spacing, and drop shadow.
         """
         # Apply styling to frame
-        frame.setProperty("role", "form")
+        self._ui.frame.setProperty("role", "form")
+
+        self._set_indicator(PALETTE["blue"]["light"])
 
         # Apply margins to form
+        self._ui.title_layout.setSpacing(Metrics.COLOR_IDENTIFIER)
         side_padding = Metrics.COLOR_IDENTIFIER
         end_padding = Typography.SMALL.pixelSize()
-        frame_layout.setContentsMargins(
+        self._ui.frame_layout.setContentsMargins(
             side_padding, end_padding, side_padding, end_padding
         )
+    
+    def _draw_form_field(
+            self, key: str, field: FormField, field_builder: FieldBuilder
+        ) -> FormEntry:
+        """Renders and returns form field given specs."""
+        match key:
+            case "title":
+                entry = field_builder.add_title(
+                    field, self._ui.title_layout
+                )
+            case "color":
+                entry = field_builder.add(field)
+
+                if isinstance(entry, SwatchButton):
+                    entry.button.clicked.connect(
+                        lambda: self._open_swatch(entry)
+                    )
+                    entry.colorPicked.connect(self._on_color_picked)
+            case _:
+                entry = field_builder.add(field)
+        return entry
+    
+    def _toggle_state(self, state: FormState) -> None:
+        """Configures the view based on the state of the form."""
+        if state is FormState.ADD:
+            self._ui.edit_button.hide()
+            self._ui.complete_button.hide()
+            self._ui.delete_button.hide()
+        
+    def _open_swatch(self, swatch: SwatchButton) -> None:
+        """Opens swatch anchored to color indicator."""
+        swatch.open_swatch(
+            parent=self._ui.frame, anchor=self._ui.color_indicator, 
+            colors=CLASS_COLORS
+        )
+    
+    def _on_color_picked(self, color: str) -> None:
+        """Sets color indicator and emits signal."""
+        self._set_indicator(BUTTON_COLORS[color])
+        self.colorPicked.emit(color)
+        
+    def _set_indicator(self, color: str) -> None:
+        """Sets the color of the color indicator."""
+        btn_size = Metrics.COLOR_IDENTIFIER
+        self._ui.color_indicator.setStyleSheet(
+            f"background-color: {color};"
+        )
+        make_circle(self._ui.color_indicator, btn_size)
+        self._ui.color_indicator.style().polish(self._ui.color_indicator)

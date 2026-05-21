@@ -9,6 +9,13 @@ class FormType(Enum):
     EXAM = auto()
 
 
+class FormState(Enum):
+    """Enum for state of form."""
+    VIEW = auto()
+    EDIT = auto()
+    ADD = auto()
+
+
 class EntryType(Enum):
     """Enum for types of entries appearing on forms."""
     TEXT = auto()
@@ -25,7 +32,6 @@ class FormField:
     Specifications for form field of form, including 
     icon and entry specs.
     """
-    key: str
     type: EntryType
     placeholder: str = ""
     label: str = ""
@@ -33,86 +39,82 @@ class FormField:
     required: bool = False
 
 
-FORM_SPECS: dict[FormType, list[FormField]] = {
+FORM_FIELDS: dict[FormType, dict[str, FormField]] = {
     # Specifications of all fields for each form type
-    FormType.CLASS: [
-        FormField(
-            key="title", type=EntryType.TEXT, placeholder="Add Class", 
+    FormType.CLASS: {
+        "title": FormField(
+            type=EntryType.TEXT, placeholder="Add Class", 
             required=True
         ),
-        FormField(
-            key="color", type=EntryType.SWATCH, label="Select Colour", 
+        "color": FormField(
+            type=EntryType.SWATCH, label="Select Colour", 
             icon=":/paint_bucket", required=True
         ),
-        FormField(
-            key="lecturer", type=EntryType.TEXT, 
-            placeholder="Add Lecturer", icon=":/person.svg"
+        "lecturer": FormField(
+            type=EntryType.TEXT,  placeholder="Add Lecturer", 
+            icon=":/person.svg"
         ),
-        FormField(
-            key="email", type=EntryType.URL, placeholder="Add Email",
+        "email": FormField(
+            type=EntryType.URL, placeholder="Add Email",
             icon=":/at.svg"
         ),
-        FormField(
-            key="homepage", type=EntryType.URL, 
+        "homepage": FormField(
+            type=EntryType.URL, 
             placeholder="Add Homepage URL", icon=":/home.svg"
         )
-    ],
+    },
 
-    FormType.ASSIGNMENT: [
-        FormField(
-            key="title", type=EntryType.TEXT, 
-            placeholder="Add Assignment", required=True
+    FormType.ASSIGNMENT: {
+        "title": FormField(
+           type=EntryType.TEXT, placeholder="Add Assignment", 
+           required=True
         ),
-        FormField(
-            key="color", type=EntryType.SWATCH, 
+        "color": FormField(
+            type=EntryType.SWATCH, 
             label="Select Class", icon=":/graduation_cap", required=True
         ),
-        FormField(
-            key="due_date", type=EntryType.DATE, label="Due", 
+        "due_date": FormField(
+            type=EntryType.DATE, label="Due", 
             icon=":/alert_calendar.svg", required=True
         ),
-        FormField(
-            key="weight", type=EntryType.PERCENTAGE,
-            placeholder="Add Weight", icon=":/percentage.svg"
+        "weight": FormField(
+            type=EntryType.PERCENTAGE, placeholder="Add Weight", 
+            icon=":/percentage.svg"
         ),
-        FormField(
-            key="open_date", type=EntryType.DATE,
-            label="Available", icon=":/clock.svg"
+        "open_date": FormField(
+            type=EntryType.DATE, label="Available", icon=":/clock.svg"
         ),
-        FormField(
-            key="url", type=EntryType.URL, placeholder="Add URL",
-            icon=":/link.svg"
+        "url": FormField(
+            type=EntryType.URL, placeholder="Add URL", icon=":/link.svg"
         )   
-    ],
+    },
 
-    FormType.EXAM: [
-        FormField(
-            key="title", type=EntryType.TEXT, 
-            placeholder="Add Exam", required=True
+    FormType.EXAM: {
+        "title": FormField(
+            type=EntryType.TEXT, placeholder="Add Exam", required=True
         ),
-        FormField(
-            key="color", type=EntryType.SWATCH, label="Select Class", 
+        "color": FormField(
+            type=EntryType.SWATCH, label="Select Class", 
             icon=":/graduation_cap", required=True
         ),
-        FormField(
-            key="due_date", type=EntryType.DATE, label="Due", 
-            icon=":/alert_calendar.svg", required=True
+        "due_date": FormField(
+            type=EntryType.DATE, label="Due", icon=":/alert_calendar.svg", 
+            required=True
         ),
-        FormField(
-            key="weight", type=EntryType.PERCENTAGE,
+        "weight": FormField(
+            type=EntryType.PERCENTAGE,
             placeholder="Add Weight", icon=":/percentage.svg"
         ),
-        FormField(
-            key="time", type=EntryType.TIME, icon=":/clock.svg", 
+        "time": FormField(
+            type=EntryType.TIME, icon=":/clock.svg", 
             label="Starts"
         ),
-        FormField(
-            key="location", type=EntryType.TEXT, 
-            placeholder="Add Location", icon=":/location_pin.svg"
+        "location": FormField(
+            type=EntryType.TEXT, placeholder="Add Location", 
+            icon=":/location_pin.svg"
         ),
-        FormField(
-            key="url", type=EntryType.URL, placeholder="Add URL",
-            icon=":/link.svg"
+        "url": FormField(
+            type=EntryType.URL, placeholder="Add URL", icon=":/link.svg"
         )   
-    ]
+    }
 }
