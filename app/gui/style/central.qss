@@ -33,7 +33,6 @@ QLabel[variant="highlight"] {{
     color: white;
     background-color: {blue[darkest]};
     padding-bottom: 1px;
-    padding-right: 1px;
 }}
 
 

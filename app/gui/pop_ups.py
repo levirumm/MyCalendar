@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
 from math import ceil
 from app.gui.layout.ui_event_choice import Ui_EventChoice
 from app.gui.layout.ui_color_swatch import Ui_ColorSwatch
-from app.forms.form_specs import FormType
+from app.model.schema import ItemType
 from app.gui.metrics import Typography, Metrics
 from app.gui.utils import make_circle, style_window
 
@@ -35,17 +35,17 @@ class EventSelect(QDialog, Ui_EventChoice):
         ui.exam_button.clicked.connect(self._on_exam_clicked)
     
     @property
-    def selection(self) -> FormType | None:
+    def selection(self) -> ItemType | None:
         return self._selection
         
     def _on_assignment_clicked(self) -> None:
         """Sets selection and closes window."""
-        self._selection = FormType.ASSIGNMENT
+        self._selection = ItemType.ASSIGNMENT
         self.accept()
 
     def _on_exam_clicked(self) -> None:
         """Sets selection and closes window."""
-        self._selection = FormType.EXAM
+        self._selection = ItemType.EXAM
         self.accept()
 
 
@@ -76,8 +76,9 @@ class ColorSwatch(QDialog, Ui_ColorSwatch):
         """
         color_amount = len(colors)
         counter = 0
-        rows = 1 if color_amount < 5 else 2
-        cols = ceil(color_amount / 2)
+
+        rows = (color_amount - 1)// 4 + 1
+        cols = ceil(color_amount / rows)
 
         btn_size = Metrics.SMALL_BUTTON
         for row in range(rows): 

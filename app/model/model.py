@@ -1,4 +1,5 @@
 from datetime import datetime, date, timedelta
+from app.model.schema import ItemType, ItemDescription
 from app.model.db.database_manager import DatabaseManager
 
 
@@ -10,6 +11,8 @@ class CalendarModel:
     def __init__(self) -> None:
         self._db_manager = DatabaseManager()
         self._today = datetime.today().date()
+
+        self._db_manager.get_class_descriptions()
     
     @property
     def today(self) -> date:
@@ -18,6 +21,18 @@ class CalendarModel:
     def refresh(self) -> None:
         """Updates current date."""
         self._today = datetime.today().date()
+    
+    def add_item(self, data: dict, item_type: ItemType) -> bool:
+        """Adds item to database. Returns false if error."""
+        if item_type == ItemType.CLASS:
+            return self._db_manager.add_class(data)
+        
+        return self._db_manager.add_assessment(
+            data, item_type, insertion_time=self._get_date_time()
+        )
+
+    def get_class_descriptions(self) -> list[ItemDescription]:
+        return self._db_manager.get_class_descriptions()
     
     def date_of_first_cell(self, month_date: date) -> date:
         """
@@ -50,3 +65,7 @@ class CalendarModel:
             month = 1
             year += 1
         return date(year, month, 1)
+
+    def _get_date_time(self) -> str:
+        """Returns the current date and time."""
+        return f"{self._today} {datetime.now().strftime("%H:%M:%S")}"

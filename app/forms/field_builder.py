@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QLineEdit, QWidget, QDateEdit, QAbstractSpinBox,
     QPushButton, QDialog
 )
-from PySide6.QtCore import Qt, QDate, Signal, QObject
+from PySide6.QtCore import Qt, QDate, Signal, QObject, QTime
 from PySide6.QtGui import QPixmap, QDoubleValidator
 from typing import Callable
 from app.gui.metrics import Metrics, Typography
@@ -15,6 +15,9 @@ from typing import Protocol
 
 class FormEntry(Protocol):
     def get(self) -> str:
+        ...
+    
+    def set(self, data) -> None:
         ...
 
 
@@ -198,15 +201,24 @@ class TextEntry(QLineEdit):
     def get(self) -> str:
         return self.text()
 
+    def set(self, data: str) -> None:
+        self.setText(data)
+
 
 class DateEntry(QDateEdit):
     def get(self) -> str:
         return self.date().toString()
+
+    def set(self, date: QDate) -> None:
+        self.setDate(date)
     
 
 class TimeEntry(QTimeEdit):
     def get(self) -> str:
         return self.time().toString()
+
+    def set(self, time: QTime) -> None:
+        self.setTime(time)
 
 
 class URLEdit(TextEntry):
@@ -257,12 +269,16 @@ class SwatchButton(QObject):
     
     def get(self) -> str:
         return self._color
+
+    def set(self, label: str) -> None:
+        self._button.setText(label)
     
     def setFont(self, font) -> None:
-        """Sets font of button."""
         self._button.setFont(font)
     
-    def open_swatch(self, parent, anchor: QWidget, colors: list[str]) -> None:
+    def open_swatch(
+            self, parent, anchor: QWidget, colors: list[str]
+        ) -> None:
         """
         Opens color swatch anchor to anchor point and emits signal 
         if color selected.

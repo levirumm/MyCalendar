@@ -1,51 +1,56 @@
 import sqlite3
 from pathlib import Path
+from app.model.schema import FieldName as f
+from app.model.schema import ItemType
 
 
 DB_PATH = Path(__file__).parent / "calendar_database.db"
 
-CREATE_CLASS_TABLE = """
-CREATE TABLE IF NOT EXISTS class (
-    classID INTEGER PRIMARY KEY,
-    name TEXT,
-    lecturer TEXT,
-    lecturerEmail TEXT,
-    homepage TEXT,
-    color TEXT
+CREATE_CLASS_TABLE = (
+    f"CREATE TABLE IF NOT EXISTS {ItemType.CLASS.value} (\n"
+    f"{f.CLASS_ID.value} INTEGER PRIMARY KEY,\n"
+    f"{f.TITLE.value} TEXT,\n"
+    f"{f.LECTURER.value} TEXT,\n"
+    f"{f.EMAIL.value} TEXT,\n"
+    f"{f.HOMEPAGE.value} TEXT,\n"
+    f"{f.COLOR.value} TEXT\n"
+    ")"
 )
-"""
 
-CREATE_ASSIGNMENT_TABLE = """
-CREATE TABLE IF NOT EXISTS assignment (
-    assignmentID INTEGER PRIMARY KEY,
-    classID INTEGER NOT NULL,
-    name TEXT,
-    dueDate TEXT,
-    openDate TEXT,
-    weight NUMERIC,
-    URL TEXT,
-    insertionDateTime TEXT,
-    completed INTEGER DEFAULT 0,
-    FOREIGN KEY (classID) REFERENCES class(classID) ON DELETE CASCADE
+CREATE_ASSIGNMENT_TABLE = (
+    f"CREATE TABLE IF NOT EXISTS {ItemType.ASSIGNMENT.value} (\n"
+    f"{f.ASSIGNMENT_ID.value} INTEGER PRIMARY KEY,\n"
+    f"{f.CLASS_ID.value} INTEGER NOT NULL,\n"
+    f"{f.TITLE.value} TEXT,\n"
+    f"{f.DUE_DATE.value} TEXT,\n"
+    f"{f.OPEN_DATE.value} TEXT,\n"
+    f"{f.WEIGHT.value} NUMERIC,\n"
+    f"{f.URL.value} TEXT,\n"
+    f"{f.INSERTION_TIME.value} TEXT,\n"
+    f"{f.COMPLETE.value} INTEGER DEFAULT 0,\n"
+    f"FOREIGN KEY ({f.CLASS_ID.value}) "
+    f"REFERENCES {ItemType.CLASS.value}({f.CLASS_ID.value}) "
+    f"ON DELETE CASCADE\n"
+    f")"
 )
-"""
 
-CREATE_EXAM_TABLE = """
-CREATE TABLE IF NOT EXISTS exam (
-    examID INTEGER PRIMARY KEY,
-    classID INTEGER NOT NULL,
-    name TEXT,
-    dueDate TEXT,
-    openTime TEXT,
-    weight NUMERIC,
-    location TEXT,
-    URL TEXT,
-    insertionDateTime TEXT,
-    completed INTEGER DEFAULT 0,
-    FOREIGN KEY (classID) REFERENCES class(classID) ON DELETE CASCADE
+CREATE_EXAM_TABLE = (
+    f"CREATE TABLE IF NOT EXISTS {ItemType.EXAM.value} (\n"
+    f"{f.EXAM_ID.value} INTEGER PRIMARY KEY,\n"
+    f"{f.CLASS_ID.value} INTEGER NOT NULL,\n"
+    f"{f.TITLE.value} TEXT,\n"
+    f"{f.DUE_DATE.value} TEXT,\n"
+    f"{f.TIME.value} TEXT,\n"
+    f"{f.WEIGHT.value} NUMERIC,\n"
+    f"{f.LOCATION.value} TEXT,\n"
+    f"{f.URL.value} TEXT,\n"
+    f"{f.INSERTION_TIME.value} TEXT,\n"
+    f"{f.COMPLETE.value} INTEGER DEFAULT 0,\n"
+    f"FOREIGN KEY ({f.CLASS_ID.value}) "
+    f"REFERENCES {ItemType.CLASS.value}({f.CLASS_ID.value}) "
+    f"ON DELETE CASCADE\n"
+    f")"
 )
-"""
-
 
 def initialise_database() -> sqlite3.Connection | None:
     """

@@ -52,12 +52,15 @@ def make_circle(widget: QWidget, diameter: int) -> None:
     Sets the border radius of the widget in style sheet 
     to be the radius of the widget.
     """
-    widget.setFixedSize(diameter, diameter)
+    margin = 1 # 1px margin to avoid clipping
+    widget.setFixedSize(diameter + 2 * margin, diameter + 2 * margin)
     widget.setStyleSheet(
-        widget.styleSheet() +
+        widget.styleSheet() + (
             f"border-radius: {diameter // 2}px;"
+            f"margin: {margin}px"
+        )
     )
-
+    
 
 def make_bean(widget: QWidget, height: int) -> None:
     """

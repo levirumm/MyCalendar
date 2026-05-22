@@ -5,10 +5,11 @@ from PySide6.QtWidgets import (
     QPushButton, QDialog
 )
 from PySide6.QtCore import Qt, QObject, Signal, QSize
-from app.forms.form_specs import FormType
 from app.model.constants import (
-    CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, UNICODE
+    CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, 
+    UNICODE
 )
+from app.model.schema import ItemType
 from app.gui.metrics import Typography, Metrics
 from app.gui.palette import PALETTE, BUTTON_COLORS
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
@@ -63,12 +64,10 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.nextMonth.connect(controller.on_next_month)
         self._header_bar.refresh.connect(controller.on_refresh)
         self._header_bar.today.connect(controller.on_today)
-        self._header_bar.addItem.connect(controller.on_add_item)
+        self._header_bar.addItem.connect(controller.on_add_assessment)
 
         # Left column signals
-        self._left_column.addClass.connect(
-            lambda: controller.on_add_item(FormType.CLASS)
-        )
+        self._left_column.addClass.connect(controller.on_add_class)
                         
     def _load_qss(self) -> str:
         """
@@ -90,7 +89,7 @@ class HeaderBar(QObject):
     nextMonth = Signal()
     refresh = Signal()
     today = Signal()
-    addItem = Signal(FormType)
+    addItem = Signal(ItemType)
 
     def __init__(
             self, display_date: date, ui: Ui_MyCalendar

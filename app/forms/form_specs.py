@@ -1,12 +1,6 @@
 from enum import Enum, auto
 from dataclasses import dataclass
-
-
-class FormType(Enum):
-    """Enum for type of form."""
-    ASSIGNMENT = auto()
-    CLASS = auto()
-    EXAM = auto()
+from app.model.schema import ItemType, FieldName
 
 
 class FormState(Enum):
@@ -39,82 +33,94 @@ class FormField:
     required: bool = False
 
 
-FORM_FIELDS: dict[FormType, dict[str, FormField]] = {
+@dataclass
+class ValidationResult:
+    """Result of validating a form."""
+    valid: bool
+    reason: str = ""
+
+
+FORM_FIELDS: dict[ItemType, dict[FieldName, FormField]] = {
     # Specifications of all fields for each form type
-    FormType.CLASS: {
-        "title": FormField(
+    ItemType.CLASS: {
+        FieldName.TITLE: FormField(
             type=EntryType.TEXT, placeholder="Add Class", 
             required=True
         ),
-        "color": FormField(
+        FieldName.COLOR: FormField(
             type=EntryType.SWATCH, label="Select Colour", 
             icon=":/paint_bucket", required=True
         ),
-        "lecturer": FormField(
+        FieldName.LECTURER: FormField(
             type=EntryType.TEXT,  placeholder="Add Lecturer", 
             icon=":/person.svg"
         ),
-        "email": FormField(
+        FieldName.EMAIL: FormField(
             type=EntryType.URL, placeholder="Add Email",
             icon=":/at.svg"
         ),
-        "homepage": FormField(
+        FieldName.HOMEPAGE: FormField(
             type=EntryType.URL, 
             placeholder="Add Homepage URL", icon=":/home.svg"
         )
     },
 
-    FormType.ASSIGNMENT: {
-        "title": FormField(
+    ItemType.ASSIGNMENT: {
+        FieldName.TITLE: FormField(
            type=EntryType.TEXT, placeholder="Add Assignment", 
            required=True
         ),
-        "color": FormField(
+        FieldName.COLOR: FormField(
             type=EntryType.SWATCH, 
-            label="Select Class", icon=":/graduation_cap", required=True
+            label="Select Class", icon=":/graduation_cap", 
+            required=True
         ),
-        "due_date": FormField(
+        FieldName.DUE_DATE: FormField(
             type=EntryType.DATE, label="Due", 
             icon=":/alert_calendar.svg", required=True
         ),
-        "weight": FormField(
+        FieldName.WEIGHT: FormField(
             type=EntryType.PERCENTAGE, placeholder="Add Weight", 
             icon=":/percentage.svg"
         ),
-        "open_date": FormField(
-            type=EntryType.DATE, label="Available", icon=":/clock.svg"
+        FieldName.OPEN_DATE: FormField(
+            type=EntryType.DATE, label="Available", 
+            icon=":/clock.svg"
         ),
-        "url": FormField(
-            type=EntryType.URL, placeholder="Add URL", icon=":/link.svg"
+        FieldName.URL: FormField(
+            type=EntryType.URL, placeholder="Add URL", 
+            icon=":/link.svg"
         )   
     },
 
-    FormType.EXAM: {
-        "title": FormField(
-            type=EntryType.TEXT, placeholder="Add Exam", required=True
+    ItemType.EXAM: {
+        FieldName.TITLE: FormField(
+            type=EntryType.TEXT, placeholder="Add Exam", 
+            required=True
         ),
-        "color": FormField(
+        FieldName.COLOR: FormField(
             type=EntryType.SWATCH, label="Select Class", 
             icon=":/graduation_cap", required=True
         ),
-        "due_date": FormField(
-            type=EntryType.DATE, label="Due", icon=":/alert_calendar.svg", 
-            required=True
+        FieldName.DUE_DATE: FormField(
+            type=EntryType.DATE, label="Due", 
+            icon=":/alert_calendar.svg", required=True
         ),
-        "weight": FormField(
+        FieldName.WEIGHT: FormField(
             type=EntryType.PERCENTAGE,
             placeholder="Add Weight", icon=":/percentage.svg"
         ),
-        "time": FormField(
+        FieldName.TIME: FormField(
             type=EntryType.TIME, icon=":/clock.svg", 
             label="Starts"
         ),
-        "location": FormField(
+        FieldName.LOCATION: FormField(
             type=EntryType.TEXT, placeholder="Add Location", 
             icon=":/location_pin.svg"
         ),
-        "url": FormField(
-            type=EntryType.URL, placeholder="Add URL", icon=":/link.svg"
+        FieldName.URL: FormField(
+            type=EntryType.URL, placeholder="Add URL", 
+            icon=":/link.svg"
         )   
     }
 }

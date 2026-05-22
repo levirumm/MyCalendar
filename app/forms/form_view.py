@@ -1,11 +1,14 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QWidget
+from PySide6.QtWidgets import QDialog, QPushButton
 from PySide6.QtCore import QSize, Signal
+from app.model.schema import ItemType, FieldName
 from app.gui.utils import make_circle, make_bean, style_window
-from app.gui.palette import PALETTE, CLASS_COLORS, BUTTON_COLORS
+from app.gui.palette import PALETTE
 from app.gui.metrics import Metrics, Typography
+from app.forms.form_specs import FormField, FormState
+from app.forms.field_builder import (
+    FieldBuilder, SwatchButton, FormEntry
+)
 from app.gui.layout.ui_form import Ui_Form
-from app.forms.form_specs import FormField, FormState, FormType
-from app.forms.field_builder import FieldBuilder, SwatchButton, FormEntry
 
 
 class FormView(QDialog, Ui_Form):
@@ -16,27 +19,28 @@ class FormView(QDialog, Ui_Form):
     save = Signal()
 
     def __init__(
-            self, parent, fields: dict[str, FormField], 
-            form_type: FormType, state: FormState
+            self, parent, fields: dict[FieldName, FormField], 
+            item_type: ItemType, state: FormState, colors: list[str]
         ) -> None:
         super().__init__(parent)
         self._ui = Ui_Form()
         self._ui.setupUi(self)
 
         # Configure form
+        self._colors = colors
         self._render_buttons()
         self._configure_form()
         self._toggle_state(state)
         self._shadow = style_window(self, self._ui.frame)
 
         # Dict mapping field keys to their entries
-        self._field_entries: dict[str, FormEntry] = {}
+        self._field_entries: dict[FieldName, FormEntry] = {}
 
         # Build fields and add to map
         field_builder = FieldBuilder(self._ui.row_layout)
-        for key, field in fields.items():
-            entry = self._draw_form_field(key, field, field_builder)
-            self._field_entries[key] = entry
+        for field_name, field in fields.items():
+            entry = self._draw_form_field(field_name, field, field_builder)
+            self._field_entries[field_name] = entry
     
     def read_entries(self) -> dict:
         """Returns dict mapping entry key to its datum."""
@@ -45,10 +49,24 @@ class FormView(QDialog, Ui_Form):
             for key, entry in self._field_entries.items()
         }
 
+    def display_class_title(self, title: str) -> None:
+        """Updates label on color swatch to be class title."""
+        swatch = self._field_entries[FieldName.COLOR]
+        swatch.set(title)
+    
+    def set_indicator(self, color: str) -> None:
+        """Sets the color of the color indicator."""
+        btn_size = Metrics.COLOR_IDENTIFIER
+        self._ui.color_indicator.setStyleSheet(
+            f"background-color: {color};"
+        )
+        make_circle(self._ui.color_indicator, btn_size)
+        self._ui.color_indicator.style().polish(self._ui.color_indicator)
+
     def connect_to_form(self, form) -> None:
         """Connects form view signals to form slots."""
-        self.colorPicked.connect(form.on_color_picked)
         self.save.connect(form.on_save)
+        self.colorPicked.connect(form.on_color_picked)
 
     def _toggle_check_box(self, check_box: QPushButton) -> None:
         """Updates the styling of the button based on status."""
@@ -96,7 +114,7 @@ class FormView(QDialog, Ui_Form):
         # Apply styling to frame
         self._ui.frame.setProperty("role", "form")
 
-        self._set_indicator(PALETTE["blue"]["light"])
+        self.set_indicator(PALETTE["blue"]["light"])
 
         # Apply margins to form
         self._ui.title_layout.setSpacing(Metrics.COLOR_IDENTIFIER)
@@ -107,15 +125,16 @@ class FormView(QDialog, Ui_Form):
         )
     
     def _draw_form_field(
-            self, key: str, field: FormField, field_builder: FieldBuilder
+            self, field_name: FieldName, field: FormField, 
+            field_builder: FieldBuilder
         ) -> FormEntry:
         """Renders and returns form field given specs."""
-        match key:
-            case "title":
+        match field_name:
+            case FieldName.TITLE:
                 entry = field_builder.add_title(
                     field, self._ui.title_layout
                 )
-            case "color":
+            case FieldName.COLOR:
                 entry = field_builder.add(field)
 
                 if isinstance(entry, SwatchButton):
@@ -138,19 +157,9 @@ class FormView(QDialog, Ui_Form):
         """Opens swatch anchored to color indicator."""
         swatch.open_swatch(
             parent=self._ui.frame, anchor=self._ui.color_indicator, 
-            colors=CLASS_COLORS
+            colors=self._colors
         )
     
     def _on_color_picked(self, color: str) -> None:
         """Sets color indicator and emits signal."""
-        self._set_indicator(BUTTON_COLORS[color])
         self.colorPicked.emit(color)
-        
-    def _set_indicator(self, color: str) -> None:
-        """Sets the color of the color indicator."""
-        btn_size = Metrics.COLOR_IDENTIFIER
-        self._ui.color_indicator.setStyleSheet(
-            f"background-color: {color};"
-        )
-        make_circle(self._ui.color_indicator, btn_size)
-        self._ui.color_indicator.style().polish(self._ui.color_indicator)
