@@ -96,6 +96,7 @@ class FormView(QDialog, Ui_Form):
         # Render save button
         self._ui.save_button.setProperty("color", "darkest_blue")
         self._ui.save_button.setProperty("text_color", "white")
+        self._ui.save_button.setProperty("role", "save")
         self._ui.save_button.setFont(Typography.BASE)
         make_bean(self._ui.save_button, btn_size)
 
@@ -114,7 +115,7 @@ class FormView(QDialog, Ui_Form):
         # Apply styling to frame
         self._ui.frame.setProperty("role", "form")
 
-        self.set_indicator(PALETTE["blue"]["light"])
+        self.set_indicator(PALETTE["light_blue"])
 
         # Apply margins to form
         self._ui.title_layout.setSpacing(Metrics.COLOR_IDENTIFIER)

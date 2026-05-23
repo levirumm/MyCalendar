@@ -4,20 +4,21 @@ from PySide6.QtWidgets import (
     QWidget, QGridLayout, QHBoxLayout, QLabel, QFrame,
     QPushButton, QDialog
 )
-from PySide6.QtCore import Qt, QObject, Signal, QSize
+from PySide6.QtCore import QEvent, Qt, QObject, Signal, QSize
+from PySide6.QtGui import QFont, QColor, QMouseEvent
+
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, 
     UNICODE
 )
-from app.model.schema import ItemType
+from app.model.schema import ItemType, ItemDescription
 from app.gui.metrics import Typography, Metrics
-from app.gui.palette import PALETTE, BUTTON_COLORS
+from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
 from app.gui.pop_ups import EventSelect
-from app.gui.utils import (
-    make_circle, anchor_window, generate_button_colors
-)
+from app.gui.theme import load_qss
+from app.gui.utils import make_circle, make_bean, anchor_window
     
 
 class CalendarView(QWidget, Ui_MyCalendar):
@@ -36,7 +37,7 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self.setWindowTitle("My Calendar")
 
         # Initiate app wide styling
-        self.setStyleSheet(self._load_qss()) 
+        self.setStyleSheet(load_qss(self.STYLE_PATHS)) 
 
         # Header bar
         self._header_bar = HeaderBar(today, self._ui)
@@ -69,16 +70,6 @@ class CalendarView(QWidget, Ui_MyCalendar):
         # Left column signals
         self._left_column.addClass.connect(controller.on_add_class)
                         
-    def _load_qss(self) -> str:
-        """
-        Returns string joining QSS from all QSS files, inserting 
-        palette values and derived button colors.
-        """
-        return "\n".join(
-            Path(path).read_text(encoding="utf-8").format(**PALETTE)
-            for path in self.STYLE_PATHS
-        ) + generate_button_colors(BUTTON_COLORS)
-
 
 class HeaderBar(QObject):
     """
@@ -206,8 +197,14 @@ class LeftColumn(QObject):
         ui.add_class_button.setIconSize(QSize(icn_size, icn_size))
         make_circle(ui.add_class_button, btn_size)
 
-        ui.add_class_button.clicked.connect(lambda: self.addClass.emit())
-        
+        ui.add_class_button.clicked.connect(
+            lambda: self.addClass.emit()
+        )
+
+        desc = ItemDescription(ItemType.CLASS, 1, "Software Technology", "red")
+        c = CalendarListItem(desc, font=Typography.BASE, color="light_blue")
+        ui.class_list_layout.addWidget(c)
+
 
 class CalendarGrid:
     """
@@ -302,3 +299,101 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         button.setText("+")
         button.setFont(Typography.BASE)
         button.hide() # Default to hidden
+
+
+class CalendarListItem(QFrame):
+    """
+    Pressable list item which opens form in view state, 
+    composed of color indicator and item title label.
+    """
+    _height_ratio: int = 2
+    _indicator_ratio: float = 0.7
+
+    clicked = Signal()
+
+    def __init__(
+            self, description: ItemDescription, font: QFont, 
+            color: str
+        ) -> None:
+        super().__init__()
+        self._pressed = False
+
+        self.setProperty("color", color)
+
+        self._render_self(font, description)
+    
+    def enterEvent(self, _) -> None:
+        """Enters hover state."""
+        self._set_hover(True)
+    
+    def leaveEvent(self, _) -> None:
+        """Exits hover state."""
+        self._set_hover(False)
+
+    def mousePressEvent(self, event: QMouseEvent):
+        """Enters pressed state of left button click."""
+        if event.button() != Qt.MouseButton.LeftButton:
+            return
+        self._set_pressed(True)
+
+    def mouseMoveEvent(self, event):
+        """
+        Cancels press if cursor is dragged outside button.
+        """
+        if not self._pressed: 
+            return
+        
+        if not self.rect().contains(event.pos()):
+            self._set_pressed(False)
+            self._set_hover(False)
+        
+    def mouseReleaseEvent(self, _):
+        """Emits clicked signal if pressed flag is True."""
+        if self._pressed:
+            self.clicked.emit()
+        self._set_pressed(False)
+    
+    def _set_pressed(self, pressed: bool) -> None:
+        """Sets pressed flag, styling, and polishes."""
+        self._pressed = pressed
+        self.setProperty("pressed", pressed)
+        self.style().polish(self)
+    
+    def _set_hover(self, hover: bool) -> None:
+        """Sets hover styling and polishes."""
+        self.setProperty("hover", hover)
+        self.style().polish(self)
+
+    def _render_self(
+            self, font: QFont, description: ItemDescription
+        ) -> None:
+        """
+        Renders the list item, comprising a color indicator 
+        and a label.
+        """
+        font_size = font.pixelSize()
+        item_height = font_size * self._height_ratio
+        indicator_height = int(font_size * self._indicator_ratio)
+
+        self.setToolTip(description.title)
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(indicator_height, 0, 0, 0)
+
+        # Color indicator (left)
+        color_indicator = QLabel()
+        color_indicator.setStyleSheet(
+            f"background-color: {PALETTE[description.color]};"
+        )
+        make_circle(color_indicator, indicator_height)
+
+        # Title label
+        title_label = QLabel(description.title)
+        title_label.setFont(font)
+        make_bean(self, item_height)
+
+        # Add to layout
+        layout.addWidget(color_indicator)
+        layout.addWidget(title_label)
+        layout.addStretch()
+        self.setLayout(layout)

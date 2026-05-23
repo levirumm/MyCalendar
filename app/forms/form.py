@@ -4,7 +4,8 @@ from app.forms.form_view import FormView
 from app.forms.form_specs import (
     FormState, FormField, ValidationResult, FORM_FIELDS
 )
-from app.gui.palette import CLASS_COLORS, BUTTON_COLORS
+from app.gui.palette import PALETTE
+from app.gui.theme import CLASS_COLORS
 
 
 class Form(QObject):
@@ -47,7 +48,7 @@ class Form(QObject):
         Sets indicator color. If assessment form, displays 
         title of selected class.
         """
-        indicator_color = BUTTON_COLORS[color]
+        indicator_color = PALETTE[color]
         self._view.set_indicator(indicator_color)
 
         if self._type is not ItemType.CLASS:

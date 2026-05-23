@@ -1,17 +1,17 @@
 QFrame[role="form"] {{
-    background-color: {blue[lightest]};
+    background-color: {lightest_blue};
     border-radius: 15px;
 }}
 
 QLineEdit {{
-    background-color: {blue[lightest]};
-    color: {gray[base]};
-    placeholder-text-color: {gray[base]};
+    background-color: {lightest_blue};
+    color: {base_gray};
+    placeholder-text-color: {base_gray};
     border: none;
 }}
 
 QLineEdit[role="title_entry"] {{
-    border-bottom: 1px solid {blue[base]};
+    border-bottom: 1px solid {base_blue};
 }}
 
 QPushButton[role="checked"] {{
@@ -22,32 +22,36 @@ QPushButton[role="unchecked"] {{
     qproperty-icon: url(:/box_unchecked.svg);
 }}
 
+QPushButton[role="save"] {{
+    padding-bottom: 2px;
+}}
+
 QDateEdit {{
-    background-color: {blue[lightest]};
-    color: {gray[base]};
+    background-color: {lightest_blue};
+    color: {base_gray};
 }}
 
 QDateEdit:hover {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
 }}
 
 QDateEdit:focus {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
     border: 0px;
     border-radius: 5px;
 }}
 
 QTimeEdit {{
-    background-color: {blue[lightest]};
-    color: {gray[base]};
+    background-color: {lightest_blue};
+    color: {base_gray};
 }}
 
 QTimeEdit:hover {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
 }}
 
 QTimeEdit:focus {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
     border: 0px;
     border-radius: 5px;
 }}

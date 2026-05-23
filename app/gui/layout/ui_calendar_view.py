@@ -252,14 +252,20 @@ class Ui_MyCalendar(object):
 
         self.verticalLayout_5.addWidget(self.frame_9)
 
-        self.frame_10 = QFrame(self.frame_8)
-        self.frame_10.setObjectName(u"frame_10")
-        self.frame_10.setMinimumSize(QSize(0, 1))
-        self.frame_10.setMaximumSize(QSize(16777215, 1))
-        self.frame_10.setFrameShape(QFrame.HLine)
-        self.frame_10.setFrameShadow(QFrame.Plain)
+        self.line = QFrame(self.frame_8)
+        self.line.setObjectName(u"line")
+        self.line.setMinimumSize(QSize(0, 1))
+        self.line.setMaximumSize(QSize(16777215, 1))
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Plain)
 
-        self.verticalLayout_5.addWidget(self.frame_10)
+        self.verticalLayout_5.addWidget(self.line)
+
+        self.class_list_layout = QVBoxLayout()
+        self.class_list_layout.setObjectName(u"class_list_layout")
+        self.class_list_layout.setContentsMargins(-1, 10, -1, -1)
+
+        self.verticalLayout_5.addLayout(self.class_list_layout)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 

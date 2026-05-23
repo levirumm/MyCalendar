@@ -500,7 +500,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QFrame" name="frame_10">
+             <widget class="QFrame" name="line">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -520,6 +520,13 @@
                <enum>QFrame::Plain</enum>
               </property>
              </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="class_list_layout">
+              <property name="topMargin">
+               <number>10</number>
+              </property>
+             </layout>
             </item>
             <item>
              <spacer name="verticalSpacer">

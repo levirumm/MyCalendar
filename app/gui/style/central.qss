@@ -1,28 +1,28 @@
 /* Background Widgets */
 
 QWidget[role="header_bar"] {{
-    background-color: {blue[base]};
+    background-color: {base_blue};
 }}
 
 QWidget[role="left_column"] {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
 }}
 
 QWidget[role="day_bar"] {{
-    background-color: {blue[dark]};
+    background-color: {dark_blue};
 }}
 
 CalendarCell {{
     background-color: white;
-    border-right: 1px solid {blue[base]};
-    border-bottom: 1px solid {blue[base]};
+    border-right: 1px solid {base_blue};
+    border-bottom: 1px solid {base_blue};
 }}
 
 
 /* Labels */
 
 QLabel {{
-    color: {gray[base]};
+    color: {base_gray};
 }}
 
 QLabel[variant="white"] {{
@@ -31,7 +31,7 @@ QLabel[variant="white"] {{
 
 QLabel[variant="highlight"] {{
     color: white;
-    background-color: {blue[darkest]};
+    background-color: {darkest_blue};
     padding-bottom: 1px;
 }}
 
@@ -39,7 +39,7 @@ QLabel[variant="highlight"] {{
 /* Button */
 
 QPushButton {{
-    color: {gray[base]};
+    color: {base_gray};
 }}
 
 QPushButton[text_color="white"] {{
@@ -55,15 +55,15 @@ QPushButton[role="drop_down"] {{
 
 /* Custom styling for form button */
 QPushButton[color="lightest_blue"] {{
-    background-color: {blue[lightest]};
+    background-color: {lightest_blue};
 }}
 
 QPushButton[color="lightest_blue"]:hover {{
-    background-color: {blue[light]};
+    background-color: {light_blue};
 }}
 
 QPushButton[color="lightest_blue"]:pressed {{
-    background-color: {blue[base]};
+    background-color: {base_blue};
 }}
 
 
