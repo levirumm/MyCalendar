@@ -22,6 +22,10 @@ class CalendarModel:
         """Updates current date."""
         self._today = datetime.today().date()
     
+    def get_item_info(self, item_type: ItemType, item_id: int) -> dict:
+        """Retrieves and returns item data from database."""
+        return self._db_manager.get_item_info(item_type, item_id)
+    
     def add_item(self, data: dict, item_type: ItemType) -> bool:
         """Adds item to database. Returns false if error."""
         if item_type == ItemType.CLASS:

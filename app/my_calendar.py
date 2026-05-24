@@ -14,21 +14,17 @@ class MyCalendar(QApplication):
     def __init__(self) -> None:
         super().__init__()
 
-        # Set dpi scale policy to fix dpi scaling issues
-        self.setHighDpiScaleFactorRoundingPolicy(
-            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-        )
-
-        # Determine app metrics (dpi aware)
+        # Set app metrics
         Typography.init()
         Metrics.init()
 
         # Initialise calendar model
         self._model = CalendarModel()
 
-        # Initialise calendar view displaying current month
         today = self._model.today
         first = self._model.date_of_first_cell(today)
+
+        # Initialise calendar view displaying current month
         self._view = CalendarView(today, first)
 
         # Initialise calendar controller

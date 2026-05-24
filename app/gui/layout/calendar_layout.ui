@@ -523,6 +523,9 @@
             </item>
             <item>
              <layout class="QVBoxLayout" name="class_list_layout">
+              <property name="spacing">
+               <number>0</number>
+              </property>
               <property name="topMargin">
                <number>10</number>
               </property>

@@ -262,6 +262,7 @@ class Ui_MyCalendar(object):
         self.verticalLayout_5.addWidget(self.line)
 
         self.class_list_layout = QVBoxLayout()
+        self.class_list_layout.setSpacing(0)
         self.class_list_layout.setObjectName(u"class_list_layout")
         self.class_list_layout.setContentsMargins(-1, 10, -1, -1)
 

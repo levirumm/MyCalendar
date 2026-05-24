@@ -21,6 +21,10 @@ class CalendarController:
         self._display_date = self._model.today
 
         self._view.connect_to_controller(self)
+
+        # Set view elements using model data
+        descriptions = self._model.get_class_descriptions()
+        self._view.update_class_list(descriptions)
     
     def on_previous_month(self) -> None:
         """Update calendar view to display previous month."""
@@ -43,6 +47,24 @@ class CalendarController:
         """Updates calendar to display current month."""
         self._display_date = self._model.today
         self._show_display_date()
+    
+    def open_form(self, item_type: ItemType, item_id: int) -> None:
+        """
+        Opens form in view state displaying information 
+        of corresponding item.
+        """
+        data = self._model.get_item_info(item_type, item_id)
+
+        if not data:
+            print(f"Failed to open {item_type.value} form")
+            return
+
+        form = Form(
+            self._view, item_type, FormState.VIEW, 
+            color_map={}
+        )
+        form.connect_to_form(self)
+        form.open()
     
     def on_add_assessment(self, item_type: ItemType) -> None:
         """

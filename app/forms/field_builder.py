@@ -225,6 +225,9 @@ class URLEdit(TextEntry):
     """
     QLineEdt which, when disabled, is a clickable link.
     """
+
+    # Rememeber QLabel has opensExternalLinks property
+    
     def __init__(self) -> None:
         super().__init__()
     

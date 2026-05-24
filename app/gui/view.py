@@ -1,11 +1,11 @@
 from datetime import date, timedelta
 from pathlib import Path
 from PySide6.QtWidgets import (
-    QWidget, QGridLayout, QHBoxLayout, QLabel, QFrame,
-    QPushButton, QDialog
+    QWidget, QGridLayout, QHBoxLayout, QVBoxLayout, 
+    QLabel, QFrame, QPushButton, QDialog, QSizePolicy
 )
-from PySide6.QtCore import QEvent, Qt, QObject, Signal, QSize
-from PySide6.QtGui import QFont, QColor, QMouseEvent
+from PySide6.QtCore import Qt, QObject, Signal, QSize
+from PySide6.QtGui import QFont, QMouseEvent, QFontMetrics
 
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, 
@@ -58,6 +58,12 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.set_month_year_label(display_date)
         self._grid.update(today, date_of_first)
     
+    def update_class_list(
+            self, class_descriptions: list[ItemDescription]
+        ) -> None:
+        """Updates the list of classes in the left column."""
+        self._left_column.update_class_list(class_descriptions)
+    
     def connect_to_controller(self, controller):
         """Connects view slots to the controller."""
         # Header bar signals
@@ -68,7 +74,8 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.addItem.connect(controller.on_add_assessment)
 
         # Left column signals
-        self._left_column.addClass.connect(controller.on_add_class)
+        self._left_column.class_list.addClass.connect(controller.on_add_class)
+        self._left_column.class_list.classClicked.connect(controller.open_form)
                         
 
 class HeaderBar(QObject):
@@ -183,14 +190,73 @@ class LeftColumn(QObject):
     Manages the left-side column of the calendar, including 
     the list of enrolled classes and the to-do list.
     """
+    def __init__(self, ui: Ui_MyCalendar) -> None:
+        super().__init__()
+        self._class_list = ClassList(ui)
+    
+    @property
+    def class_list(self) -> "ClassList":
+        return self._class_list
+    
+    def update_class_list(
+            self, class_descriptions: list[ItemDescription]
+        ) -> None:
+        """Updates the list of classes in the left column."""
+        self._class_list.update(class_descriptions)
+
+
+class ClassList(QObject):
+    """
+    Manages the list of enrolled classes composed of 
+    CalendarListItems.
+    """
     addClass = Signal()
+    classClicked = Signal(ItemType, int)
 
     def __init__(self, ui: Ui_MyCalendar) -> None:
         super().__init__()
+        self._layout = self._render_self(ui)
+        
+    def update(
+            self, class_descriptions: list[ItemDescription]
+        ) -> None:
+        """Renders CalendarListItems for each class."""
+        # Clear layout
+        while self._layout.count():
+            item = self._layout.takeAt(0)
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+        
+        # Add class list items
+        for description in class_descriptions:
+            list_item = CalendarListItem(
+                description, font=Typography.BASE, 
+                bg_color="light_blue"
+            )
+            self._layout.addWidget(list_item)
+
+            list_item.clicked.connect(self._on_class_clicked)
+    
+    def _on_class_clicked(
+            self, item_type: ItemType, item_id: int
+        ) -> None:
+        """Emits class clicked signal with type and id."""
+        self.classClicked.emit(item_type, item_id)
+    
+    def _render_self(self, ui: Ui_MyCalendar) -> QVBoxLayout:
+        """Renders the elements of the class list."""
         ui.left_column_container.setProperty("role", "left_column")
+        ui.class_list_layout.setSpacing(
+            Typography.SMALL.pixelSize() // 2
+        )
+
+        # Title label
         ui.class_list_label.setText("Classes")
         ui.class_list_label.setFont(Typography.SUB_HEADING)
         
+        # Add class button
         btn_size = Metrics.SMALL_BUTTON
         icn_size = Metrics.DATE_LABEL_HIGHLIGHT
         ui.add_class_button.setProperty("color", "light_blue")
@@ -201,9 +267,7 @@ class LeftColumn(QObject):
             lambda: self.addClass.emit()
         )
 
-        desc = ItemDescription(ItemType.CLASS, 1, "Software Technology", "red")
-        c = CalendarListItem(desc, font=Typography.BASE, color="light_blue")
-        ui.class_list_layout.addWidget(c)
+        return ui.class_list_layout
 
 
 class CalendarGrid:
@@ -211,7 +275,8 @@ class CalendarGrid:
     Manages the 5x7 grid of calendar cells.
     """
     def __init__(
-            self, today: date, date_of_first: date, grid_layout: QGridLayout
+            self, today: date, date_of_first: date, 
+            grid_layout: QGridLayout
         ) -> None:
         # Dict mapping dates to corresponding cell widget
         self._cells: dict[date, CalendarCell] = {}
@@ -306,22 +371,29 @@ class CalendarListItem(QFrame):
     Pressable list item which opens form in view state, 
     composed of color indicator and item title label.
     """
-    _height_ratio: int = 2
+    _height_ratio: float = 2
     _indicator_ratio: float = 0.7
 
-    clicked = Signal()
+    clicked = Signal(ItemType, int)
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
-            color: str
+            bg_color: str
         ) -> None:
         super().__init__()
         self._pressed = False
+        self._description = description
+        
+        # Configure list item
+        self.setProperty("color", bg_color)
+        self._render_self(font)
 
-        self.setProperty("color", color)
+        # Set size policy of frame so long labels are elided
+        self.setSizePolicy(
+            QSizePolicy.Policy.Ignored, 
+            QSizePolicy.Policy.Preferred
+        )
 
-        self._render_self(font, description)
-    
     def enterEvent(self, _) -> None:
         """Enters hover state."""
         self._set_hover(True)
@@ -340,8 +412,7 @@ class CalendarListItem(QFrame):
         """
         Cancels press if cursor is dragged outside button.
         """
-        if not self._pressed: 
-            return
+        if not self._pressed: return
         
         if not self.rect().contains(event.pos()):
             self._set_pressed(False)
@@ -350,9 +421,12 @@ class CalendarListItem(QFrame):
     def mouseReleaseEvent(self, _):
         """Emits clicked signal if pressed flag is True."""
         if self._pressed:
-            self.clicked.emit()
+            self.clicked.emit(
+                self._description.item_type, 
+                self._description.item_id
+            )
         self._set_pressed(False)
-    
+
     def _set_pressed(self, pressed: bool) -> None:
         """Sets pressed flag, styling, and polishes."""
         self._pressed = pressed
@@ -364,31 +438,31 @@ class CalendarListItem(QFrame):
         self.setProperty("hover", hover)
         self.style().polish(self)
 
-    def _render_self(
-            self, font: QFont, description: ItemDescription
-        ) -> None:
+    def _render_self(self, font: QFont) -> None:
         """
         Renders the list item, comprising a color indicator 
         and a label.
         """
         font_size = font.pixelSize()
-        item_height = font_size * self._height_ratio
+        item_height = int(font_size * self._height_ratio)
         indicator_height = int(font_size * self._indicator_ratio)
 
-        self.setToolTip(description.title)
+        self.setToolTip(self._description.title)
 
         layout = QHBoxLayout()
-        layout.setContentsMargins(indicator_height, 0, 0, 0)
+        layout.setContentsMargins(
+            indicator_height, 0, indicator_height, 0
+        )
 
         # Color indicator (left)
         color_indicator = QLabel()
         color_indicator.setStyleSheet(
-            f"background-color: {PALETTE[description.color]};"
+            f"background-color: {PALETTE[self._description.color]};"
         )
         make_circle(color_indicator, indicator_height)
 
         # Title label
-        title_label = QLabel(description.title)
+        title_label = QLabel(self._description.title)
         title_label.setFont(font)
         make_bean(self, item_height)
 
