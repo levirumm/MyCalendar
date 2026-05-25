@@ -146,8 +146,19 @@ class Form(QObject):
                 color for color in CLASS_COLORS 
                 if color not in self._color_map.keys()
             ]
+
+            if self._item_id:
+                # Classes own color appears in swatch, so user can 
+                # reset to original choice.
+                colors.append(
+                    next(c.color for c in self._color_map.values() 
+                    if c.item_id == self._item_id)
+                )
+
         else:
             colors = [c for c in self._color_map.keys()]
+        
+       
         return colors
 
     def _validate_fields(

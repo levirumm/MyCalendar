@@ -292,7 +292,7 @@ class CalendarGrid:
         cell_date = date_of_first
         new_cells: dict[date, CalendarCell] = {}
 
-        for prev_date, cell in self._cells.items():
+        for cell in self._cells.values():
             cell.update_date(cell_date)
             new_cells[cell_date] = cell
 

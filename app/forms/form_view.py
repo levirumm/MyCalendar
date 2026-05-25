@@ -15,6 +15,9 @@ class FormView(QDialog, Ui_Form):
     """
     View class of form which controls UI elements.
     """
+    FORM_FACTOR: int = 25
+    HEIGHT_OFFSET_RATIO: int = 5
+
     save = Signal()
     edit = Signal()
     delete = Signal()
@@ -66,29 +69,36 @@ class FormView(QDialog, Ui_Form):
         depending on state.
         """
         if state is FormState.VIEW:
+            # Hide save, show contextual buttons
             self._ui.save_button.hide()
-
             for button in self._contextual_buttons:
                 button.show()
         else:
+            # Show save, hide contextual buttons
             self._ui.save_button.show()
-
             for button in self._contextual_buttons:
                 button.hide()
 
         for entry in self._field_entries.values():
-            if state is FormState.VIEW and not entry.get():
-                entry.set_hidden(True)
-            else:
+            if state is not FormState.VIEW:
+                # All fields shown and enabled
                 entry.set_hidden(False)
+                entry.set_disabled(False)
+                continue
+
+            entry.set_disabled(True)
+
+            # In view state, only show filled entries
+            if not entry.get():
+                entry.set_hidden(True)
       
     def set_selection(self, color: str) -> None:
-        """"""
+        """Sets the swatch to given color."""
         swatch = self._field_entries[FieldName.COLOR]
         swatch.set(color)
     
     def hide_swatch(self) -> None:
-        """"""
+        """Removes the swatch from the form."""
         swatch = self._field_entries[FieldName.COLOR]
         swatch.set_hidden(True)
         
@@ -125,7 +135,8 @@ class FormView(QDialog, Ui_Form):
     def _render_buttons(self, item_type: ItemType) -> list[QPushButton]:
         """
         Renders the close, save, edit, and mark complete 
-        buttons at the top of the form.
+        buttons at the top of the form. Returns the buttons 
+        which are hidden and shown based on state.
         """
         # Close, edit, delete, and complete buttons
         btn_size = Metrics.COLOR_IDENTIFIER
@@ -175,10 +186,10 @@ class FormView(QDialog, Ui_Form):
         """
         # Apply styling to frame
         self._ui.frame.setProperty("role", "form")
-
         self.set_indicator(PALETTE["light_blue"])
+        width = Typography.BASE.pixelSize() * self.FORM_FACTOR
 
-        width = Typography.BASE.pixelSize() * 25
+        self._center()
 
         # Set fixed width, size constraint, and ignored 
         # horizontal size policy.This way, the form 
@@ -202,6 +213,25 @@ class FormView(QDialog, Ui_Form):
         self._ui.save_button_layout.setContentsMargins(
             0, end_padding, 0, 0
         )
+    
+    def _center(self):
+        """
+        Centers in the screen horizontally. Sets the y position 
+        to a fifth of the total screen height.
+        """
+        screen = self.screen().geometry()
+        geo = self.frameGeometry()
+
+        # Center horizontally
+        x = screen.center().x() - geo.width() // 2
+
+        # Fixed vertical position at 1/5 screen height
+        y = screen.top() + screen.height() // self.HEIGHT_OFFSET_RATIO
+
+        # Clamp x so it cannot go off screen
+        x = max(screen.left(), min(x, screen.right() - geo.width()))
+
+        self.move(x, y)
     
     def _draw_form_field(
             self, field_name: FieldName, field: FormField, 

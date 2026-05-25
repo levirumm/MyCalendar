@@ -14,6 +14,7 @@ from typing import Protocol
 
 
 class FormEntry(Protocol):
+    """Protocol for all entries appearing on form."""
     def get(self) -> str:
         ...
     
@@ -206,56 +207,67 @@ class FieldBuilder:
 
 class TextEntry(QLineEdit):
     def get(self) -> str:
+        """Returns contents of entry."""
         return self.text()
 
     def set(self, data: str) -> None:
+        """Sets the text of the entry."""
         self.setText(data)
     
     def set_hidden(self, hidden: bool) -> None:
+        """Hides or shows the container of widget."""
         frame = self.parentWidget()
+        if not frame: return
 
-        if frame and hidden:
-            frame.hide()
-
-        elif frame and not hidden:
-            frame.show()
+        frame.hide() if hidden else frame.show()
 
     def set_disabled(self, disabled: bool) -> None:
-        pass
+        """Sets the readonly state of the entry."""
+        self.setReadOnly(disabled)
 
 
 class DateEntry(QDateEdit):
     def get(self) -> str:
-        return self.date().toString()
+        """Return data in iso format."""
+        return self.date().toString("yyyy-MM-dd")
 
-    def set(self, date: QDate) -> None:
+    def set(self, date_str: str) -> None:
+        """Converts iso string to QDate and sets entry."""
+        date = QDate.fromString(date_str, "yyyy-MM-dd")
         self.setDate(date)
     
     def set_hidden(self, hidden: bool) -> None:
+        """Hides or shows the container of widget."""
         frame = self.parentWidget()
-
-        if frame and hidden:
-            frame.hide()
-            
-        elif frame and not hidden:
-            frame.show()
+        if not frame: return
+        
+        frame.hide() if hidden else frame.show()
+    
+    def set_disabled(self, disabled: bool) -> None:
+        """Sets the readonly state of the entry."""
+        self.setReadOnly(disabled)
     
 
 class TimeEntry(QTimeEdit):
     def get(self) -> str:
-        return self.time().toString()
+        """Returns time string is iso format."""
+        return self.time().toString("HH:mm:ss")
 
-    def set(self, time: QTime) -> None:
+    def set(self, time_str: str) -> None:
+        """Converts iso string to QTime and sets entry."""
+        time = QTime.fromString(time_str, "HH:mm:ss")
         self.setTime(time)
     
     def set_hidden(self, hidden: bool) -> None:
+        """Hides or shows the container of widget."""
         frame = self.parentWidget()
-
-        if frame and hidden:
-            frame.hide()
-            
-        elif frame and not hidden:
-            frame.show()
+        if not frame: return
+        
+        frame.hide() if hidden else frame.show()
+    
+    def set_disabled(self, disabled: bool) -> None:
+        """Sets the readonly state of the entry."""
+        self.setReadOnly(disabled)
 
 
 class URLEdit(TextEntry):
@@ -308,6 +320,7 @@ class SwatchButton(QObject):
         return self._button
     
     def get(self) -> str:
+        """Returns the selected color."""
         return self._color
 
     def set(self, color: str) -> None:
@@ -321,11 +334,13 @@ class SwatchButton(QObject):
     def set_hidden(self, hidden: bool) -> None:
         """Hides the parent frame of the swatch."""
         frame = self._button.parentWidget()
-
-        if frame and hidden:
-            frame.hide()  
-        elif frame and not hidden:
-            frame.show()
+        if not frame: return
+        
+        frame.hide() if hidden else frame.show()
+    
+    def set_disabled(self, disabled: bool) -> None:
+        """Sets the disabled state of the button."""
+        self._button.setDisabled(disabled)
     
     def setFont(self, font) -> None:
         """Sets font of the button."""
