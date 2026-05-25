@@ -297,7 +297,7 @@ class CalendarGrid:
             new_cells[cell_date] = cell
 
             # Clear highlight of previously highlighted day
-            if prev_date == today:
+            if cell.is_today:
                 cell.set_highlight(False)
 
             # Highlight day label of current day
@@ -336,7 +336,13 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         self._ui = Ui_CalendarCell()
         self._ui.setupUi(self)
 
+        self._is_today = False
+
         self._render_top_elements(cell_date.day)
+    
+    @property
+    def is_today(self) -> bool:
+        return self._is_today
     
     def update_date(self, new_date: date) -> None:
         """Updates cell's date labels to match new date."""
@@ -344,6 +350,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         
     def set_highlight(self, highlight: bool) -> None:
         """Adds or removes highlight on date label."""
+        self._is_today = highlight
         label = self._ui.date_label
         label.setProperty("variant", "highlight" if highlight else None)
         self.style().polish(label)
