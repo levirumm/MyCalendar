@@ -19,6 +19,12 @@ class FormEntry(Protocol):
     
     def set(self, data) -> None:
         ...
+    
+    def set_hidden(self, hidden: bool) -> None:
+        ...
+    
+    def set_disabled(self, disabled: bool) -> None:
+        ...
 
 
 class FieldBuilder:
@@ -67,6 +73,7 @@ class FieldBuilder:
         title_entry.setPlaceholderText(field.placeholder)
         title_entry.setProperty("role", "title_entry")
         title_layout.addWidget(title_entry)
+
         return title_entry
 
     def _render_icon(
@@ -203,6 +210,18 @@ class TextEntry(QLineEdit):
 
     def set(self, data: str) -> None:
         self.setText(data)
+    
+    def set_hidden(self, hidden: bool) -> None:
+        frame = self.parentWidget()
+
+        if frame and hidden:
+            frame.hide()
+
+        elif frame and not hidden:
+            frame.show()
+
+    def set_disabled(self, disabled: bool) -> None:
+        pass
 
 
 class DateEntry(QDateEdit):
@@ -212,6 +231,15 @@ class DateEntry(QDateEdit):
     def set(self, date: QDate) -> None:
         self.setDate(date)
     
+    def set_hidden(self, hidden: bool) -> None:
+        frame = self.parentWidget()
+
+        if frame and hidden:
+            frame.hide()
+            
+        elif frame and not hidden:
+            frame.show()
+    
 
 class TimeEntry(QTimeEdit):
     def get(self) -> str:
@@ -219,6 +247,15 @@ class TimeEntry(QTimeEdit):
 
     def set(self, time: QTime) -> None:
         self.setTime(time)
+    
+    def set_hidden(self, hidden: bool) -> None:
+        frame = self.parentWidget()
+
+        if frame and hidden:
+            frame.hide()
+            
+        elif frame and not hidden:
+            frame.show()
 
 
 class URLEdit(TextEntry):
@@ -273,18 +310,33 @@ class SwatchButton(QObject):
     def get(self) -> str:
         return self._color
 
-    def set(self, label: str) -> None:
+    def set(self, color: str) -> None:
+        """Sets the color attribute of the swatch."""
+        self._color = color
+    
+    def set_text(self, label: str) -> None:
+        """Sets the text of the swatch button."""
         self._button.setText(label)
     
+    def set_hidden(self, hidden: bool) -> None:
+        """Hides the parent frame of the swatch."""
+        frame = self._button.parentWidget()
+
+        if frame and hidden:
+            frame.hide()  
+        elif frame and not hidden:
+            frame.show()
+    
     def setFont(self, font) -> None:
+        """Sets font of the button."""
         self._button.setFont(font)
     
     def open_swatch(
             self, parent, anchor: QWidget, colors: list[str]
         ) -> None:
         """
-        Opens color swatch anchor to anchor point and emits signal 
-        if color selected.
+        Opens color swatch anchor to anchor point and emits 
+        signal if color selected.
         """
         swatch = ColorSwatch(parent, colors)
         anchor_window(swatch, anchor)
@@ -293,7 +345,8 @@ class SwatchButton(QObject):
         # Re-evaluate hover status
         self._button.style().polish(self._button)
 
-        if result == QDialog.DialogCode.Accepted and swatch.selection:
-            # Set selection and emit signal
-            self._color = swatch.selection
-            self.colorPicked.emit(self._color) 
+        if (
+            result == QDialog.DialogCode.Accepted 
+            and swatch.selection
+        ):
+            self.colorPicked.emit(swatch.selection) 

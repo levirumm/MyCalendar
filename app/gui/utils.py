@@ -24,10 +24,13 @@ def make_bean(widget: QWidget, height: int) -> None:
     Sets the border radius of the widget in style sheet 
     to be the height of the widget.
     """
+    margin = 1 # 1px margin to avoid clipping
     widget.setFixedHeight(height)
     widget.setStyleSheet(
         widget.styleSheet() +
             f"border-radius: {height // 2}px;" 
+            f"margin-left: {margin}px;"
+            f"margin-right: {margin}px;"
     )
 
 

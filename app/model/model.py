@@ -35,6 +35,16 @@ class CalendarModel:
             data, item_type, insertion_time=self._get_date_time()
         )
 
+    def update_item(
+            self, item_type: ItemType, item_id: int, data: dict
+        ) -> bool:
+        """Updates item in database. Returns false if error."""
+        return self._db_manager.update_item(item_type, item_id, data)
+
+    def delete_item(self, item_type: ItemType, item_id: int) -> bool:
+        """Deletes item from database, returning false if error."""
+        return self._db_manager.delete_item(item_type, item_id)
+
     def get_class_descriptions(self) -> list[ItemDescription]:
         return self._db_manager.get_class_descriptions()
     

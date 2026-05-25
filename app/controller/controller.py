@@ -1,9 +1,9 @@
 from app.gui.view import CalendarView
 from app.model.model import CalendarModel
-from app.model.schema import ItemType
+from app.model.schema import ItemType, ItemDescription
 from app.model.constants import MAX_CLASSES
 from app.forms.form import Form
-from app.forms.form_specs import FormState
+from app.forms.form_specs import FormState, Result
 
 
 class CalendarController:
@@ -47,7 +47,7 @@ class CalendarController:
         """Updates calendar to display current month."""
         self._display_date = self._model.today
         self._show_display_date()
-    
+
     def open_form(self, item_type: ItemType, item_id: int) -> None:
         """
         Opens form in view state displaying information 
@@ -58,45 +58,80 @@ class CalendarController:
         if not data:
             print(f"Failed to open {item_type.value} form")
             return
+        
+        classes = self._model.get_class_descriptions()
 
+        # Open and connect to form
         form = Form(
-            self._view, item_type, FormState.VIEW, 
-            color_map={}
+            self._view, item_type, classes, item_id
         )
         form.connect_to_form(self)
+        form.set_fields(data)
+        form.set_state(FormState.VIEW)
         form.open()
     
-    def on_add_assessment(self, item_type: ItemType) -> None:
-        """
-        Opens the form allowing user to add corresponding 
-        assessment.
-        """
-        class_descriptions = self._model.get_class_descriptions()
-
-        if not class_descriptions:
-            print("Must add classes first")
-            return
-        
-        self._open_add_item_form(item_type, class_descriptions)
-    
-    def on_add_class(self) -> None:
+    def on_add_item(self, item_type: ItemType) -> None:
         """Opens the form allowing user to a class."""
-        class_descriptions = self._model.get_class_descriptions()
+        classes = self._model.get_class_descriptions()
 
-        if len(class_descriptions) >= MAX_CLASSES:
-            print("Maximum of four classes")
-            return 
+        # Check if item can be added
+        result = self._can_add_item(item_type, classes) 
+        if not result.valid:
+            print(result.reason)
+            return
 
-        self._open_add_item_form(ItemType.CLASS, class_descriptions)
+        # Open and connect to form
+        form = Form(self._view, item_type, classes)
+        form.connect_to_form(self)
+        form.set_state(FormState.ADD)
+        form.open()
 
-    def add_item(self, data: dict, item_type: ItemType) -> None:
-        """Prompts model to add item to database and refreshes view."""
+    def add_item(
+            self, data: dict, item_type: ItemType
+        ) -> None:
+        """
+        Prompts model to add item to database and refreshes view.
+        """
         if not self._model.add_item(data, item_type):
             print("Failed to add item to database")
     
+    def delete_item(self, item_type: ItemType, item_id: int) -> None:
+        """Deletes item from database and refreshed view."""
+        if not self._model.delete_item(item_type, item_id):
+            print("Failed to delete item")
+    
+    def edit_item(
+            self, data: dict, item_type: ItemType, 
+            item_id: int, form: Form
+        ) -> None:
+        """Updates item in database."""
+        if not self._model.update_item(item_type, item_id, data):
+            print("Failed to edit item")
+            return
+        
+        form.set_state(FormState.VIEW)
+
     def on_invalid_form(self, reason: str) -> None:
         """Displays error reason to user with a toast."""
         print(reason)
+    
+    def _can_add_item(
+            self, item_type: ItemType, classes
+        ) -> Result:
+        """
+        Returns result based on whether item of given 
+        type can be added.
+        """
+        match item_type:
+            case ItemType.CLASS:
+                if len(classes) >= MAX_CLASSES:
+                    return Result(False, "Maximum of four classes")
+                return Result(True)
+
+            case _:
+                if not classes:
+                    Result(False, "Must add classes first")
+                return Result(True)        
     
     def _show_display_date(self) -> None:
         """Updates view to show display date."""
@@ -104,22 +139,3 @@ class CalendarController:
         self._view.update_display_month(
             self._model.today, self._display_date, first_cell
         )
-    
-    def _open_add_item_form(
-            self, item_type: ItemType, class_descriptions
-        ) -> None:
-        """
-        Generates dict mapping colors to class descriptions and 
-        opens form in add state.
-        """
-        # Dict mapping class color to class description
-        color_map = {
-            d.color: d for d in class_descriptions
-        }
-
-        # Open and connect to form
-        form = Form(
-            self._view, item_type, FormState.ADD, color_map
-        )
-        form.connect_to_form(self)
-        form.open()

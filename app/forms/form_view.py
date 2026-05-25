@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QPushButton
+from PySide6.QtWidgets import QDialog, QPushButton, QLayout, QSizePolicy
 from PySide6.QtCore import QSize, Signal
 from app.model.schema import ItemType, FieldName
 from app.gui.utils import make_circle, make_bean, style_window
@@ -15,22 +15,24 @@ class FormView(QDialog, Ui_Form):
     """
     View class of form which controls UI elements.
     """
-    colorPicked = Signal(str)
     save = Signal()
+    edit = Signal()
+    delete = Signal()
+    colorPicked = Signal(str)
 
     def __init__(
             self, parent, fields: dict[FieldName, FormField], 
-            item_type: ItemType, state: FormState, colors: list[str]
+            item_type: ItemType, colors: list[str]
         ) -> None:
         super().__init__(parent)
         self._ui = Ui_Form()
         self._ui.setupUi(self)
 
-        # Configure form
         self._colors = colors
-        self._render_buttons()
+
+        # Initialise view of form
+        self._contextual_buttons = self._render_buttons(item_type)
         self._configure_form()
-        self._toggle_state(state)
         self._shadow = style_window(self, self._ui.frame)
 
         # Dict mapping field keys to their entries
@@ -39,7 +41,9 @@ class FormView(QDialog, Ui_Form):
         # Build fields and add to map
         field_builder = FieldBuilder(self._ui.row_layout)
         for field_name, field in fields.items():
-            entry = self._draw_form_field(field_name, field, field_builder)
+            entry = self._draw_form_field(
+                field_name, field, field_builder
+            )
             self._field_entries[field_name] = entry
     
     def read_entries(self) -> dict:
@@ -49,10 +53,49 @@ class FormView(QDialog, Ui_Form):
             for key, entry in self._field_entries.items()
         }
 
+    def set_fields(self, data: dict[FieldName, str]) -> None:
+        """
+        Inputs the field datum into the corresponding entry.
+        """
+        for field_name, datum in data.items():
+            self._field_entries[field_name].set(datum)
+
+    def set_state(self, state: FormState) -> None:
+        """
+        Disables/enables entries and hides/shows buttons 
+        depending on state.
+        """
+        if state is FormState.VIEW:
+            self._ui.save_button.hide()
+
+            for button in self._contextual_buttons:
+                button.show()
+        else:
+            self._ui.save_button.show()
+
+            for button in self._contextual_buttons:
+                button.hide()
+
+        for entry in self._field_entries.values():
+            if state is FormState.VIEW and not entry.get():
+                entry.set_hidden(True)
+            else:
+                entry.set_hidden(False)
+      
+    def set_selection(self, color: str) -> None:
+        """"""
+        swatch = self._field_entries[FieldName.COLOR]
+        swatch.set(color)
+    
+    def hide_swatch(self) -> None:
+        """"""
+        swatch = self._field_entries[FieldName.COLOR]
+        swatch.set_hidden(True)
+        
     def display_class_title(self, title: str) -> None:
         """Updates label on color swatch to be class title."""
         swatch = self._field_entries[FieldName.COLOR]
-        swatch.set(title)
+        swatch.set_text(title) # type: ignore
     
     def set_indicator(self, color: str) -> None:
         """Sets the color of the color indicator."""
@@ -61,11 +104,14 @@ class FormView(QDialog, Ui_Form):
             f"background-color: {color};"
         )
         make_circle(self._ui.color_indicator, btn_size)
-        self._ui.color_indicator.style().polish(self._ui.color_indicator)
+        self._ui.color_indicator.style().polish(
+            self._ui.color_indicator
+        )
 
     def connect_to_form(self, form) -> None:
         """Connects form view signals to form slots."""
         self.save.connect(form.on_save)
+        self.delete.connect(form.on_delete)
         self.colorPicked.connect(form.on_color_picked)
 
     def _toggle_check_box(self, check_box: QPushButton) -> None:
@@ -76,17 +122,26 @@ class FormView(QDialog, Ui_Form):
         )
         check_box.style().polish(check_box)
 
-    def _render_buttons(self) -> None:
+    def _render_buttons(self, item_type: ItemType) -> list[QPushButton]:
         """
         Renders the close, save, edit, and mark complete 
         buttons at the top of the form.
         """
         # Close, edit, delete, and complete buttons
         btn_size = Metrics.COLOR_IDENTIFIER
-        for button in [
-            self._ui.close_button, self._ui.edit_button, 
-            self._ui.delete_button, self._ui.complete_button
-        ]:
+
+        # Get list of buttons which appear on form
+        buttons = [
+            self._ui.edit_button, self._ui.delete_button
+        ]
+
+        if item_type is ItemType.CLASS:
+            # Class forms do not have a complete button
+            self._ui.complete_button.hide()
+        else:
+            buttons.append(self._ui.complete_button)
+        
+        for button in buttons + [ self._ui.close_button,]:
             button.setProperty("color", "lightest_blue")
             button.setIconSize(QSize(btn_size, btn_size))
             make_circle(button, btn_size)
@@ -101,11 +156,17 @@ class FormView(QDialog, Ui_Form):
         make_bean(self._ui.save_button, btn_size)
 
         # Connect to buttons
-        self._ui.close_button.clicked.connect(lambda: self.accept())
+        self._ui.close_button.clicked.connect(self.accept)
+        self._ui.edit_button.clicked.connect(
+            lambda: self.set_state(FormState.EDIT)
+        )
+        self._ui.delete_button.clicked.connect(self.delete.emit)
         self._ui.complete_button.toggled.connect(
             lambda: self._toggle_check_box(self._ui.complete_button)
         )
-        self._ui.save_button.clicked.connect(lambda: self.save.emit())
+        self._ui.save_button.clicked.connect(self.save.emit)
+
+        return buttons
     
     def _configure_form(self) -> None:
         """
@@ -117,12 +178,29 @@ class FormView(QDialog, Ui_Form):
 
         self.set_indicator(PALETTE["light_blue"])
 
+        width = Typography.BASE.pixelSize() * 25
+
+        # Set fixed width, size constraint, and ignored 
+        # horizontal size policy.This way, the form 
+        # expands and shrink vertically but not horizontally
+        self._ui.frame.setFixedWidth(width)
+        self._ui.verticalLayout.setSizeConstraint(
+            QLayout.SizeConstraint.SetFixedSize
+        )
+        self._ui.frame.setSizePolicy(
+            QSizePolicy.Policy.Ignored, 
+            QSizePolicy.Policy.Preferred
+        )
+    
         # Apply margins to form
         self._ui.title_layout.setSpacing(Metrics.COLOR_IDENTIFIER)
         side_padding = Metrics.COLOR_IDENTIFIER
         end_padding = Typography.SMALL.pixelSize()
         self._ui.frame_layout.setContentsMargins(
             side_padding, end_padding, side_padding, end_padding
+        )
+        self._ui.save_button_layout.setContentsMargins(
+            0, end_padding, 0, 0
         )
     
     def _draw_form_field(
@@ -146,13 +224,6 @@ class FormView(QDialog, Ui_Form):
             case _:
                 entry = field_builder.add(field)
         return entry
-    
-    def _toggle_state(self, state: FormState) -> None:
-        """Configures the view based on the state of the form."""
-        if state is FormState.ADD:
-            self._ui.edit_button.hide()
-            self._ui.complete_button.hide()
-            self._ui.delete_button.hide()
         
     def _open_swatch(self, swatch: SwatchButton) -> None:
         """Opens swatch anchored to color indicator."""

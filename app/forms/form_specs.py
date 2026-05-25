@@ -20,6 +20,13 @@ class EntryType(Enum):
     TIME = auto()
 
 
+@dataclass
+class Result:
+    """Result of validating a form."""
+    valid: bool
+    reason: str = ""
+
+
 @dataclass(frozen=True)
 class FormField:
     """
@@ -31,13 +38,6 @@ class FormField:
     label: str = ""
     icon: str = ""
     required: bool = False
-
-
-@dataclass
-class ValidationResult:
-    """Result of validating a form."""
-    valid: bool
-    reason: str = ""
 
 
 FORM_FIELDS: dict[ItemType, dict[FieldName, FormField]] = {

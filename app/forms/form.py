@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal
 from app.model.schema import ItemType, FieldName, ItemDescription
 from app.forms.form_view import FormView
 from app.forms.form_specs import (
-    FormState, FormField, ValidationResult, FORM_FIELDS
+    FormState, FormField, Result, FORM_FIELDS
 )
 from app.gui.palette import PALETTE
 from app.gui.theme import CLASS_COLORS
@@ -15,50 +15,86 @@ class Form(QObject):
     """
     formSaved = Signal(object, object)
     formInvalidated = Signal(str)
+    formEdited = Signal(object, object, int, object)
+    deleteItem = Signal()
 
     def __init__(
-            self, parent, item_type: ItemType, state: FormState, 
-            color_map: dict[str, ItemDescription]
+            self, parent, item_type: ItemType, 
+            classes: list[ItemDescription],
+            item_id: int | None = None
         ) -> None:
         super().__init__()
         self._type = item_type
-        self._fields: dict[FieldName, FormField] = FORM_FIELDS[self._type]
-        self._color_map = color_map
+        self._fields: dict[FieldName, FormField] = (
+            FORM_FIELDS[self._type]
+        )
+        self._item_id = item_id
 
-        # Determine colors allowed by color swatch
+        # Dict mapping class color to class description
+        self._color_map = {d.color: d for d in classes}
+
         colors = self._determine_allowed_colors()
 
         # Open and connect to form view
         self._view = FormView(
-            parent, self._fields, self._type, state, 
-            colors
+            parent, self._fields, self._type, colors
         )
         self._view.connect_to_form(self)
     
     def open(self) -> None:
         self._view.exec()
     
+    def close(self) -> None:
+        self._view.accept()
+    
     def connect_to_form(self, controller) -> None:
         """Connects form signals to controller methods."""
         self.formSaved.connect(controller.add_item)
         self.formInvalidated.connect(controller.on_invalid_form)
+
+        if not self._item_id: return
+
+        # Connect to delete button which required id
+        self.deleteItem.connect(
+            lambda: controller.delete_item(
+                self._type, self._item_id
+            )
+        )
+        self.formEdited.connect(controller.edit_item)
     
-    def on_color_picked(self, color: str) -> None:
-        """
-        Sets indicator color. If assessment form, displays 
-        title of selected class.
-        """
-        indicator_color = PALETTE[color]
-        self._view.set_indicator(indicator_color)
+    def set_state(self, form_state: FormState) -> None:
+        """Sets the state of the form."""
+        self._view.set_state(form_state)
+        self._state = form_state
+
+        # Class form hides color swatch in view state
+        if (
+            form_state is FormState.VIEW 
+            and self._type is ItemType.CLASS
+        ):
+            self._view.hide_swatch()
+    
+    def set_fields(self, data: dict[FieldName, str]) -> None:
+        """Inputs the data into corresponding field entries."""
+        # Remove and get class id field
+        class_id = int(data.pop(FieldName.CLASS_ID))
 
         if self._type is not ItemType.CLASS:
-            title = self._color_map[color].title
-            self._view.display_class_title(title)
+            color = next(
+                c.color for c in self._color_map.values() 
+                if c.item_id == class_id
+            )
+        else:
+            color = data[FieldName.COLOR]
+
+        self._view.set_fields(data)
+        self._view.set_indicator(PALETTE[color])
 
     def on_save(self) -> None:
         """
         Reads and validates form. If invalid, sends invalidForm 
-        signal, else, bundles data and sends save signal.
+        signal, else, bundles data and sends save/edit signal 
+        depending on state.
         """
         field_data = self._view.read_entries()
         result = self._validate_fields(field_data)
@@ -70,8 +106,35 @@ class Form(QObject):
         if self._type is not ItemType.CLASS:
             self._bundle_class_id(field_data)
         
-        self.formSaved.emit(field_data, self._type)
+        # If in add state, add new item to database
+        if self._state is FormState.ADD:
+            self.formSaved.emit(field_data, self._type)
+            self._view.accept()
+        
+        # If in edit state, update in database
+        else:
+            self.formEdited.emit(
+                field_data, self._type, self._item_id,
+                self
+            )
+    
+    def on_delete(self) -> None:
+        """Emits signal to delete item and closes form."""
+        self.deleteItem.emit()
         self._view.accept()
+    
+    def on_color_picked(self, color: str) -> None:
+        """
+        Sets indicator color. If assessment form, displays 
+        title of selected class.
+        """
+        indicator_color = PALETTE[color]
+        self._view.set_indicator(indicator_color)
+        self._view.set_selection(color)
+
+        if self._type is not ItemType.CLASS:
+            title = self._color_map[color].title
+            self._view.display_class_title(title)
     
     def _determine_allowed_colors(self) -> list[str]:
         """
@@ -89,14 +152,14 @@ class Form(QObject):
 
     def _validate_fields(
             self, field_data: dict[FieldName, str]
-        ) -> ValidationResult:
+        ) -> Result:
         """Validates data corresponding to each field."""
         for field_name, datum in field_data.items():
             if not datum and self._fields[field_name].required:
-                return ValidationResult(
+                return Result(
                     valid=False, reason=f"{field_name.value} cannot be null"
                 )
-        return ValidationResult(True)
+        return Result(True)
 
     def _bundle_class_id(
             self, field_data: dict[FieldName, str]

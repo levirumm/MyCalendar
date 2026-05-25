@@ -71,12 +71,16 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.nextMonth.connect(controller.on_next_month)
         self._header_bar.refresh.connect(controller.on_refresh)
         self._header_bar.today.connect(controller.on_today)
-        self._header_bar.addItem.connect(controller.on_add_assessment)
+        self._header_bar.addItem.connect(controller.on_add_item)
 
         # Left column signals
-        self._left_column.class_list.addClass.connect(controller.on_add_class)
-        self._left_column.class_list.classClicked.connect(controller.open_form)
-                        
+        self._left_column.class_list.addClass.connect(
+            lambda: controller.on_add_item(ItemType.CLASS)
+        )
+        self._left_column.class_list.classClicked.connect(
+            controller.open_form
+        )
+                          
 
 class HeaderBar(QObject):
     """
@@ -421,6 +425,7 @@ class CalendarListItem(QFrame):
     def mouseReleaseEvent(self, _):
         """Emits clicked signal if pressed flag is True."""
         if self._pressed:
+            self._set_pressed(False)
             self.clicked.emit(
                 self._description.item_type, 
                 self._description.item_id

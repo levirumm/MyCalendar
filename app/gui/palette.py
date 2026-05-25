@@ -16,5 +16,5 @@ PALETTE = {
     "yellow": "#ece24e",
     "green": "#6fd35f",
     "purple": "#a975c7",
-    "pink": "#ce64a2",
+    "pink": "#de88ba",
 }
