@@ -85,6 +85,7 @@ class Ui_CalendarCell(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.see_more_events_button.sizePolicy().hasHeightForWidth())
         self.see_more_events_button.setSizePolicy(sizePolicy3)
+        self.see_more_events_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
         self.horizontalLayout_3.addWidget(self.see_more_events_button)
 

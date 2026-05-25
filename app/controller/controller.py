@@ -23,8 +23,7 @@ class CalendarController:
         self._view.connect_to_controller(self)
 
         # Set view elements using model data
-        descriptions = self._model.get_class_descriptions()
-        self._view.update_class_list(descriptions)
+        self._update_class_list()
     
     def on_previous_month(self) -> None:
         """Update calendar view to display previous month."""
@@ -94,11 +93,19 @@ class CalendarController:
         """
         if not self._model.add_item(data, item_type):
             print("Failed to add item to database")
-    
+            return
+        
+        if item_type is ItemType.CLASS:
+            self._update_class_list()
+        
     def delete_item(self, item_type: ItemType, item_id: int) -> None:
         """Deletes item from database and refreshed view."""
         if not self._model.delete_item(item_type, item_id):
             print("Failed to delete item")
+            return
+        
+        if item_type is ItemType.CLASS:
+            self._update_class_list()
     
     def edit_item(
             self, data: dict, item_type: ItemType, 
@@ -108,6 +115,9 @@ class CalendarController:
         if not self._model.update_item(item_type, item_id, data):
             print("Failed to edit item")
             return
+        
+        if item_type is ItemType.CLASS:
+            self._update_class_list()
         
         form.set_state(FormState.VIEW)
 
@@ -139,3 +149,10 @@ class CalendarController:
         self._view.update_display_month(
             self._model.today, self._display_date, first_cell
         )
+    
+    def _update_class_list(self) -> None:
+        """
+        Prompts view to update class list with new data from model.
+        """
+        descriptions = self._model.get_class_descriptions()
+        self._view.update_class_list(descriptions)

@@ -431,13 +431,18 @@ class CalendarListItem(QFrame):
         
     def mouseReleaseEvent(self, _):
         """Emits clicked signal if pressed flag is True."""
-        if self._pressed:
+        # Set pressed to false before emitting signal. Required because 
+        # any instructions after emit will be executed after form closes, 
+        # and calendar list item may have been deleted
+        was_pressed = self._pressed
+        self._set_pressed(False)
+
+        if was_pressed:
             self._set_pressed(False)
             self.clicked.emit(
                 self._description.item_type, 
                 self._description.item_id
             )
-        self._set_pressed(False)
 
     def _set_pressed(self, pressed: bool) -> None:
         """Sets pressed flag, styling, and polishes."""

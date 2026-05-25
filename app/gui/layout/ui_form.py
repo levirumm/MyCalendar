@@ -63,6 +63,7 @@ class Ui_Form(object):
 
         self.complete_button = QPushButton(self.frame_2)
         self.complete_button.setObjectName(u"complete_button")
+        self.complete_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.complete_button.setFocusPolicy(Qt.NoFocus)
         self.complete_button.setCheckable(True)
 
@@ -70,6 +71,7 @@ class Ui_Form(object):
 
         self.delete_button = QPushButton(self.frame_2)
         self.delete_button.setObjectName(u"delete_button")
+        self.delete_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.delete_button.setFocusPolicy(Qt.NoFocus)
         icon = QIcon()
         icon.addFile(u":/bin.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
@@ -79,6 +81,7 @@ class Ui_Form(object):
 
         self.edit_button = QPushButton(self.frame_2)
         self.edit_button.setObjectName(u"edit_button")
+        self.edit_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.edit_button.setFocusPolicy(Qt.NoFocus)
         icon1 = QIcon()
         icon1.addFile(u":/pen.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
@@ -88,6 +91,7 @@ class Ui_Form(object):
 
         self.close_button = QPushButton(self.frame_2)
         self.close_button.setObjectName(u"close_button")
+        self.close_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.close_button.setFocusPolicy(Qt.NoFocus)
         icon2 = QIcon()
         icon2.addFile(u":/cross.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
@@ -166,6 +170,7 @@ class Ui_Form(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.save_button.sizePolicy().hasHeightForWidth())
         self.save_button.setSizePolicy(sizePolicy4)
+        self.save_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.save_button.setFocusPolicy(Qt.NoFocus)
 
         self.save_button_layout.addWidget(self.save_button)
