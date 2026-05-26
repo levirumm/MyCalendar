@@ -1,5 +1,7 @@
+from itertools import product
 from datetime import datetime, date, timedelta
 from app.model.schema import ItemType, ItemDescription
+from app.model.constants import CALENDAR_ROWS, CALENDAR_COLS
 from app.model.db.database_manager import DatabaseManager
 
 
@@ -25,6 +27,28 @@ class CalendarModel:
     def get_item_info(self, item_type: ItemType, item_id: int) -> dict:
         """Retrieves and returns item data from database."""
         return self._db_manager.get_item_info(item_type, item_id)
+    
+    def get_month_assessments(
+            self, display_date: date
+        ) -> list[tuple[date, list[ItemDescription]]]:
+        """
+        Returns list of tuples containing date and list of assessments 
+        due on each day appearing on the calendar page of the 
+        given display month.
+        """
+        month_assessments = []
+        date = self.date_of_first_cell(display_date)
+
+        for _ in product(
+            range(CALENDAR_ROWS), range(CALENDAR_COLS)
+        ):
+            day_assessments = (
+                self._db_manager.get_assessments_descriptions(
+                    date.isoformat())
+            )
+            month_assessments.append((date, day_assessments))
+            date += timedelta(1)
+        return month_assessments
     
     def add_item(self, data: dict, item_type: ItemType) -> bool:
         """Adds item to database. Returns false if error."""

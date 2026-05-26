@@ -14,6 +14,7 @@ class FieldName(Enum):
     Enum for names of fields, used by db initialiser and 
     in form specs.
     """
+    ITEM_ID = "item_id"
     CLASS_ID = "class_id"
     ASSIGNMENT_ID = "assignment_id"
     EXAM_ID = "exam_id"
@@ -30,6 +31,7 @@ class FieldName(Enum):
     LOCATION = "location"
     TIME = "time"
     INSERTION_TIME = "insertion_time"
+    ASSESSMENT_TYPE = "assessment_type"
 
 
 @dataclass

@@ -61,7 +61,9 @@ class FormView(QDialog, Ui_Form):
         Inputs the field datum into the corresponding entry.
         """
         for field_name, datum in data.items():
-            self._field_entries[field_name].set(datum)
+            entry = self._field_entries.get(field_name, None)
+            if entry:
+                entry.set(datum)
 
     def set_state(self, state: FormState) -> None:
         """

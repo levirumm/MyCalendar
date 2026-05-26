@@ -73,16 +73,21 @@ class Form(QObject):
             and self._type is ItemType.CLASS
         ):
             self._view.hide_swatch()
+            return
     
     def set_fields(self, data: dict[FieldName, str]) -> None:
         """Inputs the data into corresponding field entries."""
         # Remove and get class id field
-        class_id = int(data.pop(FieldName.CLASS_ID))
+        class_id = data.get(FieldName.CLASS_ID, None)
 
         if self._type is not ItemType.CLASS:
             color = next(
                 c.color for c in self._color_map.values() 
                 if c.item_id == class_id
+            )
+            data[FieldName.COLOR] = color
+            self._view.display_class_title(
+                self._color_map[color].title
             )
         else:
             color = data[FieldName.COLOR]

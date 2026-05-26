@@ -21,23 +21,47 @@ class DatabaseManager:
             self, item_type: ItemType, item_id: int
         ) -> dict[FieldName, str]:
         """Fetches and returns item data."""
-        sql = self._generate_select_sql(item_type)
-        try:
-            with self._conn:
-                self._cur.execute(sql, (item_id,))
-                data = dict(self._cur.fetchall()[0])
-        except sqlite3.Error:
+        selector = self._get_item_id_key(item_type)
+        sql = self._generate_select_sql(item_type, selector)
+
+        if not self._execute_sql(sql, (item_id,)):
             return {}
         
-        return {
-            FieldName(key): datum 
-            for key, datum in data.items()
-        }
+        return self._fieldname_dict(self._cur.fetchall()[0])
         
+    def get_assessments_descriptions(self, date_str: str) -> list:
+        """
+        Returns a list of ItemDescriptions of assessments due
+        on given date.
+        """
+        assessments = []
+        sql = self._generate_assessment_description_sql()
+
+        if not self._execute_sql(sql, (date_str, date_str)):
+            return []
+        
+        for assessment in self._cur.fetchall():
+            # Bundle data into a dict
+            a_dict = self._fieldname_dict(assessment)
+            
+            # Get type of assessments
+            item_type = self._get_item_type(
+                a_dict[FieldName.ASSESSMENT_TYPE]
+            )
+
+            # Create item description object
+            item = ItemDescription(
+                item_type, int(a_dict[FieldName.ITEM_ID]), 
+                a_dict[FieldName.TITLE], a_dict[FieldName.COLOR]
+            )
+            assessments.append(item)
+
+        return assessments
+            
     def get_class_descriptions(self) -> list[ItemDescription]:
         """Returns an ItemDescription for each class."""
         descriptions = []
-        sql = self._generate_description_sql(ItemType.CLASS)
+        sql = self._generate_class_description_sql(ItemType.CLASS)
 
         with self._conn:
             self._cur.execute(sql)
@@ -97,18 +121,20 @@ class DatabaseManager:
             with self._conn:
                 self._cur.execute(sql, values)
                 return True
-        except sqlite3.Error:
+        except sqlite3.Error as e:
+            print(e)
             return False
     
-    def _generate_select_sql(self, item_type: ItemType) -> str:
+    def _generate_select_sql(
+            self, item_type: ItemType, selector: FieldName
+        ) -> str:
         """
         Returns the SQL for selecting item information form 
         database.
         """
         return (
-            "SELECT *" +
-            f"\nFROM {item_type.value}\n"
-            f"WHERE {self._get_item_id_key(item_type).value} = ?"
+            "SELECT *" + f"\nFROM {item_type.value}\n"
+            f"WHERE {selector.value} = ?"
         )
 
     def _generate_insert_sql(
@@ -142,20 +168,64 @@ class DatabaseManager:
             f"WHERE {self._get_item_id_key(item_type).value} = ?"
         )
 
-    def _generate_description_sql(self, item_type: ItemType) -> str:
-        """Returns the sql required for fetching class descriptions."""
-        item_id_field = self._get_item_id_key(item_type)
+    def _generate_class_description_sql(
+            self, item_type: ItemType
+        ) -> str:
+        """
+        Returns the sql required for fetching descriptions 
+        (item id, title, color).
+        """
         return (
             "SELECT\n" +
-            (
-            ",\n".join(
+            (",\n".join(
                 f"{field.value}" for field in [
-                item_id_field, FieldName.TITLE, FieldName.COLOR
-                ])
-            ) 
-            + f"\nFROM {item_type.value}"
-            + f"\nORDER BY {item_id_field.value}"
+                self._get_item_id_key(item_type), FieldName.TITLE, 
+                FieldName.COLOR
+                ])) +
+            f"\nFROM {item_type.value}"
+            f"\nORDER BY {FieldName.CLASS_ID.value}"
         )
+    
+    def _generate_assessment_description_sql(self) -> str:
+        """
+        Returns the sql required for fetching descriptions 
+        (item id, title, color).
+        """
+        return (
+            self._generate_assessment_select(ItemType.ASSIGNMENT, "A")
+            + "\nUNION ALL\n" +
+            self._generate_assessment_select(ItemType.EXAM, "E")
+            + f"\nORDER BY {FieldName.INSERTION_TIME.value}"
+        )
+        
+    def _generate_assessment_select(
+            self, item_type: ItemType, key: str
+        ) -> str:
+        """
+        Generates the sql for selecting description of assessments 
+        of given item from database.
+        """
+        return (
+            "SELECT\n"
+            f"'{item_type.value}' as {FieldName.ASSESSMENT_TYPE.value},\n"
+            f"{key}.{self._get_item_id_key(item_type).value} "
+            f"as {FieldName.ITEM_ID.value},\n"
+            f"{key}.{FieldName.TITLE.value} as {FieldName.TITLE.value},\n"
+            f"{key}.{FieldName.INSERTION_TIME.value} "
+            f"as {FieldName.INSERTION_TIME.value},\n"
+            f"C.{FieldName.COLOR.value} as {FieldName.COLOR.value}\n"
+            f"FROM {item_type.value} {key}\n"
+            f"JOIN {ItemType.CLASS.value} C ON "
+            f"{key}.{FieldName.CLASS_ID.value} = C.{FieldName.CLASS_ID.value}\n"
+            f"WHERE {key}.{FieldName.DUE_DATE.value} = ?"
+        )
+            
+    def _fieldname_dict(self, data: list[tuple]) -> dict[FieldName, str]:
+        """Returns a dict mapping FieldNames to item data."""
+        return {
+            FieldName(key): datum 
+            for key, datum in dict(data).items()
+        }
 
     def _bundle_fields_and_values(self, data: dict) -> tuple[list, tuple]:
         """
@@ -180,3 +250,14 @@ class DatabaseManager:
             
             case ItemType.EXAM:
                 return FieldName.EXAM_ID   
+    
+    def _get_item_type(self, assessment_type: str) -> ItemType:
+        """
+        Helper function which returns type of assessment from 
+        assessment type key.
+        """
+        return (
+            ItemType.ASSIGNMENT if 
+            assessment_type == ItemType.ASSIGNMENT.value 
+            else ItemType.EXAM
+        )

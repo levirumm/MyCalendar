@@ -246,7 +246,8 @@ class DateEntry(QDateEdit):
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
         self.setReadOnly(disabled)
-    
+        self.setProperty("view", disabled)
+
 
 class TimeEntry(QTimeEdit):
     def get(self) -> str:

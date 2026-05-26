@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+from datetime import date
+from itertools import product
 from pathlib import Path
 from PySide6.QtWidgets import (
     QWidget, QGridLayout, QHBoxLayout, QVBoxLayout, 
@@ -47,17 +48,21 @@ class CalendarView(QWidget, Ui_MyCalendar):
 
         # Calendar grid
         self._grid = CalendarGrid(
-            today, date_of_first, self._ui.calendar_grid_layout
+            self._ui.calendar_grid_layout
         )
         self.show()
     
-    def update_display_month(
-            self, today: date, display_date:date, date_of_first: date
+    def update_calendar_grid(
+            self, today: date, 
+            month_assessments: list[tuple[date, list[ItemDescription]]]
         ) -> None:
-        """Updates month being displayed."""
-        self._header_bar.set_month_year_label(display_date)
-        self._grid.update(today, date_of_first)
+        """Updates the grid of calendar cells."""
+        self._grid.update(today, month_assessments)
     
+    def update_month_title(self, display_date: date) -> None:
+        """Updates month name title in header bar."""
+        self._header_bar.set_month_year_label(display_date)
+
     def update_class_list(
             self, class_descriptions: list[ItemDescription]
         ) -> None:
@@ -80,6 +85,9 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._left_column.class_list.classClicked.connect(
             controller.open_form
         )
+
+        # Calendar gird signals
+        self._grid.assessmentClicked.connect(controller.open_form)
                           
 
 class HeaderBar(QObject):
@@ -274,56 +282,65 @@ class ClassList(QObject):
         return ui.class_list_layout
 
 
-class CalendarGrid:
+class CalendarGrid(QObject):
     """
     Manages the 5x7 grid of calendar cells.
     """
-    def __init__(
-            self, today: date, date_of_first: date, 
-            grid_layout: QGridLayout
-        ) -> None:
-        # Dict mapping dates to corresponding cell widget
-        self._cells: dict[date, CalendarCell] = {}
+    assessmentClicked = Signal(ItemType, int)
 
-        self._draw_cells(today, date_of_first, grid_layout)
+    def __init__(self, grid_layout: QGridLayout) -> None:
+        super().__init__()
+        # Dict mapping dates to corresponding cell widget
+        self._cells: dict[date | int, CalendarCell] = {}
+
+        self._draw_cells(grid_layout)
     
-    def update(self, today: date, date_of_first: date) -> None:
-        """Updates calendar grid to display given date."""
-        cell_date = date_of_first
+    def update(
+            self, today: date, month_assessments: list[
+                tuple[date, list[ItemDescription]]
+            ]
+        ) -> None:
+        """Updates calendar grid to display given month."""
         new_cells: dict[date, CalendarCell] = {}
 
-        for cell in self._cells.values():
-            cell.update_date(cell_date)
-            new_cells[cell_date] = cell
+        for i, cell in enumerate(self._cells.values()):
+            new_date, assessments = month_assessments[i]
+            
+            cell.update_cell(new_date, assessments)
+            new_cells[new_date] = cell
 
             # Clear highlight of previously highlighted day
             if cell.is_today:
-                cell.set_highlight(False)
+                cell.set_today(False)
 
             # Highlight day label of current day
-            if cell_date == today:
-                cell.set_highlight(True)
+            if new_date == today:
+                cell.set_today(True)
 
-            cell_date += timedelta(1)
-
-        self._cells = new_cells # Switch to new cell map
-
-    def _draw_cells(
-            self, today: date, cell_date: date, layout: QGridLayout
+        # Switch to new cell map
+        self._cells = new_cells # type: ignore
+    
+    def _on_assessment_clicked(
+            self, item_type: ItemType, item_id: int
         ) -> None:
-        """Draws the calendar cells for the current month."""
-        for row in range(CALENDAR_ROWS):
-            for col in range(CALENDAR_COLS):
-                cell = CalendarCell(cell_date)
-                layout.addWidget(cell, row, col)
+        """Emits class clicked signal with type and id."""
+        self.assessmentClicked.emit(item_type, item_id)
+    
+    def _draw_cells(self, layout: QGridLayout) -> None:
+        """
+        Draws the calendar cells for the current month. Uses default 
+        integer keys before dates have been set during update.
+        """
+        counter = 0
+        for row, col in product(
+            range(CALENDAR_ROWS), range(CALENDAR_COLS)
+        ):
+            cell = CalendarCell()
+            layout.addWidget(cell, row, col)
+            self._cells[counter] = cell
+            cell.clicked.connect(self._on_assessment_clicked)
 
-                # Highlight day label of current day
-                if cell_date == today:
-                    cell.set_highlight(True)
-
-                self._cells[cell_date] = cell
-
-                cell_date += timedelta(1)
+            counter += 1
         
 
 class CalendarCell(QFrame, Ui_CalendarCell):
@@ -331,45 +348,80 @@ class CalendarCell(QFrame, Ui_CalendarCell):
     Single cell in calendar grid, including date label, 
     events, and 'see more' button.
     """
-    def __init__(self, cell_date: date) -> None:
+    clicked = Signal(ItemType, int)
+
+    def __init__(self) -> None:
         super().__init__()
-        self._ui = Ui_CalendarCell()
-        self._ui.setupUi(self)
+        ui = Ui_CalendarCell()
+        ui.setupUi(self)
+
+        self._date_label = ui.date_label
+        self._layout = ui.event_layout
 
         self._is_today = False
 
-        self._render_top_elements(cell_date.day)
+        self._render_top_elements(ui)
     
     @property
     def is_today(self) -> bool:
         return self._is_today
     
-    def update_date(self, new_date: date) -> None:
-        """Updates cell's date labels to match new date."""
-        self._ui.date_label.setText(str(new_date.day))
+    def update_cell(
+            self, new_date: date, 
+            assessments: list[ItemDescription]
+        ) -> None:
+        """
+        Updates cell's date labels and assessments to match 
+        new date.
+        """
+        # Update date label
+        self._date_label.setText(str(new_date.day))
         
-    def set_highlight(self, highlight: bool) -> None:
+        # Clear layout
+        while self._layout.count():
+            item = self._layout.takeAt(0)
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+        
+        # Add assessment items
+        for description in assessments:
+            list_item = CalendarListItem(
+                description, font=Typography.SMALL, 
+                bg_color="white"
+            )
+            self._layout.addWidget(list_item)
+            list_item.clicked.connect(self._on_clicked)
+        self._layout.addStretch()
+        
+    def set_today(self, today: bool) -> None:
         """Adds or removes highlight on date label."""
-        self._is_today = highlight
-        label = self._ui.date_label
-        label.setProperty("variant", "highlight" if highlight else None)
+        self._is_today = today
+        label = self._date_label
+        label.setProperty("variant", "highlight" if today else None)
         self.style().polish(label)
     
-    def _render_top_elements(self, day: int) -> None:
+    def _on_clicked(
+            self, item_type: ItemType, item_id: int
+        ) -> None:
+        """Emits class clicked signal with type and id."""
+        self.clicked.emit(item_type, item_id)
+    
+    def _render_top_elements(self, ui: Ui_CalendarCell) -> None:
         """
         Renders label displaying date at top of cell and see more 
         events button. Hides see more events button.
         """
         size = Metrics.DATE_LABEL_HIGHLIGHT
-        date_label = self._ui.date_label
-        button = self._ui.see_more_events_button
+        date_label = ui.date_label
+        button = ui.see_more_events_button
 
         # Set size and shape of buttons
         for btn in [date_label, button]:
             btn.setFixedSize(size, size)
             make_circle(btn, size)
 
-        date_label.setText(str(day))
         date_label.setFont(Typography.SMALL)
 
         button.setText("+")
@@ -382,7 +434,7 @@ class CalendarListItem(QFrame):
     Pressable list item which opens form in view state, 
     composed of color indicator and item title label.
     """
-    _height_ratio: float = 2
+    _height_ratio: float = 1.8
     _indicator_ratio: float = 0.7
 
     clicked = Signal(ItemType, int)
@@ -403,6 +455,11 @@ class CalendarListItem(QFrame):
         self.setSizePolicy(
             QSizePolicy.Policy.Ignored, 
             QSizePolicy.Policy.Preferred
+        )
+
+        # Set cursor to be pointing hand
+        self.setCursor(
+            Qt.CursorShape.PointingHandCursor
         )
 
     def enterEvent(self, _) -> None:
@@ -470,6 +527,7 @@ class CalendarListItem(QFrame):
         layout.setContentsMargins(
             indicator_height, 0, indicator_height, 0
         )
+        layout.setSpacing(indicator_height // 2)
 
         # Color indicator (left)
         color_indicator = QLabel()
