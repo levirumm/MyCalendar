@@ -48,7 +48,10 @@ class CalendarController:
         self._display_date = self._model.today
         self._show_display_date()
 
-    def open_form(self, item_type: ItemType, item_id: int) -> None:
+    def open_form(
+            self, item_type: ItemType, item_id: int,
+            list_item: object | None = None
+        ) -> None:
         """
         Opens form in view state displaying information 
         of corresponding item.
@@ -65,9 +68,16 @@ class CalendarController:
         form = Form(
             self._view, item_type, classes, item_id
         )
-        form.connect_to_form(self)
+        # Send reference to list item for complete toggling
+        form.connect_to_form(self, list_item)
         form.set_fields(data)
         form.set_state(FormState.VIEW)
+    
+        if item_type is not ItemType.CLASS:
+            # Set complete status of assessment
+            is_complete = self._model.is_complete(item_type, item_id)
+            form.set_complete(is_complete)
+            
         form.open()
     
     def on_add_item(self, item_type: ItemType) -> None:
@@ -135,6 +145,14 @@ class CalendarController:
     def on_invalid_form(self, reason: str) -> None:
         """Displays error reason to user with a toast."""
         print(reason)
+    
+    def on_complete_toggled(
+            self, item_type: ItemType, item_id: int, 
+            is_complete: bool, list_item
+        ) -> None:
+        """updates items complete status in """
+        self._model.toggle_complete(item_type, item_id, is_complete)
+        list_item.set_complete(is_complete)
     
     def _can_add_item(
             self, item_type: ItemType, classes: list

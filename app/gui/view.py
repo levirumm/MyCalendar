@@ -75,7 +75,7 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._header_bar.previousMonth.connect(controller.on_previous_month)
         self._header_bar.nextMonth.connect(controller.on_next_month)
         self._header_bar.refresh.connect(controller.on_refresh)
-        self._header_bar.today.connect(controller.on_today)
+        self._header_bar.toToday.connect(controller.on_today)
         self._header_bar.addItem.connect(controller.on_add_item)
 
         # Left column signals
@@ -98,7 +98,7 @@ class HeaderBar(QObject):
     previousMonth = Signal()
     nextMonth = Signal()
     refresh = Signal()
-    today = Signal()
+    toToday = Signal()
     addItem = Signal(ItemType)
 
     def __init__(
@@ -154,18 +154,10 @@ class HeaderBar(QObject):
         ui.add_event_button.setIconSize(QSize(icn_size, icn_size))
 
         # Connect slots to header buttons
-        ui.previous_month_button.clicked.connect(
-            lambda: self.previousMonth.emit()
-        )
-        ui.next_month_button.clicked.connect(
-            lambda: self.nextMonth.emit()
-        )
-        ui.refresh_button.clicked.connect(
-            lambda: self.refresh.emit()
-        )
-        ui.today_button.clicked.connect(
-            lambda: self.today.emit()
-        )
+        ui.previous_month_button.clicked.connect(self.previousMonth.emit)
+        ui.next_month_button.clicked.connect(self.nextMonth.emit)
+        ui.refresh_button.clicked.connect(self.refresh.emit)
+        ui.today_button.clicked.connect(self.toToday.emit)
         ui.add_event_button.clicked.connect(
             lambda: self._open_add_event_menu(ui)
         )
@@ -252,7 +244,7 @@ class ClassList(QObject):
             list_item.clicked.connect(self._on_class_clicked)
     
     def _on_class_clicked(
-            self, item_type: ItemType, item_id: int
+            self, item_type: ItemType, item_id: int, _
         ) -> None:
         """Emits class clicked signal with type and id."""
         self.classClicked.emit(item_type, item_id)
@@ -286,7 +278,7 @@ class CalendarGrid(QObject):
     """
     Manages the 5x7 grid of calendar cells.
     """
-    assessmentClicked = Signal(ItemType, int)
+    assessmentClicked = Signal(ItemType, int, object)
 
     def __init__(self, grid_layout: QGridLayout) -> None:
         super().__init__()
@@ -321,10 +313,11 @@ class CalendarGrid(QObject):
         self._cells = new_cells # type: ignore
     
     def _on_assessment_clicked(
-            self, item_type: ItemType, item_id: int
+            self, item_type: ItemType, item_id: int, 
+            list_item: "CalendarListItem"
         ) -> None:
         """Emits class clicked signal with type and id."""
-        self.assessmentClicked.emit(item_type, item_id)
+        self.assessmentClicked.emit(item_type, item_id, list_item)
     
     def _draw_cells(self, layout: QGridLayout) -> None:
         """
@@ -348,7 +341,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
     Single cell in calendar grid, including date label, 
     events, and 'see more' button.
     """
-    clicked = Signal(ItemType, int)
+    clicked = Signal(ItemType, int, object)
 
     def __init__(self) -> None:
         super().__init__()
@@ -403,10 +396,11 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         self.style().polish(label)
     
     def _on_clicked(
-            self, item_type: ItemType, item_id: int
+            self, item_type: ItemType, item_id: int, 
+            list_item: "CalendarListItem"
         ) -> None:
         """Emits class clicked signal with type and id."""
-        self.clicked.emit(item_type, item_id)
+        self.clicked.emit(item_type, item_id, list_item)
     
     def _render_top_elements(self, ui: Ui_CalendarCell) -> None:
         """
@@ -437,7 +431,7 @@ class CalendarListItem(QFrame):
     _height_ratio: float = 1.8
     _indicator_ratio: float = 0.7
 
-    clicked = Signal(ItemType, int)
+    clicked = Signal(ItemType, int, object)
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
@@ -449,7 +443,7 @@ class CalendarListItem(QFrame):
         
         # Configure list item
         self.setProperty("color", bg_color)
-        self._render_self(font)
+        self._label = self._render_self(font)
 
         # Set size policy of frame so long labels are elided
         self.setSizePolicy(
@@ -461,6 +455,12 @@ class CalendarListItem(QFrame):
         self.setCursor(
             Qt.CursorShape.PointingHandCursor
         )
+    
+    def set_complete(self, is_complete: bool) -> None:
+        """Applies a struck through font if item is complete."""
+        font = self._label.font()
+        font.setStrikeOut(is_complete)
+        self._label.setFont(font)
 
     def enterEvent(self, _) -> None:
         """Enters hover state."""
@@ -498,7 +498,8 @@ class CalendarListItem(QFrame):
             self._set_pressed(False)
             self.clicked.emit(
                 self._description.item_type, 
-                self._description.item_id
+                self._description.item_id,
+                self
             )
 
     def _set_pressed(self, pressed: bool) -> None:
@@ -512,7 +513,7 @@ class CalendarListItem(QFrame):
         self.setProperty("hover", hover)
         self.style().polish(self)
 
-    def _render_self(self, font: QFont) -> None:
+    def _render_self(self, font: QFont) -> QLabel:
         """
         Renders the list item, comprising a color indicator 
         and a label.
@@ -546,3 +547,5 @@ class CalendarListItem(QFrame):
         layout.addWidget(title_label)
         layout.addStretch()
         self.setLayout(layout)
+
+        return title_label

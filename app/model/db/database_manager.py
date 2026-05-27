@@ -112,6 +112,25 @@ class DatabaseManager:
 
         return self._execute_sql(sql, values)
 
+    def toggle_complete(
+            self, item_type: ItemType, item_id: int, 
+            is_complete: bool
+        ) -> None:
+        """
+        Updates the status of an items complete parameter 
+        in database.
+        """
+        sql = self._generate_update_complete_sql(item_type)
+        self._execute_sql(sql, (is_complete, item_id))
+    
+    def is_complete(self, item_type: ItemType, item_id: int) -> bool:
+        """Returns the status of the items complete parameter."""
+        sql = self._generate_complete_select_sql(item_type)
+        self._execute_sql(sql, (item_id,))
+        
+        (complete,) = self._cur.fetchall()[0]
+        return bool(complete)
+
     def _execute_sql(self, sql: str, values: tuple) -> bool: 
         """
         Tries to execute sql. Returns false if 
@@ -192,13 +211,13 @@ class DatabaseManager:
         (item id, title, color).
         """
         return (
-            self._generate_assessment_select(ItemType.ASSIGNMENT, "A")
+            self._generate_assessment_select_sql(ItemType.ASSIGNMENT, "A")
             + "\nUNION ALL\n" +
-            self._generate_assessment_select(ItemType.EXAM, "E")
+            self._generate_assessment_select_sql(ItemType.EXAM, "E")
             + f"\nORDER BY {FieldName.INSERTION_TIME.value}"
         )
         
-    def _generate_assessment_select(
+    def _generate_assessment_select_sql(
             self, item_type: ItemType, key: str
         ) -> str:
         """
@@ -218,6 +237,22 @@ class DatabaseManager:
             f"JOIN {ItemType.CLASS.value} C ON "
             f"{key}.{FieldName.CLASS_ID.value} = C.{FieldName.CLASS_ID.value}\n"
             f"WHERE {key}.{FieldName.DUE_DATE.value} = ?"
+        )
+
+    def _generate_update_complete_sql(self, item_type: ItemType) -> str:
+        """Returns the sql required to update an items complete parameter."""
+        return (
+            f"UPDATE {item_type.value} "
+            f"SET {FieldName.COMPLETE.value} = ? "
+            f"WHERE {self._get_item_id_key(item_type).value} = ?"
+        )
+    
+    def _generate_complete_select_sql(self, item_type: ItemType) -> str:
+        """Returns the sql required to select an items complete parameter."""
+        return (
+            f"SELECT {FieldName.COMPLETE.value} "
+            f"FROM {item_type.value} "
+            f"WHERE {self._get_item_id_key(item_type).value} = ?"
         )
             
     def _fieldname_dict(self, data: list[tuple]) -> dict[FieldName, str]:

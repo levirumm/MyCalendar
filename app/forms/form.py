@@ -17,6 +17,7 @@ class Form(QObject):
     formInvalidated = Signal(str)
     formEdited = Signal(object, object, int, object)
     deleteItem = Signal()
+    completeToggled = Signal(object, int, bool, object)
 
     def __init__(
             self, parent, item_type: ItemType, 
@@ -47,7 +48,10 @@ class Form(QObject):
     def close(self) -> None:
         self._view.accept()
     
-    def connect_to_form(self, controller) -> None:
+    def connect_to_form(
+            self, controller, 
+            list_item: object | None = None
+        ) -> None:
         """Connects form signals to controller methods."""
         self.formSaved.connect(controller.add_item)
         self.formInvalidated.connect(controller.on_invalid_form)
@@ -61,6 +65,14 @@ class Form(QObject):
             )
         )
         self.formEdited.connect(controller.edit_item)
+
+        if not list_item: return
+
+        # Connect to form signal and inject list item reference
+        self._view.completeToggled.connect(
+            lambda: self._on_complete_toggled(list_item)
+        )
+        self.completeToggled.connect(controller.on_complete_toggled)
     
     def set_state(self, form_state: FormState) -> None:
         """Sets the state of the form."""
@@ -128,6 +140,10 @@ class Form(QObject):
         self.deleteItem.emit()
         self._view.accept()
     
+    def set_complete(self, is_complete: bool) -> None:
+        """Updates the check box to match complete status."""
+        self._view.set_complete(is_complete)
+    
     def on_color_picked(self, color: str) -> None:
         """
         Sets indicator color. If assessment form, displays 
@@ -141,29 +157,34 @@ class Form(QObject):
             title = self._color_map[color].title
             self._view.display_class_title(title)
     
+    def _on_complete_toggled(self, list_item: object) -> None:
+        """Emits completeToggled signal."""
+        complete = self._view.is_complete()
+        self.completeToggled.emit(
+            self._type, self._item_id, complete, list_item
+        )
+    
     def _determine_allowed_colors(self) -> list[str]:
         """
         For classes, allows colors not yet selected from class 
         colors palette. Else, allows colors of existing classes.
         """
-        if self._type is ItemType.CLASS:
-            colors = [
-                color for color in CLASS_COLORS 
-                if color not in self._color_map.keys()
-            ]
-
-            if self._item_id:
-                # Classes own color appears in swatch, so user can 
-                # reset to original choice.
-                colors.append(
-                    next(c.color for c in self._color_map.values() 
-                    if c.item_id == self._item_id)
-                )
-
-        else:
-            colors = [c for c in self._color_map.keys()]
+        if self._type is not ItemType.CLASS:
+            return [c for c in self._color_map.keys()]
         
-       
+        # Do not allow multiple classes to share color
+        colors = [
+            color for color in CLASS_COLORS 
+            if color not in self._color_map.keys()
+        ]
+
+        if self._item_id:
+            # Classes own color appears in swatch, so user can 
+            # reset to original choice.
+            colors.append(
+                next(c.color for c in self._color_map.values() 
+                if c.item_id == self._item_id)
+            )
         return colors
 
     def _validate_fields(
@@ -175,7 +196,7 @@ class Form(QObject):
                 return Result(
                     valid=False, reason=f"{field_name.value} cannot be null"
                 )
-            if field_name is FieldName.WEIGHT and float(datum) > 100:
+            if field_name is FieldName.WEIGHT and datum and float(datum) > 100:
                 return Result(
                     valid=False, reason=f"Invalid percentage"
                 )

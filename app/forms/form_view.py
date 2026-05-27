@@ -19,8 +19,8 @@ class FormView(QDialog, Ui_Form):
     HEIGHT_OFFSET_RATIO: int = 5
 
     save = Signal()
-    edit = Signal()
     delete = Signal()
+    completeToggled = Signal()
     colorPicked = Signal(str)
 
     def __init__(
@@ -48,6 +48,14 @@ class FormView(QDialog, Ui_Form):
                 field_name, field, field_builder
             )
             self._field_entries[field_name] = entry
+    
+    def set_complete(self, is_complete: bool) -> None:
+        """Updates the check box."""
+        self._ui.complete_button.setChecked(is_complete)
+    
+    def is_complete(self) -> bool:
+        """Returns the status of the complete check box."""
+        return self._ui.complete_button.isChecked()
     
     def read_entries(self) -> dict:
         """Returns dict mapping entry key to its datum."""
@@ -128,11 +136,12 @@ class FormView(QDialog, Ui_Form):
 
     def _toggle_check_box(self, check_box: QPushButton) -> None:
         """Updates the styling of the button based on status."""
+        checked = check_box.isChecked() 
         check_box.setProperty(
-            "role", "checked" if check_box.isChecked() 
-            else "unchecked"
+            "role", "checked" if checked else "unchecked"
         )
         check_box.style().polish(check_box)
+        self.completeToggled.emit()
 
     def _render_buttons(self, item_type: ItemType) -> list[QPushButton]:
         """

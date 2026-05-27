@@ -69,6 +69,20 @@ class CalendarModel:
         """Deletes item from database, returning false if error."""
         return self._db_manager.delete_item(item_type, item_id)
 
+    def toggle_complete(
+            self, item_type: ItemType, item_id: int, 
+            is_complete: bool
+        ) -> None:
+        """
+        Updates the status of an items complete parameter 
+        in database.
+        """
+        self._db_manager.toggle_complete(item_type, item_id, is_complete)
+
+    def is_complete(self, item_type: ItemType, item_id: int) -> bool:
+        """Returns the status of the items complete parameter."""
+        return self._db_manager.is_complete(item_type, item_id)
+
     def get_class_descriptions(self) -> list[ItemDescription]:
         return self._db_manager.get_class_descriptions()
     
