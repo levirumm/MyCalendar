@@ -137,22 +137,20 @@ class CalendarController:
         print(reason)
     
     def _can_add_item(
-            self, item_type: ItemType, classes
+            self, item_type: ItemType, classes: list
         ) -> Result:
         """
         Returns result based on whether item of given 
         type can be added.
         """
-        match item_type:
-            case ItemType.CLASS:
-                if len(classes) >= MAX_CLASSES:
-                    return Result(False, "Maximum of four classes")
-                return Result(True)
-
-            case _:
-                if not classes:
-                    Result(False, "Must add classes first")
-                return Result(True)        
+        if item_type is ItemType.CLASS:
+            if len(classes) >= MAX_CLASSES:
+                return Result(False, "Maximum of four classes")
+            return Result(True)
+    
+        if not classes:
+            return Result(False, "Must add classes first")
+        return Result(True)         
     
     def _show_display_date(self) -> None:
         """Updates view to show display date."""

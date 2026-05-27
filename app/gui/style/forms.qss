@@ -26,31 +26,31 @@ QPushButton[role="save"] {{
     padding-bottom: 2px;
 }}
 
-QDateEdit {{
+DateEntry {{
     background-color: {lightest_blue};
     color: {base_gray};
 }}
 
-QDateEdit:hover {{
+DateEntry:hover {{
     background-color: {light_blue};
 }}
 
-QDateEdit:focus {{
+DateEntry:focus {{
     background-color: {light_blue};
     border: 0px;
     border-radius: 5px;
 }}
 
-QTimeEdit {{
+TimeEntry {{
     background-color: {lightest_blue};
     color: {base_gray};
 }}
 
-QTimeEdit:hover {{
+TimeEntry:hover {{
     background-color: {light_blue};
 }}
 
-QTimeEdit:focus {{
+TimeEntry:focus {{
     background-color: {light_blue};
     border: 0px;
     border-radius: 5px;

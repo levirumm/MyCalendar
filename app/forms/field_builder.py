@@ -1,16 +1,17 @@
+from typing import Protocol
+import webbrowser
 from PySide6.QtWidgets import (
     QFrame, QTimeEdit, QLabel, QVBoxLayout, QHBoxLayout, 
     QLineEdit, QWidget, QDateEdit, QAbstractSpinBox,
     QPushButton, QDialog
 )
 from PySide6.QtCore import Qt, QDate, Signal, QObject, QTime
-from PySide6.QtGui import QPixmap, QDoubleValidator
+from PySide6.QtGui import QMouseEvent, QPixmap, QDoubleValidator
 from typing import Callable
 from app.gui.metrics import Metrics, Typography
 from app.forms.form_specs import FormField, EntryType
 from app.gui.pop_ups import ColorSwatch
 from app.gui.utils import make_bean, anchor_window
-from typing import Protocol
 
 
 class FormEntry(Protocol):
@@ -129,17 +130,12 @@ class FieldBuilder:
     
     def _make_percentage_edit(
             self, field: FormField, layout: QHBoxLayout
-        ) -> "TextEntry":
+        ) -> "PercentageEntry":
         """
-        Renders a QLineEdit with a QDoubleValidator restricting 
+        Renders a PercentageEntry with a QDoubleValidator restricting 
         the input to 0-100 and with 2dp of precision.
         """
-        edit = TextEntry()
-        validator = QDoubleValidator(bottom=0, top=100, decimals=2)
-        validator.setNotation( # Disallow scientific notation
-            QDoubleValidator.Notation.StandardNotation
-        )
-        edit.setValidator(validator)
+        edit = PercentageEntry()
         self._configure_text_edit(edit, field, layout)
         return edit
 
@@ -170,7 +166,9 @@ class FieldBuilder:
         edit.setPlaceholderText(field.placeholder)
         layout.addWidget(edit)
     
-    def _configure_labeled_edit_container(self) -> tuple[QFrame, QHBoxLayout]:
+    def _configure_labeled_edit_container(
+            self
+        ) -> tuple[QFrame, QHBoxLayout]:
         """Makes QFrame to hold label and edit."""
         container = QFrame()
         edit_layout = QHBoxLayout()
@@ -224,6 +222,21 @@ class TextEntry(QLineEdit):
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
         self.setReadOnly(disabled)
+        self.setCursorPosition(0) # Scroll to text start
+
+
+class PercentageEntry(TextEntry):
+    def __init__(self) -> None:
+        """Initiates TextEntry with validator."""
+        super().__init__()
+        validator = QDoubleValidator(
+            bottom=0, top=100, decimals=2
+        )
+        # Disallow scientific notation
+        validator.setNotation(
+            QDoubleValidator.Notation.StandardNotation
+        )
+        self.setValidator(validator)
 
 
 class DateEntry(QDateEdit):
@@ -246,7 +259,6 @@ class DateEntry(QDateEdit):
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
         self.setReadOnly(disabled)
-        self.setProperty("view", disabled)
 
 
 class TimeEntry(QTimeEdit):
@@ -277,7 +289,43 @@ class URLEdit(TextEntry):
     """
     def __init__(self) -> None:
         super().__init__()
+        self._readonly = False
+    
+    def set_disabled(self, disabled: bool) -> None:
+        """Sets the readonly state of the entry."""
+        super().set_disabled(disabled)
+        self._readonly = disabled
 
+    def enterEvent(self, _) -> None:
+        if self._readonly:
+            self._set_link(True)
+
+    def leaveEvent(self, _) -> None:
+        if self._readonly:
+            self._set_link(False)
+    
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """Opens link if readonly and left button press."""
+        if (
+            self._readonly and 
+            event.button() == Qt.MouseButton.LeftButton
+        ):
+            webbrowser.open(self.get())   
+
+    def _set_link(self, link: bool) -> None:
+        """Sets the underline and cursor of entry."""
+        # Set underline
+        font = self.font()
+        font.setUnderline(link)
+        self.setFont(font)
+
+        # Set cursor
+        cursor = (
+            Qt.CursorShape.PointingHandCursor if link 
+            else Qt.CursorShape.ArrowCursor
+        )
+        self.setCursor(cursor)
+        
 
 class SwatchButton(QObject):
     """
@@ -302,6 +350,7 @@ class SwatchButton(QObject):
         self._button.setStyleSheet(
             "text-align: left;"
             f"padding-left: {offset}px;"
+            f"padding-right: {offset}px;"
         )
         self._button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         make_bean(self._button, Metrics.COLOR_IDENTIFIER)

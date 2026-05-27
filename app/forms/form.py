@@ -175,6 +175,10 @@ class Form(QObject):
                 return Result(
                     valid=False, reason=f"{field_name.value} cannot be null"
                 )
+            if field_name is FieldName.WEIGHT and float(datum) > 100:
+                return Result(
+                    valid=False, reason=f"Invalid percentage"
+                )
         return Result(True)
 
     def _bundle_class_id(
