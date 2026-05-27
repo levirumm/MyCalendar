@@ -52,7 +52,8 @@ class DatabaseManager:
             # Create item description object
             item = ItemDescription(
                 item_type, int(a_dict[FieldName.ITEM_ID]), 
-                a_dict[FieldName.TITLE], a_dict[FieldName.COLOR]
+                a_dict[FieldName.TITLE], a_dict[FieldName.COLOR],
+                bool(a_dict[FieldName.COMPLETE])
             )
             assessments.append(item)
 
@@ -127,7 +128,7 @@ class DatabaseManager:
         """Returns the status of the items complete parameter."""
         sql = self._generate_complete_select_sql(item_type)
         self._execute_sql(sql, (item_id,))
-        
+
         (complete,) = self._cur.fetchall()[0]
         return bool(complete)
 
@@ -227,11 +228,12 @@ class DatabaseManager:
         return (
             "SELECT\n"
             f"'{item_type.value}' as {FieldName.ASSESSMENT_TYPE.value},\n"
-            f"{key}.{self._get_item_id_key(item_type).value} "
+            f"{key}.{self._get_item_id_key(item_type).value} " 
             f"as {FieldName.ITEM_ID.value},\n"
             f"{key}.{FieldName.TITLE.value} as {FieldName.TITLE.value},\n"
             f"{key}.{FieldName.INSERTION_TIME.value} "
             f"as {FieldName.INSERTION_TIME.value},\n"
+            f"{key}.{FieldName.COMPLETE.value} as {FieldName.COMPLETE.value},\n"
             f"C.{FieldName.COLOR.value} as {FieldName.COLOR.value}\n"
             f"FROM {item_type.value} {key}\n"
             f"JOIN {ItemType.CLASS.value} C ON "

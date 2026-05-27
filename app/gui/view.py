@@ -385,6 +385,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
                 bg_color="white"
             )
             self._layout.addWidget(list_item)
+            list_item.set_complete(description.complete)
             list_item.clicked.connect(self._on_clicked)
         self._layout.addStretch()
         

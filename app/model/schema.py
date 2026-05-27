@@ -41,3 +41,4 @@ class ItemDescription:
     item_id: int
     title: str
     color: str
+    complete: bool = True
