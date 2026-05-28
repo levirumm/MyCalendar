@@ -652,7 +652,10 @@ class CalendarListItem(QFrame):
             )
         else:
             color_indicator.setStyleSheet(
-                f"border: 2px solid {PALETTE[self._description.color]};"
+                # Uses muted color to avoid color overload
+                f"border: 2px solid {
+                    PALETTE[self._description.color + "_muted"]
+                };"
             )
         make_circle(color_indicator, height)
 

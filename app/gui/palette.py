@@ -18,6 +18,16 @@ PALETTE = {
     "purple": "#a975c7",
     "pink": "#de88ba",
 
+    # Muted class colors
+    "red_muted": "#ae4e4e",
+    "orange_muted": "#dbaa5b",
+    "yellow_muted": "#ede460",
+    "green_muted": "#75c269",
+    "purple_muted": "#9e80b0",
+    "pink_muted": "#d993bc",
+    "dark_blue_muted": "#81c3db",
+    "darkest_blue_muted": "#5a9cb4",
+
     # Toast colors
     "light_red": "#e9c1c1",
     "light_yellow": "#ffffef",
