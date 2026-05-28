@@ -189,7 +189,7 @@
          <item>
           <widget class="QPushButton" name="next_month_button">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -382,24 +382,24 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_9">
          <property name="spacing">
           <number>0</number>
          </property>
          <property name="leftMargin">
-          <number>20</number>
+          <number>0</number>
          </property>
          <property name="topMargin">
           <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>20</number>
+          <number>0</number>
          </property>
          <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QFrame" name="frame_6">
+          <widget class="QFrame" name="left_col_top_spacer">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -415,11 +415,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QFrame" name="frame_8">
+          <widget class="QFrame" name="class_list_container">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
-             <verstretch>19</verstretch>
+             <verstretch>8</verstretch>
             </sizepolicy>
            </property>
            <property name="frameShape">
@@ -428,7 +428,7 @@
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="spacing">
              <number>0</number>
             </property>
@@ -476,6 +476,12 @@
                </property>
                <item>
                 <widget class="QFrame" name="frame_9">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>1</verstretch>
+                  </sizepolicy>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
@@ -573,47 +579,84 @@
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="class_list_layout">
-                 <property name="spacing">
-                  <number>0</number>
+                <widget class="QFrame" name="frame_6">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>9</verstretch>
+                  </sizepolicy>
                  </property>
-                 <property name="topMargin">
-                  <number>10</number>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
                  </property>
-                </layout>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <layout class="QVBoxLayout" name="class_list_layout">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>10</number>
+                    </property>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
                </item>
               </layout>
              </widget>
             </item>
-            <item>
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QFrame" name="frame_12">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>1</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
-              </property>
-             </widget>
-            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="to_do_list_container">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>11</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QFrame" name="frame_15">
               <property name="frameShape">
@@ -698,7 +741,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QFrame" name="frame_13">
+                <widget class="QFrame" name="to_do_list_line">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -720,73 +763,34 @@
                 </widget>
                </item>
                <item>
-                <widget class="QFrame" name="frame_14">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
+                <layout class="QVBoxLayout" name="to_do_list_layout">
+                 <property name="spacing">
+                  <number>0</number>
                  </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>1</height>
-                  </size>
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetDefaultConstraint</enum>
                  </property>
-                 <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
+                 <property name="topMargin">
+                  <number>10</number>
                  </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_9">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <property name="leftMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="rightMargin">
-                   <number>0</number>
-                  </property>
-                  <property name="bottomMargin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <layout class="QVBoxLayout" name="to_do_list_layout">
-                    <property name="spacing">
-                     <number>0</number>
+                 <item>
+                  <widget class="QScrollArea" name="scroll_layout">
+                   <property name="widgetResizable">
+                    <bool>true</bool>
+                   </property>
+                   <widget class="QWidget" name="scrollAreaWidgetContents">
+                    <property name="geometry">
+                     <rect>
+                      <x>0</x>
+                      <y>0</y>
+                      <width>77</width>
+                      <height>105</height>
+                     </rect>
                     </property>
-                    <property name="sizeConstraint">
-                     <enum>QLayout::SetDefaultConstraint</enum>
-                    </property>
-                    <property name="topMargin">
-                     <number>10</number>
-                    </property>
-                    <item>
-                     <widget class="QScrollArea" name="scroll_layout">
-                      <property name="widgetResizable">
-                       <bool>true</bool>
-                      </property>
-                      <widget class="QWidget" name="scrollAreaWidgetContents">
-                       <property name="geometry">
-                        <rect>
-                         <x>0</x>
-                         <y>0</y>
-                         <width>53</width>
-                         <height>105</height>
-                        </rect>
-                       </property>
-                      </widget>
-                     </widget>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
-                </widget>
+                   </widget>
+                  </widget>
+                 </item>
+                </layout>
                </item>
               </layout>
              </widget>
@@ -795,7 +799,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QFrame" name="frame_7">
+          <widget class="QFrame" name="left_col_bottom_spacer">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>

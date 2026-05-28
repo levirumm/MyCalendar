@@ -27,6 +27,15 @@ class CalendarModel:
     def get_item_info(self, item_type: ItemType, item_id: int) -> dict:
         """Retrieves and returns item data from database."""
         return self._db_manager.get_item_info(item_type, item_id)
+
+    def get_due_items(self) -> list:
+        """
+        Returns a list of assessments which are open and 
+        incomplete.
+        """
+        return self._db_manager.get_due_items(
+            self._today.isoformat()
+        )
     
     def get_month_assessments(
             self, display_date: date

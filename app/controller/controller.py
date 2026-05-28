@@ -25,6 +25,7 @@ class CalendarController:
 
         # Set view elements using model data
         self._update_class_list()
+        self._update_to_do_list()
         self._show_display_date()
     
     def on_previous_month(self) -> None:
@@ -117,6 +118,7 @@ class CalendarController:
             self._update_class_list()
         else:
             self._update_calendar_grid()
+            self._update_to_do_list()
         
     def delete_item(self, item_type: ItemType, item_id: int) -> None:
         """Deletes item from database and refreshed view."""
@@ -129,9 +131,10 @@ class CalendarController:
         if item_type is ItemType.CLASS:
             self._update_class_list()
 
-        # Update grid regardless of item type as deleting 
+        # Update regardless of item type as deleting 
         # class deletes class assessments
         self._update_calendar_grid()
+        self._update_to_do_list()
     
     def edit_item(
             self, data: dict, item_type: ItemType, 
@@ -147,9 +150,10 @@ class CalendarController:
         if item_type is ItemType.CLASS:
             self._update_class_list()
         
-        # Update grid regardless of item type as editing 
+        # Update regardless of item type as editing 
         # class effects class assessments
         self._update_calendar_grid()
+        self._update_to_do_list()
         
         form.set_state(FormState.VIEW)
 
@@ -163,7 +167,11 @@ class CalendarController:
         ) -> None:
         """updates items complete status in """
         self._model.toggle_complete(item_type, item_id, is_complete)
-        list_item.set_complete(is_complete)
+
+        if list_item:
+            list_item.set_complete(is_complete)
+
+        self._update_to_do_list()
     
     def _can_add_item(
             self, item_type: ItemType, classes: list
@@ -193,6 +201,13 @@ class CalendarController:
         """
         descriptions = self._model.get_class_descriptions()
         self._view.update_class_list(descriptions)
+    
+    def _update_to_do_list(self) -> None:
+        """
+        Prompts view to update to do list with new data from model.
+        """
+        due_items = self._model.get_due_items()
+        self._view.update_to_do_list(due_items)
     
     def _update_calendar_grid(self) -> None:
         """Prompts view to update calendar grid."""

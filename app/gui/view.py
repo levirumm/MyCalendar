@@ -20,6 +20,16 @@ from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
 from app.gui.pop_ups import EventSelect, Toast, ToastType
 from app.gui.theme import load_qss
 from app.gui.utils import make_circle, make_bean, anchor_window
+
+
+def clear_layout(layout) -> None:
+    """Deletes all items in a layout."""
+    while layout.count():
+        item = layout.takeAt(0)
+        widget = item.widget()
+
+        if widget is not None:
+            widget.deleteLater()
     
 
 class CalendarView(QWidget, Ui_MyCalendar):
@@ -52,13 +62,6 @@ class CalendarView(QWidget, Ui_MyCalendar):
         )
         self.show()
     
-    def update_calendar_grid(
-            self, today: date, 
-            month_assessments: list[tuple[date, list[ItemDescription]]]
-        ) -> None:
-        """Updates the grid of calendar cells."""
-        self._grid.update(today, month_assessments)
-    
     def update_month_title(self, display_date: date) -> None:
         """Updates month name title in header bar."""
         self._header_bar.set_month_year_label(display_date)
@@ -68,6 +71,21 @@ class CalendarView(QWidget, Ui_MyCalendar):
         ) -> None:
         """Updates the list of classes in the left column."""
         self._left_column.update_class_list(class_descriptions)
+    
+    def update_to_do_list(
+            self, due_items: list[ItemDescription]
+        ) -> None:
+        """Updates to do list in left column."""
+        self._left_column.update_to_do_list(due_items)
+    
+    def update_calendar_grid(
+            self, today: date, 
+            month_assessments: list[
+                tuple[date, list[ItemDescription]]
+            ]
+        ) -> None:
+        """Updates the grid of calendar cells."""
+        self._grid.update(today, month_assessments)
     
     def show_toast(
             self, message: str, toast_type: ToastType, 
@@ -95,8 +113,11 @@ class CalendarView(QWidget, Ui_MyCalendar):
         self._left_column.class_list.classClicked.connect(
             controller.open_form
         )
+        self._left_column.to_do_list.assessmentClicked.connect(
+            controller.open_form
+        )
 
-        # Calendar gird signals
+        # Calendar grid signals
         self._grid.assessmentClicked.connect(controller.open_form)
                           
 
@@ -209,19 +230,34 @@ class LeftColumn(QObject):
         self._class_list = ClassList(ui)
         self._to_do_list = ToDoList(ui)
 
+        # Configure left column
+        padding = Typography.SUB_HEADING.pixelSize()
         ui.left_column_container.setProperty(
             "role", "left_column"
+        )
+        ui.left_column_container.setContentsMargins(
+            padding, 0, padding, 0
         )
     
     @property
     def class_list(self) -> "ClassList":
         return self._class_list
+
+    @property
+    def to_do_list(self) -> "ToDoList":
+        return self._to_do_list
     
     def update_class_list(
             self, class_descriptions: list[ItemDescription]
         ) -> None:
         """Updates the list of classes in the left column."""
         self._class_list.update(class_descriptions)
+    
+    def update_to_do_list(
+            self, due_items: list[ItemDescription]
+        ) -> None:
+        """Updates to do list in left column."""
+        self._to_do_list.update(due_items)
 
 
 class ClassList(QObject):
@@ -240,13 +276,7 @@ class ClassList(QObject):
             self, class_descriptions: list[ItemDescription]
         ) -> None:
         """Renders CalendarListItems for each class."""
-        # Clear layout
-        while self._layout.count():
-            item = self._layout.takeAt(0)
-            widget = item.widget()
-
-            if widget is not None:
-                widget.deleteLater()
+        clear_layout(self._layout)
         
         # Add class list items
         for description in class_descriptions:
@@ -257,6 +287,8 @@ class ClassList(QObject):
             self._layout.addWidget(list_item)
 
             list_item.clicked.connect(self._on_class_clicked)
+
+        self._layout.addStretch()
     
     def _on_class_clicked(
             self, item_type: ItemType, item_id: int, _
@@ -293,13 +325,48 @@ class ToDoList(QObject):
     Draws and manages the list of upcoming assignments 
     and exams.
     """
+    assessmentClicked = Signal(ItemType, int)
+
     def __init__(self, ui: Ui_MyCalendar) -> None:
+        super().__init__()
         self._layout = self._render_self(ui)
     
-    def _render_self(self, ui: Ui_MyCalendar) -> None:
+    def update(
+            self, due_items: list[ItemDescription]
+        ) -> None:
+        """Renders CalendarListItems for each due item."""
+        clear_layout(self._layout)
+        
+        # Add due items to to do list.
+        # Use hollow color indicator
+        for description in due_items:
+            list_item = CalendarListItem(
+                description, font=Typography.BASE, 
+                bg_color="light_blue", filled=False
+            )
+            self._layout.addWidget(list_item)
+
+            list_item.clicked.connect(self._on_item_clicked)
+
+        self._layout.addStretch()
+    
+    def _on_item_clicked(
+            self, item_type: ItemType, item_id: int, _
+        ) -> None:
+        """Emits assessment clicked signal with type and id."""
+        self.assessmentClicked.emit(item_type, item_id)
+
+    def _render_self(self, ui: Ui_MyCalendar) -> QVBoxLayout:
+        """Renders elements of to do list."""
+        ui.to_do_list_layout.setSpacing(
+            Typography.SMALL.pixelSize() // 2
+        )
+
         # Title label
         ui.to_do_list_label.setText("To-Do")
         ui.to_do_list_label.setFont(Typography.SUB_HEADING)
+
+        return ui.to_do_list_layout
 
 
 class CalendarGrid(QObject):
@@ -398,13 +465,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         # Update date label
         self._date_label.setText(str(new_date.day))
         
-        # Clear layout
-        while self._layout.count():
-            item = self._layout.takeAt(0)
-            widget = item.widget()
-
-            if widget is not None:
-                widget.deleteLater()
+        clear_layout(self._layout)
         
         # Add assessment items
         for description in assessments:
@@ -555,11 +616,11 @@ class CalendarListItem(QFrame):
 
         self.setToolTip(self._description.title)
 
+        # Configure list item layout
         layout = QHBoxLayout()
-        layout.setContentsMargins(
-            indicator_height, 0, indicator_height, 0
-        )
-        layout.setSpacing(indicator_height // 2)
+        padding = (item_height - indicator_height) // 2
+        layout.setContentsMargins(padding, 0, padding, 0)
+        layout.setSpacing(padding // 2)
 
         # Color indicator (left)
         color_indicator = self._render_color_indicator(

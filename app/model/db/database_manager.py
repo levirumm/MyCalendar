@@ -28,36 +28,27 @@ class DatabaseManager:
             return {}
         
         return self._fieldname_dict(self._cur.fetchall()[0])
+
+    def get_due_items(self, today: str) -> list:
+        """Returns a list of items which are due."""
+        sql = self._generate_due_items_sql(today)
+        
+        if not self._execute_sql(sql, ()):
+            return []
+        
+        return self._bundle_into_item_descriptions()
         
     def get_assessments_descriptions(self, date_str: str) -> list:
         """
         Returns a list of ItemDescriptions of assessments due
         on given date.
         """
-        assessments = []
         sql = self._generate_assessment_description_sql()
 
         if not self._execute_sql(sql, (date_str, date_str)):
             return []
         
-        for assessment in self._cur.fetchall():
-            # Bundle data into a dict
-            a_dict = self._fieldname_dict(assessment)
-            
-            # Get type of assessments
-            item_type = self._get_item_type(
-                a_dict[FieldName.ASSESSMENT_TYPE]
-            )
-
-            # Create item description object
-            item = ItemDescription(
-                item_type, int(a_dict[FieldName.ITEM_ID]), 
-                a_dict[FieldName.TITLE], a_dict[FieldName.COLOR],
-                bool(a_dict[FieldName.COMPLETE])
-            )
-            assessments.append(item)
-
-        return assessments
+        return self._bundle_into_item_descriptions()
             
     def get_class_descriptions(self) -> list[ItemDescription]:
         """Returns an ItemDescription for each class."""
@@ -212,12 +203,28 @@ class DatabaseManager:
         (item id, title, color).
         """
         return (
-            self._generate_assessment_select_sql(ItemType.ASSIGNMENT, "A")
-            + "\nUNION ALL\n" +
-            self._generate_assessment_select_sql(ItemType.EXAM, "E")
-            + f"\nORDER BY {FieldName.INSERTION_TIME.value}"
+            self._generate_assessment_select_sql(ItemType.ASSIGNMENT, "A") +
+            f"WHERE A.{FieldName.DUE_DATE.value} = ?\nUNION ALL\n" +
+            self._generate_assessment_select_sql(ItemType.EXAM, "E") +
+            f"WHERE E.{FieldName.DUE_DATE.value} = ?"
+            f"\nORDER BY {FieldName.INSERTION_TIME.value}"
         )
-        
+
+    def _generate_due_items_sql(self, today: str) -> str:
+        """
+        Returns the sql required for fetching items which 
+        are due. Exams within a week are considered due.
+        """
+        return (
+            self._generate_assessment_select_sql(ItemType.ASSIGNMENT, "A") +
+            f"WHERE date(A.{FieldName.OPEN_DATE.value}) <= date('{today}') "
+            f"AND A.{FieldName.COMPLETE.value} = 0 \nUNION ALL\n" +
+            self._generate_assessment_select_sql(ItemType.EXAM, "E") +
+            f"WHERE E.{FieldName.COMPLETE.value} = 0 AND "
+            f"E.{FieldName.DUE_DATE.value} >= date('now', 'weekday 0', '-6 days') "
+            f"AND E.{FieldName.DUE_DATE.value} <= date('now', 'weekday 0')"
+        )
+    
     def _generate_assessment_select_sql(
             self, item_type: ItemType, key: str
         ) -> str:
@@ -238,7 +245,6 @@ class DatabaseManager:
             f"FROM {item_type.value} {key}\n"
             f"JOIN {ItemType.CLASS.value} C ON "
             f"{key}.{FieldName.CLASS_ID.value} = C.{FieldName.CLASS_ID.value}\n"
-            f"WHERE {key}.{FieldName.DUE_DATE.value} = ?"
         )
 
     def _generate_update_complete_sql(self, item_type: ItemType) -> str:
@@ -298,3 +304,29 @@ class DatabaseManager:
             assessment_type == ItemType.ASSIGNMENT.value 
             else ItemType.EXAM
         )
+    
+    def _bundle_into_item_descriptions(self) -> list:
+        """
+        Takes fetched data and returns list of item 
+        descriptions.
+        """
+        descriptions = []
+
+        for item in self._cur.fetchall():
+            # Bundle data into a dict
+            a_dict = self._fieldname_dict(item)
+            
+            # Get type of item
+            item_type = self._get_item_type(
+                a_dict[FieldName.ASSESSMENT_TYPE]
+            )
+
+            # Create item description object
+            item = ItemDescription(
+                item_type, int(a_dict[FieldName.ITEM_ID]), 
+                a_dict[FieldName.TITLE], a_dict[FieldName.COLOR],
+                bool(a_dict[FieldName.COMPLETE])
+            )
+            descriptions.append(item)
+
+        return descriptions

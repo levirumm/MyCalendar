@@ -66,7 +66,7 @@ class Form(QObject):
         )
         self.formEdited.connect(controller.edit_item)
 
-        if not list_item: return
+        if self._type is ItemType.CLASS: return
 
         # Connect to form signal and inject list item reference
         self._view.completeToggled.connect(
@@ -157,7 +157,7 @@ class Form(QObject):
             title = self._color_map[color].title
             self._view.display_class_title(title)
     
-    def _on_complete_toggled(self, list_item: object) -> None:
+    def _on_complete_toggled(self, list_item: object | None) -> None:
         """Emits completeToggled signal."""
         complete = self._view.is_complete()
         self.completeToggled.emit(
