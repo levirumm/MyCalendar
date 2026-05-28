@@ -17,4 +17,9 @@ PALETTE = {
     "green": "#6fd35f",
     "purple": "#a975c7",
     "pink": "#de88ba",
+
+    # Toast colors
+    "light_red": "#e9c1c1",
+    "light_yellow": "#ffffef",
+    "dark_yellow": "#d5b747"
 }

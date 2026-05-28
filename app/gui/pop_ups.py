@@ -1,12 +1,84 @@
-from PySide6.QtWidgets import (
-    QDialog, QGridLayout, QPushButton
-)
 from math import ceil
+from enum import Enum
+from PySide6.QtWidgets import (
+    QDialog, QGridLayout, QPushButton, QFrame, 
+    QGraphicsOpacityEffect
+)
+from PySide6.QtCore import QPropertyAnimation, QTimer
+from PySide6.QtGui import QPixmap
 from app.gui.layout.ui_event_choice import Ui_EventChoice
 from app.gui.layout.ui_color_swatch import Ui_ColorSwatch
+from app.gui.layout.ui_toast import Ui_Toast
 from app.model.schema import ItemType
 from app.gui.metrics import Typography, Metrics
 from app.gui.utils import make_circle, style_window
+
+
+class ToastType(Enum):
+    ERROR = "error"
+    INFO = "info"
+    WARNING = "warning"
+
+
+class Toast(QFrame, Ui_Toast):
+    """
+    Toast which fades away after set duration.
+    """
+    ICON_PATHS = {
+        ToastType.ERROR: ":/stop.svg",
+        ToastType.INFO: ":/info.svg",
+        ToastType.WARNING: ":/warning.svg"
+    }
+
+    def __init__(
+            self, parent, message: str, toast_type: ToastType,
+            duration
+        ) -> None:
+        super().__init__(parent)
+        self.setupUi(self)
+
+        # Set toast styling
+        self.setProperty("variant", toast_type.value)
+        self.line.setProperty("role", "line")
+        self.line.setProperty("variant", toast_type.value)
+
+        # Set icon styling
+        self.icon_label.setFixedSize(
+            Metrics.COLOR_IDENTIFIER, 
+            Metrics.COLOR_IDENTIFIER
+        )
+        self.icon_label.setPixmap(
+            QPixmap(self.ICON_PATHS[toast_type])
+        )
+        self.icon_label.setScaledContents(True)
+
+        # Set label styling
+        self.label.setText(message)
+        self.label.setFont(Typography.BASE)
+        self.label.setProperty("variant", toast_type.value)
+
+        # Define fade out effect
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(1.0)
+        self.setGraphicsEffect(effect)
+        self._fade = QPropertyAnimation(
+            effect, b"opacity", self
+        )
+        self._fade.setStartValue(1)
+        self._fade.setEndValue(0)
+        self._fade.finished.connect(self.deleteLater)
+
+        # Position in center of parent
+        self.adjustSize()
+        center = parent.rect().center()
+        self.move(
+            center.x() - self.width() // 2,
+            center.y() - self.height() // 2
+        )
+        self.show()
+        
+        # Initiate fade after delay
+        QTimer.singleShot(duration, self._fade.start)
 
 
 class EventSelect(QDialog, Ui_EventChoice):
@@ -16,23 +88,22 @@ class EventSelect(QDialog, Ui_EventChoice):
     """
     def __init__(self, parent) -> None:
         super().__init__(parent)
-        ui = Ui_EventChoice()
-        ui.setupUi(self)
+        self.setupUi(self)
 
         self._selection = None
 
-        self._shadow = style_window(self, ui.frame)
-        ui.frame.setProperty("role", "menu")
+        self._shadow = style_window(self, self.frame)
+        self.frame.setProperty("role", "menu")
 
-        for button in [ui.assignment_button, ui.exam_button]:
+        for button in [self.assignment_button, self.exam_button]:
             button.setFont(Typography.BASE)
             button.setProperty("color", "white")
             button.setProperty("role", "drop_down")
         
-        ui.assignment_button.clicked.connect(
+        self.assignment_button.clicked.connect(
             self._on_assignment_clicked
         )
-        ui.exam_button.clicked.connect(self._on_exam_clicked)
+        self.exam_button.clicked.connect(self._on_exam_clicked)
     
     @property
     def selection(self) -> ItemType | None:
@@ -57,15 +128,14 @@ class ColorSwatch(QDialog, Ui_ColorSwatch):
     """
     def __init__(self, parent, colors: list[str]) -> None:
         super().__init__(parent)
-        ui = Ui_ColorSwatch()
-        ui.setupUi(self)
+        self.setupUi(self)
 
         self._selection = None
 
-        self._shadow = style_window(self, ui.frame)
-        ui.frame.setProperty("role", "menu")
+        self._shadow = style_window(self, self.frame)
+        self.frame.setProperty("role", "menu")
 
-        self._populate_swatch(colors, ui.swatch_layout)
+        self._populate_swatch(colors, self.swatch_layout)
     
     def _populate_swatch(
             self, colors: list[str], layout: QGridLayout

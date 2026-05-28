@@ -1,6 +1,7 @@
 from app.gui.view import CalendarView
 from app.model.model import CalendarModel
-from app.model.schema import ItemType, ItemDescription
+from app.model.schema import ItemType
+from app.gui.pop_ups import ToastType
 from app.model.constants import MAX_CLASSES
 from app.forms.form import Form
 from app.forms.form_specs import FormState, Result
@@ -59,7 +60,10 @@ class CalendarController:
         data = self._model.get_item_info(item_type, item_id)
 
         if not data:
-            print(f"Failed to open {item_type.value} form")
+            self._view.show_toast(
+                f"Failed to open {item_type.value} form", 
+                ToastType.WARNING
+            )
             return
         
         classes = self._model.get_class_descriptions()
@@ -77,7 +81,7 @@ class CalendarController:
             # Set complete status of assessment
             is_complete = self._model.is_complete(item_type, item_id)
             form.set_complete(is_complete)
-            
+
         form.open()
     
     def on_add_item(self, item_type: ItemType) -> None:
@@ -87,7 +91,7 @@ class CalendarController:
         # Check if item can be added
         result = self._can_add_item(item_type, classes) 
         if not result.valid:
-            print(result.reason)
+            self._view.show_toast(result.reason, ToastType.INFO)
             return
 
         # Open and connect to form
@@ -103,7 +107,10 @@ class CalendarController:
         Prompts model to add item to database and refreshes view.
         """
         if not self._model.add_item(data, item_type):
-            print("Failed to add item to database")
+            self._view.show_toast(
+                "Failed to add item to database", 
+                ToastType.WARNING
+            )
             return
         
         if item_type is ItemType.CLASS:
@@ -114,7 +121,9 @@ class CalendarController:
     def delete_item(self, item_type: ItemType, item_id: int) -> None:
         """Deletes item from database and refreshed view."""
         if not self._model.delete_item(item_type, item_id):
-            print("Failed to delete item")
+            self._view.show_toast(
+                "Failed to delete item", ToastType.WARNING
+            )
             return
         
         if item_type is ItemType.CLASS:
@@ -130,7 +139,9 @@ class CalendarController:
         ) -> None:
         """Updates item in database."""
         if not self._model.update_item(item_type, item_id, data):
-            print("Failed to edit item")
+            self._view.show_toast(
+                "Failed to edit item", ToastType.WARNING
+            )
             return
         
         if item_type is ItemType.CLASS:
@@ -144,7 +155,7 @@ class CalendarController:
 
     def on_invalid_form(self, reason: str) -> None:
         """Displays error reason to user with a toast."""
-        print(reason)
+        self._view.show_toast(reason, ToastType.ERROR)
     
     def on_complete_toggled(
             self, item_type: ItemType, item_id: int, 

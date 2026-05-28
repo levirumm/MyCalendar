@@ -16,8 +16,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-    QLabel, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QLabel, QLayout, QPushButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 from resources import resources_rc
 
 class Ui_MyCalendar(object):
@@ -223,7 +223,20 @@ class Ui_MyCalendar(object):
         self.verticalLayout_5.setSpacing(0)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
-        self.frame_9 = QFrame(self.frame_8)
+        self.frame_11 = QFrame(self.frame_8)
+        self.frame_11.setObjectName(u"frame_11")
+        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy10.setHorizontalStretch(0)
+        sizePolicy10.setVerticalStretch(3)
+        sizePolicy10.setHeightForWidth(self.frame_11.sizePolicy().hasHeightForWidth())
+        self.frame_11.setSizePolicy(sizePolicy10)
+        self.frame_11.setFrameShape(QFrame.NoFrame)
+        self.frame_11.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_6 = QVBoxLayout(self.frame_11)
+        self.verticalLayout_6.setSpacing(0)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
+        self.frame_9 = QFrame(self.frame_11)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setFrameShape(QFrame.NoFrame)
         self.frame_9.setFrameShadow(QFrame.Raised)
@@ -242,11 +255,11 @@ class Ui_MyCalendar(object):
 
         self.add_class_button = QPushButton(self.frame_9)
         self.add_class_button.setObjectName(u"add_class_button")
-        sizePolicy10 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
-        sizePolicy10.setHorizontalStretch(0)
-        sizePolicy10.setVerticalStretch(0)
-        sizePolicy10.setHeightForWidth(self.add_class_button.sizePolicy().hasHeightForWidth())
-        self.add_class_button.setSizePolicy(sizePolicy10)
+        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        sizePolicy11.setHorizontalStretch(0)
+        sizePolicy11.setVerticalStretch(0)
+        sizePolicy11.setHeightForWidth(self.add_class_button.sizePolicy().hasHeightForWidth())
+        self.add_class_button.setSizePolicy(sizePolicy11)
         self.add_class_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.add_class_button.setFocusPolicy(Qt.NoFocus)
         icon3 = QIcon()
@@ -256,27 +269,119 @@ class Ui_MyCalendar(object):
         self.horizontalLayout_7.addWidget(self.add_class_button)
 
 
-        self.verticalLayout_5.addWidget(self.frame_9)
+        self.verticalLayout_6.addWidget(self.frame_9)
 
-        self.line = QFrame(self.frame_8)
+        self.line = QFrame(self.frame_11)
         self.line.setObjectName(u"line")
         self.line.setMinimumSize(QSize(0, 1))
         self.line.setMaximumSize(QSize(16777215, 1))
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Plain)
+        self.line.setMidLineWidth(0)
 
-        self.verticalLayout_5.addWidget(self.line)
+        self.verticalLayout_6.addWidget(self.line)
 
         self.class_list_layout = QVBoxLayout()
         self.class_list_layout.setSpacing(0)
         self.class_list_layout.setObjectName(u"class_list_layout")
         self.class_list_layout.setContentsMargins(-1, 10, -1, -1)
 
-        self.verticalLayout_5.addLayout(self.class_list_layout)
+        self.verticalLayout_6.addLayout(self.class_list_layout)
+
+
+        self.verticalLayout_5.addWidget(self.frame_11)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_5.addItem(self.verticalSpacer)
+
+        self.frame_12 = QFrame(self.frame_8)
+        self.frame_12.setObjectName(u"frame_12")
+        sizePolicy.setHeightForWidth(self.frame_12.sizePolicy().hasHeightForWidth())
+        self.frame_12.setSizePolicy(sizePolicy)
+        self.frame_12.setFrameShape(QFrame.NoFrame)
+        self.frame_12.setFrameShadow(QFrame.Raised)
+
+        self.verticalLayout_5.addWidget(self.frame_12)
+
+        self.frame_15 = QFrame(self.frame_8)
+        self.frame_15.setObjectName(u"frame_15")
+        self.frame_15.setFrameShape(QFrame.NoFrame)
+        self.frame_15.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_9 = QHBoxLayout(self.frame_15)
+        self.horizontalLayout_9.setSpacing(0)
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.to_do_list_label = QLabel(self.frame_15)
+        self.to_do_list_label.setObjectName(u"to_do_list_label")
+        sizePolicy6.setHeightForWidth(self.to_do_list_label.sizePolicy().hasHeightForWidth())
+        self.to_do_list_label.setSizePolicy(sizePolicy6)
+
+        self.horizontalLayout_9.addWidget(self.to_do_list_label)
+
+        self.horizontalSpacer_5 = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_9.addItem(self.horizontalSpacer_5)
+
+
+        self.verticalLayout_5.addWidget(self.frame_15)
+
+        self.frame_10 = QFrame(self.frame_8)
+        self.frame_10.setObjectName(u"frame_10")
+        sizePolicy7.setHeightForWidth(self.frame_10.sizePolicy().hasHeightForWidth())
+        self.frame_10.setSizePolicy(sizePolicy7)
+        self.frame_10.setFrameShape(QFrame.NoFrame)
+        self.frame_10.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_7 = QVBoxLayout(self.frame_10)
+        self.verticalLayout_7.setSpacing(0)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.frame_13 = QFrame(self.frame_10)
+        self.frame_13.setObjectName(u"frame_13")
+        self.frame_13.setMinimumSize(QSize(0, 1))
+        self.frame_13.setMaximumSize(QSize(16777215, 1))
+        self.frame_13.setFrameShape(QFrame.HLine)
+        self.frame_13.setFrameShadow(QFrame.Plain)
+
+        self.verticalLayout_7.addWidget(self.frame_13)
+
+        self.frame_14 = QFrame(self.frame_10)
+        self.frame_14.setObjectName(u"frame_14")
+        sizePolicy12 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        sizePolicy12.setHorizontalStretch(0)
+        sizePolicy12.setVerticalStretch(0)
+        sizePolicy12.setHeightForWidth(self.frame_14.sizePolicy().hasHeightForWidth())
+        self.frame_14.setSizePolicy(sizePolicy12)
+        self.frame_14.setMinimumSize(QSize(0, 1))
+        self.frame_14.setFrameShape(QFrame.NoFrame)
+        self.frame_14.setFrameShadow(QFrame.Plain)
+        self.verticalLayout_9 = QVBoxLayout(self.frame_14)
+        self.verticalLayout_9.setSpacing(0)
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.to_do_list_layout = QVBoxLayout()
+        self.to_do_list_layout.setSpacing(0)
+        self.to_do_list_layout.setObjectName(u"to_do_list_layout")
+        self.to_do_list_layout.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.to_do_list_layout.setContentsMargins(-1, 10, -1, -1)
+        self.scroll_layout = QScrollArea(self.frame_14)
+        self.scroll_layout.setObjectName(u"scroll_layout")
+        self.scroll_layout.setWidgetResizable(True)
+        self.scrollAreaWidgetContents = QWidget()
+        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 53, 105))
+        self.scroll_layout.setWidget(self.scrollAreaWidgetContents)
+
+        self.to_do_list_layout.addWidget(self.scroll_layout)
+
+
+        self.verticalLayout_9.addLayout(self.to_do_list_layout)
+
+
+        self.verticalLayout_7.addWidget(self.frame_14)
+
+
+        self.verticalLayout_5.addWidget(self.frame_10)
 
 
         self.verticalLayout_4.addWidget(self.frame_8)
@@ -295,11 +400,11 @@ class Ui_MyCalendar(object):
 
         self.frame_3 = QFrame(self.frame_2)
         self.frame_3.setObjectName(u"frame_3")
-        sizePolicy11 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy11.setHorizontalStretch(4)
-        sizePolicy11.setVerticalStretch(0)
-        sizePolicy11.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
-        self.frame_3.setSizePolicy(sizePolicy11)
+        sizePolicy13 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy13.setHorizontalStretch(4)
+        sizePolicy13.setVerticalStretch(0)
+        sizePolicy13.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
+        self.frame_3.setSizePolicy(sizePolicy13)
         self.frame_3.setFrameShape(QFrame.NoFrame)
         self.frame_3.setFrameShadow(QFrame.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.frame_3)
@@ -326,11 +431,11 @@ class Ui_MyCalendar(object):
 
         self.calendar_grid_container = QFrame(self.frame_3)
         self.calendar_grid_container.setObjectName(u"calendar_grid_container")
-        sizePolicy12 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy12.setHorizontalStretch(0)
-        sizePolicy12.setVerticalStretch(20)
-        sizePolicy12.setHeightForWidth(self.calendar_grid_container.sizePolicy().hasHeightForWidth())
-        self.calendar_grid_container.setSizePolicy(sizePolicy12)
+        sizePolicy14 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy14.setHorizontalStretch(0)
+        sizePolicy14.setVerticalStretch(20)
+        sizePolicy14.setHeightForWidth(self.calendar_grid_container.sizePolicy().hasHeightForWidth())
+        self.calendar_grid_container.setSizePolicy(sizePolicy14)
         self.calendar_grid_container.setFrameShape(QFrame.NoFrame)
         self.calendar_grid_container.setFrameShadow(QFrame.Raised)
         self.verticalLayout_3 = QVBoxLayout(self.calendar_grid_container)
@@ -388,5 +493,6 @@ class Ui_MyCalendar(object):
         self.add_class_button.setToolTip(QCoreApplication.translate("MyCalendar", u"Add class", None))
 #endif // QT_CONFIG(tooltip)
         self.add_class_button.setText("")
+        self.to_do_list_label.setText(QCoreApplication.translate("MyCalendar", u"TextLabel", None))
     # retranslateUi
 

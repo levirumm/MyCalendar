@@ -17,7 +17,7 @@ from app.gui.metrics import Typography, Metrics
 from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
-from app.gui.pop_ups import EventSelect
+from app.gui.pop_ups import EventSelect, Toast, ToastType
 from app.gui.theme import load_qss
 from app.gui.utils import make_circle, make_bean, anchor_window
     
@@ -68,6 +68,16 @@ class CalendarView(QWidget, Ui_MyCalendar):
         ) -> None:
         """Updates the list of classes in the left column."""
         self._left_column.update_class_list(class_descriptions)
+    
+    def show_toast(
+            self, message: str, toast_type: ToastType, 
+            duration: int = 1200
+        ) -> None:
+        """Opens a toast to display message."""
+        Toast(
+            self._ui.header_bar_container, message, toast_type, 
+            duration
+        )
     
     def connect_to_controller(self, controller):
         """Connects view slots to the controller."""
@@ -197,6 +207,11 @@ class LeftColumn(QObject):
     def __init__(self, ui: Ui_MyCalendar) -> None:
         super().__init__()
         self._class_list = ClassList(ui)
+        self._to_do_list = ToDoList(ui)
+
+        ui.left_column_container.setProperty(
+            "role", "left_column"
+        )
     
     @property
     def class_list(self) -> "ClassList":
@@ -251,7 +266,6 @@ class ClassList(QObject):
     
     def _render_self(self, ui: Ui_MyCalendar) -> QVBoxLayout:
         """Renders the elements of the class list."""
-        ui.left_column_container.setProperty("role", "left_column")
         ui.class_list_layout.setSpacing(
             Typography.SMALL.pixelSize() // 2
         )
@@ -272,6 +286,20 @@ class ClassList(QObject):
         )
 
         return ui.class_list_layout
+
+
+class ToDoList(QObject):
+    """
+    Draws and manages the list of upcoming assignments 
+    and exams.
+    """
+    def __init__(self, ui: Ui_MyCalendar) -> None:
+        self._layout = self._render_self(ui)
+    
+    def _render_self(self, ui: Ui_MyCalendar) -> None:
+        # Title label
+        ui.to_do_list_label.setText("To-Do")
+        ui.to_do_list_label.setFont(Typography.SUB_HEADING)
 
 
 class CalendarGrid(QObject):
@@ -430,13 +458,13 @@ class CalendarListItem(QFrame):
     composed of color indicator and item title label.
     """
     _height_ratio: float = 1.8
-    _indicator_ratio: float = 0.7
+    _indicator_ratio: float = 0.8
 
     clicked = Signal(ItemType, int, object)
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
-            bg_color: str
+            bg_color: str, filled: bool = True
         ) -> None:
         super().__init__()
         self._pressed = False
@@ -444,7 +472,7 @@ class CalendarListItem(QFrame):
         
         # Configure list item
         self.setProperty("color", bg_color)
-        self._label = self._render_self(font)
+        self._label = self._render_self(font, filled)
 
         # Set size policy of frame so long labels are elided
         self.setSizePolicy(
@@ -514,7 +542,9 @@ class CalendarListItem(QFrame):
         self.setProperty("hover", hover)
         self.style().polish(self)
 
-    def _render_self(self, font: QFont) -> QLabel:
+    def _render_self(
+            self, font: QFont, filled: bool
+        ) -> QLabel:
         """
         Renders the list item, comprising a color indicator 
         and a label.
@@ -532,11 +562,9 @@ class CalendarListItem(QFrame):
         layout.setSpacing(indicator_height // 2)
 
         # Color indicator (left)
-        color_indicator = QLabel()
-        color_indicator.setStyleSheet(
-            f"background-color: {PALETTE[self._description.color]};"
+        color_indicator = self._render_color_indicator(
+            indicator_height, filled
         )
-        make_circle(color_indicator, indicator_height)
 
         # Title label
         title_label = QLabel(self._description.title)
@@ -550,3 +578,21 @@ class CalendarListItem(QFrame):
         self.setLayout(layout)
 
         return title_label
+
+    def _render_color_indicator(
+            self, height: int, filled: bool
+        ) -> QLabel:
+        """Renders the color indicator, filled or hollow."""
+        color_indicator = QLabel()
+
+        if filled:
+            color_indicator.setStyleSheet(
+                f"background-color: {PALETTE[self._description.color]};"
+            )
+        else:
+            color_indicator.setStyleSheet(
+                f"border: 2px solid {PALETTE[self._description.color]};"
+            )
+        make_circle(color_indicator, height)
+
+        return color_indicator

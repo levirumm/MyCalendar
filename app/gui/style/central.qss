@@ -73,3 +73,47 @@ QFrame[role="menu"] {{
     background-color: white;
     border-radius: 10px;
 }}
+
+Toast {{
+    border-radius: 10px;
+    margin: 1px;
+}}
+
+Toast[variant="error"] {{
+    background-color: {light_red};
+    border: 1px solid {red};
+}}
+
+QLabel[variant="error"] {{
+    color: {red};
+}}
+
+QFrame[role="line"][variant="error"] {{
+    color: {red};
+}}
+
+Toast[variant="info"] {{
+    background-color: {lightest_blue};
+    border: 1px solid {darkest_blue};
+}}
+
+QLabel[variant="info"] {{
+    color: {darkest_blue};
+}}
+
+QFrame[role="line"][variant="info"] {{
+    color: {darkest_blue};
+}}
+
+Toast[variant="warning"] {{
+    background-color: {light_yellow};
+    border: 1px solid {dark_yellow};
+}}
+
+QLabel[variant="warning"] {{
+    color: {dark_yellow};
+}}
+
+QFrame[role="line"][variant="warning"] {{
+    color: {dark_yellow};
+}}
