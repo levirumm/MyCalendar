@@ -70,9 +70,8 @@ class FieldBuilder:
             self, field: FormField, title_layout: QHBoxLayout
         ) -> "TextEntry":
         """Renders title entry and adds to existing title layout."""
-        title_entry = TextEntry()
+        title_entry = TextEntry(field.placeholder)
         title_entry.setFont(Typography.SUB_HEADING)
-        title_entry.setPlaceholderText(field.placeholder)
         title_entry.setProperty("role", "title_entry")
         title_layout.addWidget(title_entry)
 
@@ -93,58 +92,40 @@ class FieldBuilder:
             self, field: FormField, layout: QHBoxLayout
         ) -> "TextEntry":
         """Renders a TextEntry."""
-        edit = TextEntry()
-        self._configure_text_edit(edit, field, layout)
+        edit = TextEntry(field.placeholder)
+        layout.addWidget(edit)
         return edit
 
     def _make_date_edit(
             self, field: FormField, layout: QHBoxLayout
         ) -> "DateEntry":
         """Renders a DateEntry."""
-        container, edit_layout = self._configure_labeled_edit_container()
-    
-        # Label and date edit (default to today)
-        edit = DateEntry()
-        edit.setDate(QDate.currentDate())
-        label = self._configure_labeled_spin_box(field, edit)
-        
-        self._configure_labeled_edit(
-            edit, label, container, edit_layout, layout
-        )
-        return edit
+        date_entry = DateEntry(field)
+        layout.addWidget(date_entry)
+        return date_entry
 
     def _make_time_edit(
             self, field: FormField, layout: QHBoxLayout
         ) -> "TimeEntry":
         """Renders a QTimeEdit."""
-        container, edit_layout = self._configure_labeled_edit_container()
-
-        # Label and time edit (default to 12:00 AM)
-        edit = TimeEntry()
-        label = self._configure_labeled_spin_box(field, edit)
-
-        self._configure_labeled_edit(
-            edit, label, container, edit_layout, layout
-        )
-        return edit
+        time_entry = TimeEntry(field)
+        layout.addWidget(time_entry)
+        return time_entry
     
     def _make_percentage_edit(
             self, field: FormField, layout: QHBoxLayout
         ) -> "PercentageEntry":
-        """
-        Renders a PercentageEntry with a QDoubleValidator restricting 
-        the input to 0-100 and with 2dp of precision.
-        """
-        edit = PercentageEntry()
-        self._configure_text_edit(edit, field, layout)
+        """Renders a PercentageEntry."""
+        edit = PercentageEntry(field.placeholder)
+        layout.addWidget(edit)
         return edit
 
     def _make_URL_edit(
             self, field: FormField, layout: QHBoxLayout
         ) -> "URLEdit":
         """Renders a URLEdit."""
-        edit = URLEdit()
-        self._configure_text_edit(edit, field, layout)
+        edit = URLEdit(field.placeholder)
+        layout.addWidget(edit)
         return edit
     
     def _make_swatch(
@@ -152,58 +133,22 @@ class FieldBuilder:
         ) -> "SwatchButton":
         """Makes a button for selecting class/class color."""
         font_size = Typography.BASE.pixelSize()
-        swatch_button = SwatchButton(field.label, layout, font_size)
+        swatch_button = SwatchButton(
+            field.label, layout, font_size
+        )
 
         # Set spacing so button text lines up with other fields
-        layout.setSpacing(Metrics.COLOR_IDENTIFIER - (font_size // 2))
-
-        return swatch_button
-
-    def _configure_text_edit(
-            self, edit, field: FormField, layout: QHBoxLayout
-        ) -> None:
-        """Configure attributes common to text edits."""
-        edit.setPlaceholderText(field.placeholder)
-        layout.addWidget(edit)
-    
-    def _configure_labeled_edit_container(
-            self
-        ) -> tuple[QFrame, QHBoxLayout]:
-        """Makes QFrame to hold label and edit."""
-        container = QFrame()
-        edit_layout = QHBoxLayout()
-        edit_layout.setSpacing(0)
-        edit_layout.setContentsMargins(0, 0, 0, 0)
-        return (container, edit_layout)
-
-    def _configure_labeled_spin_box(self, field, edit) -> QLabel:
-        """
-        Configures attributes common to spin boxes 
-        (date and time edits).
-        """
-        label = QLabel(field.label)
-        label.setFont(Typography.BASE)
-        edit.setButtonSymbols(
-            QAbstractSpinBox.ButtonSymbols.NoButtons
+        layout.setSpacing(
+            Metrics.COLOR_IDENTIFIER - (font_size // 2)
         )
-        edit.setFrame(False)
-        return label
-
-    def _configure_labeled_edit(
-            self, edit, label, container, edit_layout, layout
-        ) -> None:
-        """
-        Adds label + edit widgets to edit layout, edit layout 
-        to container, and container to layout.
-        """
-        edit_layout.addWidget(label)
-        edit_layout.addWidget(edit)
-        edit_layout.addStretch()
-        container.setLayout(edit_layout)
-        layout.addWidget(container)
+        return swatch_button
 
 
 class TextEntry(QLineEdit):
+    def __init__(self, placeholder: str) -> None:
+        super().__init__()
+        self.setPlaceholderText(placeholder)
+
     def get(self) -> str:
         """Returns contents of entry."""
         return self.text()
@@ -226,9 +171,12 @@ class TextEntry(QLineEdit):
 
 
 class PercentageEntry(TextEntry):
-    def __init__(self) -> None:
-        """Initiates TextEntry with validator."""
-        super().__init__()
+    """
+    TextEntry with a QDoubleValidator restricting 
+    the input to 0-100 and with 2dp of precision.
+    """
+    def __init__(self, placeholder: str) -> None:
+        super().__init__(placeholder)
         validator = QDoubleValidator(
             bottom=0, top=100, decimals=2
         )
@@ -239,56 +187,119 @@ class PercentageEntry(TextEntry):
         self.setValidator(validator)
 
 
-class DateEntry(QDateEdit):
+class LabelledEntry(QFrame):
+    """
+    Parent class of labelled entry, i.e. DateEntry 
+    and TimeEntry.
+    """
+    def __init__(self, field: FormField) -> None:
+        super().__init__()
+        self._prefix = field.label
+
+        self._edit_layout = QHBoxLayout()
+        self._edit_layout.setSpacing(0)
+        self._edit_layout.setContentsMargins(0, 0, 0, 0)
+
+        self._label = QLabel(self._prefix)
+        self._label.setFont(Typography.BASE)
+
+        self._edit_layout.addWidget(self._label)
+
+    def set_hidden(self, hidden: bool) -> None:
+        """Hides or shows the container of widget."""
+        frame = self.parentWidget()
+        if not frame: return
+        
+        frame.hide() if hidden else frame.show()
+
+
+class DateEntry(LabelledEntry):
+    """
+    Renders a label and a QDateEdit (e.g. Due 01/01/2026).
+    """
+    def __init__(self, field: FormField) -> None:
+        super().__init__(field)
+
+        # Configure QDateEdit
+        self._edit = QDateEdit()
+        self._edit.setDate(QDate.currentDate())
+        self._edit.setButtonSymbols(
+            QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
+        self._edit.setFrame(False)
+
+        self._edit_layout.addWidget(self._edit)
+        self._edit_layout.addStretch()
+        self.setLayout(self._edit_layout)
+
     def get(self) -> str:
         """Return data in iso format."""
-        return self.date().toString("yyyy-MM-dd")
+        return self._edit.date().toString("yyyy-MM-dd")
 
     def set(self, date_str: str) -> None:
         """Converts iso string to QDate and sets entry."""
         date = QDate.fromString(date_str, "yyyy-MM-dd")
-        self.setDate(date)
-    
-    def set_hidden(self, hidden: bool) -> None:
-        """Hides or shows the container of widget."""
-        frame = self.parentWidget()
-        if not frame: return
-        
-        frame.hide() if hidden else frame.show()
+        self._edit.setDate(date)
     
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
-        self.setReadOnly(disabled)
+        if disabled:
+            self._edit.hide()
+            self._label.setText(
+                f"{self._prefix} "
+                + self._edit.date().toString("dddd, d MMMM")
+            )
+        else:
+            self._edit.show()
+            self._label.setText(self._prefix)
 
 
-class TimeEntry(QTimeEdit):
+class TimeEntry(LabelledEntry):
+    """
+    Renders a label and a QTimeEdit (e.g. Starts 12:00 AM).
+    """
+    def __init__(self, field: FormField) -> None:
+        super().__init__(field)
+
+        # Configure QTimeEdit
+        self._edit = QTimeEdit()
+        self._edit.setButtonSymbols(
+            QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
+        self._edit.setFrame(False)
+
+        self._edit_layout.addWidget(self._edit)
+        self._edit_layout.addStretch()
+        self.setLayout(self._edit_layout)
+
     def get(self) -> str:
         """Returns time string is iso format."""
-        return self.time().toString("HH:mm:ss")
+        return self._edit.time().toString("HH:mm:ss")
 
     def set(self, time_str: str) -> None:
         """Converts iso string to QTime and sets entry."""
         time = QTime.fromString(time_str, "HH:mm:ss")
-        self.setTime(time)
-    
-    def set_hidden(self, hidden: bool) -> None:
-        """Hides or shows the container of widget."""
-        frame = self.parentWidget()
-        if not frame: return
-        
-        frame.hide() if hidden else frame.show()
+        self._edit.setTime(time)
     
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
-        self.setReadOnly(disabled)
+        if disabled:
+            self._edit.hide()
+            self._label.setText(
+                f"{self._prefix} "
+                + self._edit.time().toString("hh:mm AP")
+            )
+        else:
+            self._edit.show()
+            self._label.setText(self._prefix)
 
 
 class URLEdit(TextEntry):
     """
     QLineEdt which, when disabled, is a clickable link.
     """
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, placeholder: str) -> None:
+        super().__init__(placeholder)
         self._readonly = False
     
     def set_disabled(self, disabled: bool) -> None:
