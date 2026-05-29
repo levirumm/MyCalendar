@@ -167,6 +167,7 @@ class TextEntry(QLineEdit):
     def set_disabled(self, disabled: bool) -> None:
         """Sets the readonly state of the entry."""
         self.setReadOnly(disabled)
+        self.clearFocus() # Remove highlighting
         self.setCursorPosition(0) # Scroll to text start
 
 

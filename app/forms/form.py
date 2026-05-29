@@ -17,7 +17,7 @@ class Form(QObject):
     formInvalidated = Signal(str)
     formEdited = Signal(object, object, int, object)
     deleteItem = Signal()
-    completeToggled = Signal(object, int, bool, object)
+    completeToggled = Signal(object, int, bool)
 
     def __init__(
             self, parent, item_type: ItemType, 
@@ -48,10 +48,7 @@ class Form(QObject):
     def close(self) -> None:
         self._view.accept()
     
-    def connect_to_form(
-            self, controller, 
-            list_item: object | None = None
-        ) -> None:
+    def connect_to_form(self, controller) -> None:
         """Connects form signals to controller methods."""
         self.formSaved.connect(controller.add_item)
         self.formInvalidated.connect(controller.on_invalid_form)
@@ -68,11 +65,10 @@ class Form(QObject):
 
         if self._type is ItemType.CLASS: return
 
-        # Connect to form signal and inject list item reference
-        self._view.completeToggled.connect(
-            lambda: self._on_complete_toggled(list_item)
+        # Connect to complete toggled signal
+        self.completeToggled.connect(
+            controller.on_complete_toggled
         )
-        self.completeToggled.connect(controller.on_complete_toggled)
     
     def set_state(self, form_state: FormState) -> None:
         """Sets the state of the form."""
@@ -157,13 +153,12 @@ class Form(QObject):
             title = self._color_map[color].title
             self._view.display_class_title(title)
     
-    def _on_complete_toggled(self, list_item: object | None) -> None:
+    def on_complete_toggled(self, complete: bool) -> None:
         """Emits completeToggled signal."""
-        complete = self._view.is_complete()
         self.completeToggled.emit(
-            self._type, self._item_id, complete, list_item
+            self._type, self._item_id, complete
         )
-    
+        
     def _determine_allowed_colors(self) -> list[str]:
         """
         For classes, allows colors not yet selected from class 

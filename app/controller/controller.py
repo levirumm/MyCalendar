@@ -51,8 +51,7 @@ class CalendarController:
         self._show_display_date()
 
     def open_form(
-            self, item_type: ItemType, item_id: int,
-            list_item: object | None = None
+            self, item_type: ItemType, item_id: int
         ) -> None:
         """
         Opens form in view state displaying information 
@@ -74,7 +73,7 @@ class CalendarController:
             self._view, item_type, classes, item_id
         )
         # Send reference to list item for complete toggling
-        form.connect_to_form(self, list_item)
+        form.connect_to_form(self)
         form.set_fields(data)
         form.set_state(FormState.VIEW)
     
@@ -163,14 +162,11 @@ class CalendarController:
     
     def on_complete_toggled(
             self, item_type: ItemType, item_id: int, 
-            is_complete: bool, list_item
+            is_complete: bool
         ) -> None:
         """updates items complete status in """
         self._model.toggle_complete(item_type, item_id, is_complete)
-
-        if list_item:
-            list_item.set_complete(is_complete)
-
+        self._update_calendar_grid()
         self._update_to_do_list()
     
     def _can_add_item(

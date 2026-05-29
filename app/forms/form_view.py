@@ -20,7 +20,7 @@ class FormView(QDialog, Ui_Form):
 
     save = Signal()
     delete = Signal()
-    completeToggled = Signal()
+    completeToggled = Signal(bool)
     colorPicked = Signal(str)
 
     def __init__(
@@ -133,6 +133,7 @@ class FormView(QDialog, Ui_Form):
         self.save.connect(form.on_save)
         self.delete.connect(form.on_delete)
         self.colorPicked.connect(form.on_color_picked)
+        self.completeToggled.connect(form.on_complete_toggled)
 
     def _toggle_check_box(self, check_box: QPushButton) -> None:
         """Updates the styling of the button based on status."""
@@ -141,7 +142,7 @@ class FormView(QDialog, Ui_Form):
             "role", "checked" if checked else "unchecked"
         )
         check_box.style().polish(check_box)
-        self.completeToggled.emit()
+        self.completeToggled.emit(checked)
 
     def _render_buttons(self, item_type: ItemType) -> list[QPushButton]:
         """

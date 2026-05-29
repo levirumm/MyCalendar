@@ -291,7 +291,7 @@ class ClassList(QObject):
         self._layout.addStretch()
     
     def _on_class_clicked(
-            self, item_type: ItemType, item_id: int, _
+            self, item_type: ItemType, item_id: int
         ) -> None:
         """Emits class clicked signal with type and id."""
         self.classClicked.emit(item_type, item_id)
@@ -351,7 +351,7 @@ class ToDoList(QObject):
         self._layout.addStretch()
     
     def _on_item_clicked(
-            self, item_type: ItemType, item_id: int, _
+            self, item_type: ItemType, item_id: int
         ) -> None:
         """Emits assessment clicked signal with type and id."""
         self.assessmentClicked.emit(item_type, item_id)
@@ -373,7 +373,7 @@ class CalendarGrid(QObject):
     """
     Manages the 5x7 grid of calendar cells.
     """
-    assessmentClicked = Signal(ItemType, int, object)
+    assessmentClicked = Signal(ItemType, int)
 
     def __init__(self, grid_layout: QGridLayout) -> None:
         super().__init__()
@@ -408,11 +408,10 @@ class CalendarGrid(QObject):
         self._cells = new_cells # type: ignore
     
     def _on_assessment_clicked(
-            self, item_type: ItemType, item_id: int, 
-            list_item: "CalendarListItem"
+            self, item_type: ItemType, item_id: int
         ) -> None:
         """Emits class clicked signal with type and id."""
-        self.assessmentClicked.emit(item_type, item_id, list_item)
+        self.assessmentClicked.emit(item_type, item_id)
     
     def _draw_cells(self, layout: QGridLayout) -> None:
         """
@@ -436,7 +435,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
     Single cell in calendar grid, including date label, 
     events, and 'see more' button.
     """
-    clicked = Signal(ItemType, int, object)
+    clicked = Signal(ItemType, int)
 
     def __init__(self) -> None:
         super().__init__()
@@ -486,11 +485,10 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         self.style().polish(label)
     
     def _on_clicked(
-            self, item_type: ItemType, item_id: int, 
-            list_item: "CalendarListItem"
+            self, item_type: ItemType, item_id: int
         ) -> None:
         """Emits class clicked signal with type and id."""
-        self.clicked.emit(item_type, item_id, list_item)
+        self.clicked.emit(item_type, item_id)
     
     def _render_top_elements(self, ui: Ui_CalendarCell) -> None:
         """
@@ -521,7 +519,7 @@ class CalendarListItem(QFrame):
     _height_ratio: float = 1.8
     _indicator_ratio: float = 0.8
 
-    clicked = Signal(ItemType, int, object)
+    clicked = Signal(ItemType, int)
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
@@ -588,8 +586,7 @@ class CalendarListItem(QFrame):
             self._set_pressed(False)
             self.clicked.emit(
                 self._description.item_type, 
-                self._description.item_id,
-                self
+                self._description.item_id
             )
 
     def _set_pressed(self, pressed: bool) -> None:
