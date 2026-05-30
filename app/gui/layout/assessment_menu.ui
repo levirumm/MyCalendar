@@ -100,7 +100,11 @@
           <number>0</number>
          </property>
          <item>
-          <layout class="QVBoxLayout" name="assessment_layout"/>
+          <layout class="QVBoxLayout" name="assessment_layout">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+          </layout>
          </item>
         </layout>
        </widget>

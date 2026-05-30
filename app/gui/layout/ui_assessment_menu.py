@@ -60,6 +60,7 @@ class Ui_AssessmentMenu(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.assessment_layout = QVBoxLayout()
+        self.assessment_layout.setSpacing(2)
         self.assessment_layout.setObjectName(u"assessment_layout")
 
         self.verticalLayout_2.addLayout(self.assessment_layout)
