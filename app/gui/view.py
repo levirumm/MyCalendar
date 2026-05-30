@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QLabel, QFrame, QPushButton, QDialog, QSizePolicy
 )
 from PySide6.QtCore import Qt, QObject, Signal, QSize
-from PySide6.QtGui import QFont, QMouseEvent, QFontMetrics
+from PySide6.QtGui import QFont, QMouseEvent
 
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, 
@@ -435,6 +435,9 @@ class CalendarCell(QFrame, Ui_CalendarCell):
     Single cell in calendar grid, including date label, 
     events, and 'see more' button.
     """
+    MAX_ITEMS = 3
+    min_height_factor = 7
+
     clicked = Signal(ItemType, int)
 
     def __init__(self) -> None:
@@ -442,12 +445,18 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         ui = Ui_CalendarCell()
         ui.setupUi(self)
 
+        # Set minimum size of cells
+        self.setMinimumHeight(
+            self.min_height_factor 
+            * (Typography.SMALL.pixelSize())
+        )
+
         self._date_label = ui.date_label
         self._layout = ui.event_layout
 
         self._is_today = False
 
-        self._render_top_elements(ui)
+        self._render_date_label(ui.date_label)
     
     @property
     def is_today(self) -> bool:
@@ -467,11 +476,18 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         clear_layout(self._layout)
         
         # Add assessment items
-        for description in assessments:
+        for i, description in enumerate(assessments):
+            if i == self.MAX_ITEMS:
+                remaining = len(assessments) - self.MAX_ITEMS
+                button = self._render_see_more_button(remaining)
+                self._layout.addWidget(button)
+                break
+
             list_item = CalendarListItem(
                 description, font=Typography.SMALL, 
-                bg_color="white"
+                bg_color="white", bg_dark="light_gray"
             )
+
             self._layout.addWidget(list_item)
             list_item.set_complete(description.complete)
             list_item.clicked.connect(self._on_clicked)
@@ -481,7 +497,9 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         """Adds or removes highlight on date label."""
         self._is_today = today
         label = self._date_label
-        label.setProperty("variant", "highlight" if today else None)
+        label.setProperty(
+            "variant", "highlight" if today else None
+        )
         self.style().polish(label)
     
     def _on_clicked(
@@ -490,27 +508,34 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         """Emits class clicked signal with type and id."""
         self.clicked.emit(item_type, item_id)
     
-    def _render_top_elements(self, ui: Ui_CalendarCell) -> None:
+    def _render_date_label(self, date_label: QLabel) -> None:
         """
-        Renders label displaying date at top of cell and see more 
-        events button. Hides see more events button.
+        Renders label displaying date at top of cell
         """
         size = Metrics.DATE_LABEL_HIGHLIGHT
-        date_label = ui.date_label
-        button = ui.see_more_events_button
-
-        # Set size and shape of buttons
-        for btn in [date_label, button]:
-            btn.setFixedSize(size, size)
-            make_circle(btn, size)
-
         date_label.setFont(Typography.SMALL)
+        make_circle(date_label, size)
+    
+    def _render_see_more_button(self, remaining: int) -> QPushButton:
+        """
+        Renders the button to see more events below last event.
+        """
+        button = QPushButton(f"{remaining} more")
+        button.setProperty("color", "white")
+        make_bean( # Bit of a doggy bit
+            button, int(Typography.SMALL.pixelSize() * 1.8)
+        )
 
-        button.setText("+")
-        button.setFont(Typography.BASE)
-        button.hide() # Default to hidden
+        # Copy font to not alter other widgets with font
+        font = QFont(Typography.SMALL)
 
+        # Use demibold font to stand out
+        font.setWeight(QFont.Weight.DemiBold)
+        button.setFont(font)
 
+        return button
+
+       
 class CalendarListItem(QFrame):
     """
     Pressable list item which opens form in view state, 
@@ -523,11 +548,15 @@ class CalendarListItem(QFrame):
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
-            bg_color: str, filled: bool = True
+            bg_color: str, bg_dark: str = "",
+            filled: bool = True
         ) -> None:
         super().__init__()
         self._pressed = False
         self._description = description
+
+        self._bg_color = bg_color
+        self._bg_dark = bg_dark
         
         # Configure list item
         self.setProperty("color", bg_color)
@@ -545,10 +574,12 @@ class CalendarListItem(QFrame):
         )
     
     def set_complete(self, is_complete: bool) -> None:
-        """Applies a struck through font if item is complete."""
-        font = self._label.font()
-        font.setStrikeOut(is_complete)
-        self._label.setFont(font)
+        """Sets a darker background color to list item."""
+        if is_complete:
+            self.setProperty("color", self._bg_dark)
+        else:
+            self.setProperty("color", self._bg_color)
+        self.style().polish(self)
 
     def enterEvent(self, _) -> None:
         """Enters hover state."""
@@ -576,9 +607,10 @@ class CalendarListItem(QFrame):
         
     def mouseReleaseEvent(self, _):
         """Emits clicked signal if pressed flag is True."""
-        # Set pressed to false before emitting signal. Required because 
-        # any instructions after emit will be executed after form closes, 
-        # and calendar list item may have been deleted
+        # Set pressed to false before emitting signal. Required 
+        # because any instructions after emit will be executed 
+        # after form closes, and calendar list item may have been 
+        # deleted
         was_pressed = self._pressed
         self._set_pressed(False)
 
@@ -645,13 +677,17 @@ class CalendarListItem(QFrame):
 
         if filled:
             color_indicator.setStyleSheet(
-                f"background-color: {PALETTE[self._description.color]};"
+                f"background-color: {
+                    PALETTE[self._description.color]
+                };"
             )
         else:
             color_indicator.setStyleSheet(
                 # Uses muted color to avoid color overload
                 f"border: 2px solid {
-                    PALETTE[self._description.color + "_muted"]
+                    PALETTE[
+                        self._description.color + "_muted"
+                    ]
                 };"
             )
         make_circle(color_indicator, height)

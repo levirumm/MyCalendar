@@ -41,9 +41,14 @@ class CalendarController:
         self._show_display_date()
     
     def on_refresh(self) -> None:
-        """Prompts model to update todays date and updates view."""
+        """
+        Prompts model to update todays date and updates view.
+        """
         self._model.refresh()
         self._show_display_date()
+        self._update_calendar_grid()
+        self._update_class_list()
+        self._update_to_do_list()
 
     def on_today(self) -> None:
         """Updates calendar to display current month."""

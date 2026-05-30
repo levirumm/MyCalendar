@@ -12,6 +12,10 @@ QWidget[role="day_bar"] {{
     background-color: {dark_blue};
 }}
 
+QScrollArea > QWidget > QWidget {{
+    background-color: {light_blue};
+}}
+
 CalendarCell {{
     background-color: white;
     border-right: 1px solid {base_blue};

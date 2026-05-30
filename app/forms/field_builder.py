@@ -288,7 +288,7 @@ class TimeEntry(LabelledEntry):
             self._edit.hide()
             self._label.setText(
                 f"{self._prefix} "
-                + self._edit.time().toString("hh:mm AP")
+                + self._edit.time().toString("h:mm AP")
             )
         else:
             self._edit.show()

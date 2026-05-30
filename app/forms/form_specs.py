@@ -103,7 +103,7 @@ FORM_FIELDS: dict[ItemType, dict[FieldName, FormField]] = {
             icon=":/graduation_cap", required=True
         ),
         FieldName.DUE_DATE: FormField(
-            type=EntryType.DATE, label="Due", 
+            type=EntryType.DATE, label="Scheduled", 
             icon=":/alert_calendar.svg", required=True
         ),
         FieldName.WEIGHT: FormField(

@@ -121,35 +121,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="see_more_events_button">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="cursor">
-            <cursorShape>PointingHandCursor</cursorShape>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
@@ -188,6 +159,9 @@
       </property>
       <item>
        <layout class="QVBoxLayout" name="event_layout">
+        <property name="spacing">
+         <number>1</number>
+        </property>
         <property name="topMargin">
          <number>0</number>
         </property>

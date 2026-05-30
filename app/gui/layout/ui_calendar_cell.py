@@ -16,8 +16,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+    QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_CalendarCell(object):
     def setupUi(self, CalendarCell):
@@ -74,21 +73,6 @@ class Ui_CalendarCell(object):
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer)
-
-        self.see_more_events_button = QPushButton(self.frame_4)
-        self.see_more_events_button.setObjectName(u"see_more_events_button")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
-        sizePolicy3.setHorizontalStretch(1)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.see_more_events_button.sizePolicy().hasHeightForWidth())
-        self.see_more_events_button.setSizePolicy(sizePolicy3)
-        self.see_more_events_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-
-        self.horizontalLayout_3.addWidget(self.see_more_events_button)
-
 
         self.horizontalLayout_2.addWidget(self.frame_4)
 
@@ -97,11 +81,11 @@ class Ui_CalendarCell(object):
 
         self.frame_2 = QFrame(CalendarCell)
         self.frame_2.setObjectName(u"frame_2")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
-        sizePolicy4.setHorizontalStretch(0)
-        sizePolicy4.setVerticalStretch(9)
-        sizePolicy4.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
-        self.frame_2.setSizePolicy(sizePolicy4)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(9)
+        sizePolicy3.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
+        self.frame_2.setSizePolicy(sizePolicy3)
         self.frame_2.setFrameShape(QFrame.NoFrame)
         self.frame_2.setFrameShadow(QFrame.Raised)
         self.horizontalLayout = QHBoxLayout(self.frame_2)
@@ -109,6 +93,7 @@ class Ui_CalendarCell(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.event_layout = QVBoxLayout()
+        self.event_layout.setSpacing(1)
         self.event_layout.setObjectName(u"event_layout")
         self.event_layout.setContentsMargins(-1, 0, -1, -1)
 
@@ -126,6 +111,5 @@ class Ui_CalendarCell(object):
     def retranslateUi(self, CalendarCell):
         CalendarCell.setWindowTitle(QCoreApplication.translate("CalendarCell", u"Form", None))
         self.date_label.setText(QCoreApplication.translate("CalendarCell", u"TextLabel", None))
-        self.see_more_events_button.setText("")
     # retranslateUi
 

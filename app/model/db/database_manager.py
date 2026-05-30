@@ -213,7 +213,7 @@ class DatabaseManager:
     def _generate_due_items_sql(self, today: str) -> str:
         """
         Returns the sql required for fetching items which 
-        are due. Exams within a week are considered due.
+        are due. Exams overdue or within a week are considered due.
         """
         return (
             self._generate_assessment_select_sql(ItemType.ASSIGNMENT, "A") +
@@ -221,8 +221,7 @@ class DatabaseManager:
             f"AND A.{FieldName.COMPLETE.value} = 0 \nUNION ALL\n" +
             self._generate_assessment_select_sql(ItemType.EXAM, "E") +
             f"WHERE E.{FieldName.COMPLETE.value} = 0 AND "
-            f"E.{FieldName.DUE_DATE.value} >= date('now', 'weekday 0', '-6 days') "
-            f"AND E.{FieldName.DUE_DATE.value} <= date('now', 'weekday 0')"
+            f"E.{FieldName.DUE_DATE.value} <= date('now', '+6 days')"
         )
     
     def _generate_assessment_select_sql(
