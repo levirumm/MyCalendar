@@ -1,13 +1,16 @@
 from math import ceil
 from enum import Enum
+from datetime import date
+
 from PySide6.QtWidgets import (
     QDialog, QGridLayout, QPushButton, QFrame, 
-    QGraphicsOpacityEffect
+    QGraphicsOpacityEffect, QVBoxLayout
 )
 from PySide6.QtCore import QPropertyAnimation, QTimer
 from PySide6.QtGui import QPixmap
 from app.gui.layout.ui_event_choice import Ui_EventChoice
 from app.gui.layout.ui_color_swatch import Ui_ColorSwatch
+from app.gui.layout.ui_assessment_menu import Ui_AssessmentMenu
 from app.gui.layout.ui_toast import Ui_Toast
 from app.model.schema import ItemType
 from app.gui.metrics import Typography, Metrics
@@ -175,3 +178,27 @@ class ColorSwatch(QDialog, Ui_ColorSwatch):
     def _on_click(self, color: str) -> None:
         self._selection = color
         self.accept()
+
+
+class AssessmentMenu(QDialog, Ui_AssessmentMenu):
+    """
+    Dialog which presents a list of pressable calendar 
+    list items if assessments on given day exceeds 
+    maximum.
+    """
+    def __init__(self, parent, day: date) -> None:
+        super().__init__(parent)
+        self.setupUi(self)
+
+        self._shadow = style_window(self, self.frame)
+
+        # Label showing abbrv. day and date, e.g. Tue, 12
+        text = f"{day.strftime("%a")}, {day.day}"
+        self.date_label.setText(text)
+        self.date_label.setFont(Typography.SUB_HEADING)
+
+        self.frame.setProperty("role", "form")
+    
+    @property
+    def menu_layout(self) -> QVBoxLayout:
+        return self.assessment_layout

@@ -5,8 +5,12 @@ from PySide6.QtWidgets import (
     QWidget, QGridLayout, QHBoxLayout, QVBoxLayout, 
     QLabel, QFrame, QPushButton, QDialog, QSizePolicy
 )
-from PySide6.QtCore import Qt, QObject, Signal, QSize
-from PySide6.QtGui import QFont, QMouseEvent
+from PySide6.QtCore import (
+    Qt, QObject, Signal, QSize, QPoint
+)
+from PySide6.QtGui import (
+    QFont, QMouseEvent, QGuiApplication
+)
 
 from app.model.constants import (
     CALENDAR_ROWS, CALENDAR_COLS, DAYS, MONTHS, 
@@ -17,9 +21,13 @@ from app.gui.metrics import Typography, Metrics
 from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
-from app.gui.pop_ups import EventSelect, Toast, ToastType
+from app.gui.pop_ups import (
+    EventSelect, AssessmentMenu, Toast, ToastType
+)
 from app.gui.theme import load_qss
-from app.gui.utils import make_circle, make_bean, anchor_window
+from app.gui.utils import (
+    make_circle, make_bean, anchor_window
+)
 
 
 def clear_layout(layout) -> None:
@@ -378,7 +386,7 @@ class CalendarGrid(QObject):
     def __init__(self, grid_layout: QGridLayout) -> None:
         super().__init__()
         # Dict mapping dates to corresponding cell widget
-        self._cells: dict[date | int, CalendarCell] = {}
+        self._cells:  list[CalendarCell] = []
 
         self._draw_cells(grid_layout)
     
@@ -388,13 +396,10 @@ class CalendarGrid(QObject):
             ]
         ) -> None:
         """Updates calendar grid to display given month."""
-        new_cells: dict[date, CalendarCell] = {}
-
-        for i, cell in enumerate(self._cells.values()):
+        for i, cell in enumerate(self._cells):
             new_date, assessments = month_assessments[i]
             
             cell.update_cell(new_date, assessments)
-            new_cells[new_date] = cell
 
             # Clear highlight of previously highlighted day
             if cell.is_today:
@@ -404,9 +409,6 @@ class CalendarGrid(QObject):
             if new_date == today:
                 cell.set_today(True)
 
-        # Switch to new cell map
-        self._cells = new_cells # type: ignore
-    
     def _on_assessment_clicked(
             self, item_type: ItemType, item_id: int
         ) -> None:
@@ -418,16 +420,13 @@ class CalendarGrid(QObject):
         Draws the calendar cells for the current month. Uses default 
         integer keys before dates have been set during update.
         """
-        counter = 0
         for row, col in product(
             range(CALENDAR_ROWS), range(CALENDAR_COLS)
         ):
             cell = CalendarCell()
             layout.addWidget(cell, row, col)
-            self._cells[counter] = cell
             cell.clicked.connect(self._on_assessment_clicked)
-
-            counter += 1
+            self._cells.append(cell)
         
 
 class CalendarCell(QFrame, Ui_CalendarCell):
@@ -479,7 +478,9 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         for i, description in enumerate(assessments):
             if i == self.MAX_ITEMS:
                 remaining = len(assessments) - self.MAX_ITEMS
-                button = self._render_see_more_button(remaining)
+                button = self._render_see_more_button(
+                    remaining, new_date, assessments
+                )
                 self._layout.addWidget(button)
                 break
 
@@ -516,7 +517,10 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         date_label.setFont(Typography.SMALL)
         make_circle(date_label, size)
     
-    def _render_see_more_button(self, remaining: int) -> QPushButton:
+    def _render_see_more_button(
+            self, remaining: int, day: date, 
+            assessments: list[ItemDescription]
+        ) -> QPushButton:
         """
         Renders the button to see more events below last event.
         """
@@ -533,7 +537,74 @@ class CalendarCell(QFrame, Ui_CalendarCell):
         font.setWeight(QFont.Weight.DemiBold)
         button.setFont(font)
 
+        button.clicked.connect(
+            lambda: self._on_see_more(day, assessments)
+        )
         return button
+
+    def _on_see_more(
+            self, day: date, 
+            assessments: list[ItemDescription]
+        ) -> None:
+        """
+        Creates an AssessmentMenu object to display overflowing 
+        assessments.
+        """
+        def _clicked(
+                item_type: ItemType, item_id: int
+            ) -> None:
+            menu.accept()
+            self.clicked.emit(item_type, item_id)
+
+        menu = AssessmentMenu(self, day)
+
+        # Populate menu
+        for description in assessments:
+            list_item = CalendarListItem(
+                description, font=Typography.BASE, 
+                bg_color="lightest_blue"
+            )
+            menu.menu_layout.addWidget(list_item)
+
+            list_item.clicked.connect(_clicked)
+
+        menu.adjustSize()
+
+        size = menu.size()
+
+        # Top-left of widget in global coordinates
+        pos = self.mapToGlobal(QPoint(0, 0))
+
+        # Desired position
+        x, y = pos.x(), pos.y()
+
+        # Get screen dimensions
+        screen = QGuiApplication.screenAt(pos)
+        if screen is None:
+            screen = QGuiApplication.primaryScreen()
+        available = screen.availableGeometry()
+
+        # Clamp to prevent leaving screen
+        x = max(
+            available.left(), min(x - size.width() // 8, 
+            available.right() - size.width())
+        )
+        y = max(
+            available.top(), min(y - size.height() // 8, 
+            available.bottom() - size.height())
+        )
+        menu.move(x, y)
+        menu.exec()
+    
+    def _menu_clicked(
+            self, item_type: ItemType, item_id: int, menu: QDialog
+        ) -> None:
+        """
+        Emits class clicked signal with type and id and closes 
+        menu.
+        """
+        self.clicked.emit(item_type, item_id)
+        menu.accept()
 
        
 class CalendarListItem(QFrame):
