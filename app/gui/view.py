@@ -485,7 +485,7 @@ class CalendarCell(QFrame, Ui_CalendarCell):
 
             list_item = CalendarListItem(
                 description, font=Typography.SMALL, 
-                bg_color="white", bg_dark="light_gray"
+                bg_color="white"
             )
 
             self._layout.addWidget(list_item)
@@ -548,16 +548,12 @@ class CalendarListItem(QFrame):
 
     def __init__(
             self, description: ItemDescription, font: QFont, 
-            bg_color: str, bg_dark: str = "",
-            filled: bool = True
+            bg_color: str, filled: bool = True
         ) -> None:
         super().__init__()
         self._pressed = False
         self._description = description
 
-        self._bg_color = bg_color
-        self._bg_dark = bg_dark
-        
         # Configure list item
         self.setProperty("color", bg_color)
         self._label = self._render_self(font, filled)
@@ -574,12 +570,10 @@ class CalendarListItem(QFrame):
         )
     
     def set_complete(self, is_complete: bool) -> None:
-        """Sets a darker background color to list item."""
-        if is_complete:
-            self.setProperty("color", self._bg_dark)
-        else:
-            self.setProperty("color", self._bg_color)
-        self.style().polish(self)
+        """Strikes through complete items."""
+        font = self._label.font()
+        font.setStrikeOut(is_complete)
+        self._label.setFont(font)
 
     def enterEvent(self, _) -> None:
         """Enters hover state."""

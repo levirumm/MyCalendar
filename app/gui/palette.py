@@ -8,7 +8,6 @@ PALETTE = {
 
     # Gray shades
     "white": "#FFFFFF",
-    "light_gray": "#E8E8E8",
     "base_gray": "#434343",
     
     # Class colors

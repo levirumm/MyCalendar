@@ -16,9 +16,7 @@ CLASS_COLORS: list[str] = [
     "purple", "pink"
 ]
 
-LIST_ITEM_COLORS: list[str] = [
-    "light_blue", "white", "light_gray"
-]
+LIST_ITEM_COLORS: list[str] = ["light_blue", "white"]
 
 
 def load_qss(paths: list[Path]) -> str:
