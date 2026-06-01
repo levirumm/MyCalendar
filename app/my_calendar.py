@@ -1,5 +1,6 @@
+from pathlib import Path
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
 from app.model.model import CalendarModel
 from app.gui.metrics import Typography, Metrics
 from app.gui.view import CalendarView
@@ -11,8 +12,17 @@ class MyCalendar(QApplication):
     Main application class which initiates application 
     model, view, and controller.
     """
+    ICON_PATH = (
+        Path(__file__).parent.parent / "resources" 
+        / "calendar_icon.ico"
+    )
+
     def __init__(self) -> None:
         super().__init__()
+
+        # Set window icon
+        app_icon = QIcon(str(self.ICON_PATH))
+        self.setWindowIcon(app_icon)
 
         # Set app metrics
         Typography.init()
