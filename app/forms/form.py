@@ -8,6 +8,22 @@ from app.gui.palette import PALETTE
 from app.gui.theme import CLASS_COLORS
 
 
+
+ERROR_MESSAGES: dict[FieldName, str] = {
+    # Maps fields to their error messages. Some, 
+    # like due date, should never be triggered, 
+    # but are included as a precaution
+    FieldName.TITLE: "Must Include a title",
+    FieldName.COLOR: "Must select a class color",
+    FieldName.CLASS_ID: "Must select a class",
+    FieldName.DUE_DATE: "Enter a valid due date",
+    FieldName.OPEN_DATE: "Enter a valid open date",
+    FieldName.WEIGHT: "Enter a valid weight (0-100)",
+    FieldName.TIME: "Enter a valid time"
+}
+
+
+
 class Form(QObject):
     """
     Form which allow users to enter, edit, and delete 
@@ -187,13 +203,23 @@ class Form(QObject):
         ) -> Result:
         """Validates data corresponding to each field."""
         for field_name, datum in field_data.items():
+            if not datum and field_name is FieldName.COLOR:
+                return Result(
+                    valid=False, reason=ERROR_MESSAGES[
+                        FieldName.COLOR if self._type 
+                        is ItemType.CLASS else FieldName.CLASS_ID
+                    ]
+                )
             if not datum and self._fields[field_name].required:
                 return Result(
-                    valid=False, reason=f"{field_name.value} cannot be null"
+                    valid=False, reason=ERROR_MESSAGES[field_name]
                 )
-            if field_name is FieldName.WEIGHT and datum and float(datum) > 100:
+            if (
+                field_name is FieldName.WEIGHT 
+                and datum and float(datum) > 100
+            ):
                 return Result(
-                    valid=False, reason=f"Invalid percentage"
+                    valid=False, reason=ERROR_MESSAGES[field_name]
                 )
         return Result(True)
 
