@@ -118,6 +118,14 @@ class Form(QObject):
 
         self._view.set_fields(data)
         self._view.set_indicator(PALETTE[color])
+    
+    def set_class(self, cls: ItemDescription) -> None:
+        """
+        Manually sets class selection. Used if there is 
+        only one class available.
+        """
+        self.on_color_picked(cls.color)
+        self._view.disable_swatch()
 
     def on_save(self) -> None:
         """
@@ -173,7 +181,7 @@ class Form(QObject):
         self.completeToggled.emit(
             self._type, self._item_id, complete
         )
-        
+    
     def _determine_allowed_colors(self) -> list[str]:
         """
         For classes, allows colors not yet selected from class 

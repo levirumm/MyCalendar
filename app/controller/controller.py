@@ -86,7 +86,7 @@ class CalendarController:
             # Set complete status of assessment
             is_complete = self._model.is_complete(item_type, item_id)
             form.set_complete(is_complete)
-
+        
         form.open()
     
     def on_add_item(self, item_type: ItemType) -> None:
@@ -103,6 +103,14 @@ class CalendarController:
         form = Form(self._view, item_type, classes)
         form.connect_to_form(self)
         form.set_state(FormState.ADD)
+
+        if (
+            item_type is not ItemType.CLASS 
+            and len(classes) == 1
+        ):
+            # Manually set class if only one available
+            form.set_class(classes[0])
+
         form.open()
 
     def add_item(
@@ -194,7 +202,6 @@ class CalendarController:
             if len(classes) >= MAX_CLASSES:
                 return Result(False, "Maximum of four classes")
             return Result(True)
-    
         if not classes:
             return Result(False, "Must add a class first")
         return Result(True)         

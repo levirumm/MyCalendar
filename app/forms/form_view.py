@@ -111,6 +111,11 @@ class FormView(QDialog, Ui_Form):
         """Removes the swatch from the form."""
         swatch = self._field_entries[FieldName.COLOR]
         swatch.set_hidden(True)
+    
+    def disable_swatch(self) -> None:
+        """Disables the swatch button."""
+        swatch = self._field_entries[FieldName.COLOR]
+        swatch.set_disabled(True)
         
     def display_class_title(self, title: str) -> None:
         """Updates label on color swatch to be class title."""
