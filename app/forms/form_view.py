@@ -183,13 +183,18 @@ class FormView(QDialog, Ui_Form):
         self._ui.edit_button.clicked.connect(
             lambda: self.set_state(FormState.EDIT)
         )
-        self._ui.delete_button.clicked.connect(self.delete.emit)
+        self._ui.delete_button.clicked.connect(self._on_delete)
         self._ui.complete_button.toggled.connect(
             lambda: self._toggle_check_box(self._ui.complete_button)
         )
         self._ui.save_button.clicked.connect(self.save.emit)
 
         return buttons
+
+    def _on_delete(self) -> None:
+        """Emits delete signal and restyles button."""
+        self.delete.emit()
+        self._ui.delete_button.style().polish(self._ui.delete_button)
     
     def _configure_form(self) -> None:
         """

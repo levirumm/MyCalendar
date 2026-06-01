@@ -55,7 +55,7 @@ QLabel {{
     color: {base_gray};
 }}
 
-QLabel[variant="white"] {{
+QWidget[text_color="white"] {{
     color: white;
 }}
 
@@ -74,6 +74,10 @@ QPushButton {{
 
 QPushButton[text_color="white"] {{
     color: white;
+}}
+
+QLabel[variant="muted"] {{
+    color: {gray_muted};
 }}
 
 QPushButton[role="drop_down"] {{
@@ -102,6 +106,11 @@ QPushButton[color="lightest_blue"]:pressed {{
 QFrame[role="menu"] {{
     background-color: white;
     border-radius: 10px;
+}}
+
+QFrame[role="menu_2"] {{
+    background-color: white;
+    border-radius: 15px;
 }}
 
 Toast {{

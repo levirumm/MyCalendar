@@ -11,10 +11,11 @@ from PySide6.QtGui import QPixmap
 from app.gui.layout.ui_event_choice import Ui_EventChoice
 from app.gui.layout.ui_color_swatch import Ui_ColorSwatch
 from app.gui.layout.ui_assessment_menu import Ui_AssessmentMenu
+from app.gui.layout.ui_delete_menu import Ui_DeleteMenu
 from app.gui.layout.ui_toast import Ui_Toast
 from app.model.schema import ItemType
 from app.gui.metrics import Typography, Metrics
-from app.gui.utils import make_circle, style_window
+from app.gui.utils import make_circle, make_bean, style_window
 
 
 class ToastType(Enum):
@@ -202,3 +203,33 @@ class AssessmentMenu(QDialog, Ui_AssessmentMenu):
     @property
     def menu_layout(self) -> QVBoxLayout:
         return self.assessment_layout
+
+
+class DeleteMenu(QDialog, Ui_DeleteMenu):
+    """
+    Opens a menu warning user that deleting class will 
+    delete associated assessments, and allowing user to 
+    choose to delete class.
+    """
+    def __init__(self, parent) -> None:
+        super().__init__(parent)
+        self.setupUi(self)
+
+        self._shadow = style_window(self, self.frame)
+        self.frame.setProperty("role", "menu_2")
+
+        self.are_you_sure_label.setFont(Typography.SUB_HEADING)
+        self.warning_text.setFont(Typography.BASE)
+        self.warning_text.setProperty("variant", "muted")
+
+        icn_size = Metrics.HEADER_BUTTON
+        self.warning_icon.setFixedSize(icn_size, icn_size)
+
+        self.cancel_button.setFont(Typography.BASE)
+        self.delete_button.setFont(Typography.BASE)
+        self.cancel_button.setProperty("color", "white")
+        self.delete_button.setProperty("color", "red")
+        self.delete_button.setProperty("text_color", "white")
+
+        self.cancel_button.clicked.connect(self.reject)
+        self.delete_button.clicked.connect(self.accept)

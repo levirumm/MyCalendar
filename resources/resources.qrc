@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>exclaimation.svg</file>
     <file>warning.svg</file>
     <file>info.svg</file>
     <file>stop.svg</file>

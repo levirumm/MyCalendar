@@ -74,7 +74,7 @@ class Form(QObject):
         # Connect to delete button which required id
         self.deleteItem.connect(
             lambda: controller.delete_item(
-                self._type, self._item_id
+                self._type, self._item_id, self
             )
         )
         self.formEdited.connect(controller.edit_item)
@@ -150,7 +150,6 @@ class Form(QObject):
     def on_delete(self) -> None:
         """Emits signal to delete item and closes form."""
         self.deleteItem.emit()
-        self._view.accept()
     
     def set_complete(self, is_complete: bool) -> None:
         """Updates the check box to match complete status."""

@@ -124,13 +124,22 @@ class CalendarController:
             self._update_calendar_grid()
             self._update_to_do_list()
         
-    def delete_item(self, item_type: ItemType, item_id: int) -> None:
+    def delete_item(
+            self, item_type: ItemType, item_id: int, 
+            form: Form
+        ) -> None:
         """Deletes item from database and refreshed view."""
+        if item_type is ItemType.CLASS:
+            if not self._view.open_delete_menu():
+                return
+        
         if not self._model.delete_item(item_type, item_id):
             self._view.show_toast(
                 "Failed to delete item", ToastType.WARNING
             )
             return
+
+        form.close()
         
         if item_type is ItemType.CLASS:
             self._update_class_list()
@@ -187,7 +196,7 @@ class CalendarController:
             return Result(True)
     
         if not classes:
-            return Result(False, "Must add classes first")
+            return Result(False, "Must add a class first")
         return Result(True)         
     
     def _show_display_date(self) -> None:

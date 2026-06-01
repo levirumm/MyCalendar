@@ -22,7 +22,8 @@ from app.gui.palette import PALETTE
 from app.gui.layout.ui_calendar_view import Ui_MyCalendar
 from app.gui.layout.ui_calendar_cell import Ui_CalendarCell
 from app.gui.pop_ups import (
-    EventSelect, AssessmentMenu, Toast, ToastType
+    EventSelect, AssessmentMenu, Toast, ToastType, 
+    DeleteMenu
 )
 from app.gui.theme import load_qss
 from app.gui.utils import (
@@ -95,6 +96,12 @@ class CalendarView(QWidget, Ui_MyCalendar):
         """Updates the grid of calendar cells."""
         self._grid.update(today, month_assessments)
     
+    def open_delete_menu(self) -> bool:
+        """Opens delete menu for deleting class."""
+        menu = DeleteMenu(self)
+        result = menu.exec()
+        return result == QDialog.DialogCode.Accepted
+           
     def show_toast(
             self, message: str, toast_type: ToastType, 
             duration: int = 1200
@@ -169,7 +176,7 @@ class HeaderBar(QObject):
             label = QLabel(day, alignment=Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(label)
             label.setFont(Typography.BASE) 
-            label.setProperty("variant", "white")
+            label.setProperty("text_color", "white")
     
     def _render_buttons(self, ui: Ui_MyCalendar) -> None:
         """Renders the buttons in the header bar."""
