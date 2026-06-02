@@ -372,6 +372,7 @@ class Ui_MyCalendar(object):
         self.scroll_area.setObjectName(u"scroll_area")
         self.scroll_area.setFrameShape(QFrame.NoFrame)
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area_container = QWidget()
         self.scroll_area_container.setObjectName(u"scroll_area_container")

@@ -138,8 +138,9 @@ class CalendarView(QWidget, Ui_MyCalendar):
 
 class HeaderBar(QObject):
     """
-    Manages the calendars header area, including the day-of-week 
-    labels, the month + year title, and the header bar icons.
+    Manages the calendars header area, including the 
+    day-of-week labels, the month + year title, and 
+    the header bar icons.
     """
     previousMonth = Signal()
     nextMonth = Signal()
@@ -292,6 +293,15 @@ class ClassList(QObject):
         ) -> None:
         """Renders CalendarListItems for each class."""
         clear_layout(self._layout)
+
+        if not class_descriptions:
+            # Label for when class list is blank
+            label = QLabel("No classes yet")
+            label.setFont(Typography.BASE)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._layout.addWidget(label)
+            self._layout.addStretch()
+            return
         
         # Add class list items
         for description in class_descriptions:
@@ -351,6 +361,15 @@ class ToDoList(QObject):
         ) -> None:
         """Renders CalendarListItems for each due item."""
         clear_layout(self._layout)
+
+        if not due_items:
+            # Label for when to-do list is blank
+            label = QLabel("Nothing for now")
+            label.setFont(Typography.BASE)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self._layout.addWidget(label)
+            self._layout.addStretch()
+            return
         
         # Add due items to to do list.
         # Use hollow color indicator
