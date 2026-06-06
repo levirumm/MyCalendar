@@ -12,10 +12,7 @@ class MyCalendar(QApplication):
     Main application class which initiates application 
     model, view, and controller.
     """
-    ICON_PATH = (
-        Path(__file__).parent.parent / "resources" 
-        / "calendar_icon.ico"
-    )
+    ICON_PATH = ":/calendar_icon.ico"
 
     def __init__(self) -> None:
         super().__init__()

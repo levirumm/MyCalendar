@@ -1,5 +1,6 @@
 <RCC>
   <qresource>
+    <file>calendar_icon.ico</file>
     <file>exclaimation.svg</file>
     <file>warning.svg</file>
     <file>info.svg</file>
